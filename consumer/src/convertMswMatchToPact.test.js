@@ -1,4 +1,5 @@
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
+import { j2s } from "./utils";
 const sampleRequest = {
   id: "1fad2374-02e2-4b43-89d4-1c1e72183931",
   url: "http://localhost:8081/products",
@@ -30,8 +31,11 @@ const sampleRequest = {
 const sampleResponse = {
   status: 200,
   statusText: "OK",
-  headers: { _headers: { "x-powered-by": "msw" }, _names: {} },
-  body: '[{"id":"09","type":"CREDIT_CARD","name":"Gem Visa"}]',
+  headers: {
+    _headers: { "x-powered-by": "msw", "content-type": "application/json" },
+    _names: {},
+  },
+  body: j2s([{ id: "09", type: "CREDIT_CARD", name: "Gem Visa" }]),
 };
 
 const generatedPact = {
@@ -55,6 +59,10 @@ const generatedPact = {
       response: {
         status: 200,
         body: [{ id: "09", type: "CREDIT_CARD", name: "Gem Visa" }],
+        headers: {
+          "content-type": "application/json",
+          "x-powered-by": "msw",
+        },
       },
     },
   ],

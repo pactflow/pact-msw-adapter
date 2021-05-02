@@ -53,7 +53,7 @@ describe("API - With MSW mock generating a pact", () => {
     ];
     server.use(
       rest.get(API.url + "/products", (req, res, ctx) => {
-        return res(ctx.status(200), ctx.body(j2s(products)));
+        return res(ctx.status(200), ctx.json(products));
       })
     );
 
@@ -69,7 +69,7 @@ describe("API - With MSW mock generating a pact", () => {
     };
     server.use(
       rest.get(API.url + "/product/10", (req, res, ctx) => {
-        return res(ctx.status(200), ctx.body(j2s(product)));
+        return res(ctx.status(200), ctx.json(product));
       })
     );
 

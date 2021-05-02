@@ -28,7 +28,7 @@ const createResponse = (interaction) => {
   const transformers = [
     context.status(status),
     headers && context.set(headers),
-    body && context.body(j2s(body)),
+    body && context.json(body),
   ].filter(Boolean);
 
   return response(...transformers);
@@ -40,7 +40,7 @@ const server = setupServer(
     console.log(`No pact interaction defined for ${req.url}`);
     return res(
       ctx.status(200),
-      ctx.body(j2s({ error: "No pact interaction defined" }))
+      ctx.json({ error: "No pact interaction defined" })
     );
   })
 );

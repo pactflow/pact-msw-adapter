@@ -1,4 +1,3 @@
-import { s2j } from "./utils";
 export const convertMswMatchToPact = (request, response) => {
   const createPact = {
     consumer: {
@@ -15,12 +14,16 @@ export const convertMswMatchToPact = (request, response) => {
           method: request.method,
           path: new URL(request.url).pathname,
           headers: request.headers._headers,
-          body: request.bodyUsed ? s2j(request.body) : undefined,
+          body: request.bodyUsed ? request.body : undefined,
         },
         response: {
           status: response.status,
-          headers: response.headers.headers,
-          body: response.body ? s2j(response.body) : undefined,
+          headers: response.headers._headers,
+          body: response.body
+            ? response.headers._headers["content-type"].includes("json")
+              ? JSON.parse(response.body)
+              : response.body
+            : undefined,
         },
       },
     ],
