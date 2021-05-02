@@ -26,3 +26,6 @@ yarn-error.log*
 
 pacts/
 logs/
+
+# msw
+msw_generated_pacts/
