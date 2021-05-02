@@ -19,8 +19,7 @@
     "test": "CI=true react-scripts test",
     "eject": "react-scripts eject",
     "test:pact": "CI=true react-scripts test --testTimeout 30000 pact.spec.js",
-    "test:msw": "react-scripts test msw.spec.js",
-    "test:msw:write": "react-scripts test msw.spec.js",
+    "test:msw": "react-scripts test '\\w.msw.spec.js'",
     "posttest:pact": "node publish.pact.js"
   },
   "eslintConfig": {

@@ -1,6 +1,7 @@
 import API from "./api";
+import { server, rest } from "./setupMswFromPact";
 
-describe("API", () => {
+describe("API - With MSW mock generated from pact", () => {
   test("get all products", async () => {
     const products = [
       {

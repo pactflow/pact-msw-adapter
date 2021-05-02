@@ -6,7 +6,7 @@ var path = require("path");
 const isDebug = process.env.MSW_PACT_DEBUG;
 const writePact = process.env.WRITE_PACT;
 
-function contractToHandlers(contract) {
+const contractToHandlers = (contract) => {
   return contract.interactions.map((interaction) => {
     const { method, path } = interaction.request;
     const { consumer, provider } = contract;
@@ -23,9 +23,9 @@ function contractToHandlers(contract) {
       createResponse(interaction)
     );
   });
-}
+};
 
-function createResponse(interaction) {
+const createResponse = (interaction) => {
   const { method, path } = interaction.request;
   const { status, headers, body } = interaction.response;
 
@@ -37,7 +37,7 @@ function createResponse(interaction) {
   ].filter(Boolean);
 
   return response(...transformers);
-}
+};
 const server = setupServer(
   ...contractToHandlers(pactData),
   rest.get("*", (req, res, ctx) => {
