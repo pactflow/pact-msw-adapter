@@ -1,10 +1,12 @@
 import API from "./api";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-import { j2s } from "./utils";
+import { j2s, writeData2File } from "./utils";
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
 
 const server = setupServer();
+const isDebug = process.env.MSW_PACT_DEBUG;
+const writePact = process.env.WRITE_PACT;
 
 describe("API - With MSW mock generating a pact", () => {
   beforeAll(() => {
@@ -20,9 +22,18 @@ describe("API - With MSW mock generating a pact", () => {
       console.log("Request matched and response mocked");
       const request = data[0]; // MockedRequest<DefaultRequestBody>
       const response = data[1]; // IsomorphicResponse;
-      console.log(j2s(request));
-      console.log(j2s(response));
-      console.log(j2s(convertMswMatchToPact(request, response)));
+      const pactFile = convertMswMatchToPact(request, response);
+
+      if (isDebug) {
+        console.log(j2s(request));
+        console.log(j2s(response));
+        console.log(j2s(pactFile));
+      }
+
+      if (writePact) {
+        const filePath = `./msw_generated_pacts/msw_pact_${request.id}.json`;
+        writeData2File(filePath, pactFile);
+      }
     });
     server.on("request:unhandled", (unhandled) => {
       const { url } = unhandled;
@@ -31,6 +42,7 @@ describe("API - With MSW mock generating a pact", () => {
   });
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());
+
   test("get all products", async () => {
     const products = [
       {

@@ -1,25 +1,21 @@
 import { rest, response, context } from "msw";
 import { setupServer } from "msw/node";
-import { writeFileSync } from "fs";
-import { j2s, ensureDirExists } from "./utils";
+import { j2s } from "./utils";
 
 const pactData = require("../pact/frontendwebsite-productservice.json");
 const isDebug = process.env.MSW_PACT_DEBUG;
-const writePact = process.env.WRITE_PACT;
 
 const contractToHandlers = (contract) => {
   return contract.interactions.map((interaction) => {
     const { method, path } = interaction.request;
     const { consumer, provider } = contract;
-    isDebug
-      ? console.log(
-          `creating msw request mock from pact for consumer: "${
-            consumer.name
-          }" provider: "${provider.name}" request: "${j2s(
-            interaction.request
-          )}" response: "${j2s(interaction.response)}" `
-        )
-      : null;
+    if (isDebug) {
+      console.log(
+        `creating msw request mock from pact for consumer: "${consumer.name}" provider: "${provider.name}"`
+      );
+      console.log(`request: "${j2s(interaction.request)}"`);
+      console.log(`response: "${j2s(interaction.response)}"`);
+    }
     return rest[method.toLowerCase()]("http://localhost:8081" + path, () =>
       createResponse(interaction)
     );
@@ -27,10 +23,8 @@ const contractToHandlers = (contract) => {
 };
 
 const createResponse = (interaction) => {
-  const { method, path } = interaction.request;
   const { status, headers, body } = interaction.response;
 
-  writePact ? writePactToFile(interaction) : null;
   const transformers = [
     context.status(status),
     headers && context.set(headers),
@@ -56,40 +50,3 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 export { server, rest };
-
-const writePactToFile = (interaction) => {
-  const createPact = {
-    consumer: {
-      name: "interaction.consumer.name",
-    },
-    provider: {
-      name: "interaction.provider.name",
-    },
-    interactions: [
-      {
-        description: interaction.description,
-        providerState: interaction.providerState,
-        request: {
-          method: interaction.request.method,
-          path: interaction.request.path,
-          headers: interaction.request.headers,
-          body: interaction.request.body,
-        },
-        response: {
-          status: interaction.response.status,
-          headers: interaction.response.headers,
-          body: interaction.response.body,
-        },
-      },
-    ],
-    metadata: {
-      pactSpecification: {
-        version: "2.0.0",
-      },
-    },
-  };
-
-  var filePath = `./msw_generated_pacts/msw_pact_${interaction.description}.json`;
-  ensureDirExists(filePath);
-  writeFileSync(filePath, j2s(createPact));
-};

@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync } from "fs";
+import { writeFileSync, existsSync, mkdirSync } from "fs";
 var path = require("path");
 
 const ensureDirExists = (filePath) => {
@@ -13,4 +13,8 @@ const ensureDirExists = (filePath) => {
 const j2s = (json) => JSON.stringify(json);
 const s2j = (string) => JSON.parse(string);
 
-export { j2s, ensureDirExists, s2j };
+const writeData2File = (filePath, data) => {
+  ensureDirExists(filePath);
+  writeFileSync(filePath, j2s(data));
+};
+export { j2s, ensureDirExists, writeData2File, s2j };

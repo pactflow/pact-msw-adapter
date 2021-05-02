@@ -1,4 +1,4 @@
-import { j2s, s2j } from "./utils";
+import { s2j } from "./utils";
 export const convertMswMatchToPact = (request, response) => {
   const createPact = {
     consumer: {
