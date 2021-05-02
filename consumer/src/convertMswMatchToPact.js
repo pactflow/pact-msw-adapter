@@ -1,3 +1,4 @@
+import { j2s, s2j } from "./utils";
 export const convertMswMatchToPact = (request, response) => {
   const createPact = {
     consumer: {
@@ -14,12 +15,12 @@ export const convertMswMatchToPact = (request, response) => {
           method: request.method,
           path: new URL(request.url).pathname,
           headers: request.headers._headers,
-          body: request.bodyUsed ? request.body : undefined,
+          body: request.bodyUsed ? s2j(request.body) : undefined,
         },
         response: {
           status: response.status,
           headers: response.headers.headers,
-          body: response.body,
+          body: response.body ? s2j(response.body) : undefined,
         },
       },
     ],

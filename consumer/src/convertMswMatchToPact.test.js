@@ -54,7 +54,7 @@ const generatedPact = {
       },
       response: {
         status: 200,
-        body: '[{"id":"09","type":"CREDIT_CARD","name":"Gem Visa"}]',
+        body: [{ id: "09", type: "CREDIT_CARD", name: "Gem Visa" }],
       },
     },
   ],

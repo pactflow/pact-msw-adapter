@@ -11,5 +11,6 @@ const ensureDirExists = (filePath) => {
 };
 
 const j2s = (json) => JSON.stringify(json);
+const s2j = (string) => JSON.parse(string);
 
-export { j2s, ensureDirExists };
+export { j2s, ensureDirExists, s2j };
