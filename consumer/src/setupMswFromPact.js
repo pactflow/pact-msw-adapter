@@ -1,8 +1,9 @@
 import { rest, response, context } from "msw";
 import { setupServer } from "msw/node";
+import { writeFileSync } from "fs";
+import { j2s, ensureDirExists } from "./utils";
+
 const pactData = require("../pact/frontendwebsite-productservice.json");
-import { writeFileSync, existsSync, mkdirSync } from "fs";
-var path = require("path");
 const isDebug = process.env.MSW_PACT_DEBUG;
 const writePact = process.env.WRITE_PACT;
 
@@ -14,9 +15,9 @@ const contractToHandlers = (contract) => {
       ? console.log(
           `creating msw request mock from pact for consumer: "${
             consumer.name
-          }" provider: "${provider.name}" request: "${JSON.stringify(
+          }" provider: "${provider.name}" request: "${j2s(
             interaction.request
-          )}" response: "${JSON.stringify(interaction.response)}" `
+          )}" response: "${j2s(interaction.response)}" `
         )
       : null;
     return rest[method.toLowerCase()]("http://localhost:8081" + path, () =>
@@ -33,18 +34,19 @@ const createResponse = (interaction) => {
   const transformers = [
     context.status(status),
     headers && context.set(headers),
-    body && context.body(JSON.stringify(body)),
+    body && context.body(j2s(body)),
   ].filter(Boolean);
 
   return response(...transformers);
 };
+
 const server = setupServer(
   ...contractToHandlers(pactData),
   rest.get("*", (req, res, ctx) => {
     console.log(`No pact interaction defined for ${req.url}`);
     return res(
       ctx.status(200),
-      ctx.body(JSON.stringify({ error: "No pact interaction defined" }))
+      ctx.body(j2s({ error: "No pact interaction defined" }))
     );
   })
 );
@@ -89,14 +91,5 @@ const writePactToFile = (interaction) => {
 
   var filePath = `./msw_generated_pacts/msw_pact_${interaction.description}.json`;
   ensureDirExists(filePath);
-  writeFileSync(filePath, JSON.stringify(createPact));
-};
-
-const ensureDirExists = (filePath) => {
-  var dirname = path.dirname(filePath);
-  if (existsSync(dirname)) {
-    return true;
-  }
-  ensureDirExists(dirname);
-  mkdirSync(dirname);
+  writeFileSync(filePath, j2s(createPact));
 };

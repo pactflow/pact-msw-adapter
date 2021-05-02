@@ -1,38 +1,4 @@
-const convertMswMatchToPact = (request, response) => {
-  const createPact = {
-    consumer: {
-      name: "interaction.consumer.name",
-    },
-    provider: {
-      name: "interaction.provider.name",
-    },
-    interactions: [
-      {
-        description: request.id,
-        providerState: "",
-        request: {
-          method: request.method,
-          path: new URL(request.url).pathname,
-          headers: request.headers._headers,
-          body: request.bodyUsed ? request.body : undefined,
-        },
-        response: {
-          status: response.status,
-          headers: response.headers.headers,
-          body: response.body,
-        },
-      },
-    ],
-    metadata: {
-      pactSpecification: {
-        version: "2.0.0",
-      },
-    },
-  };
-
-  return createPact;
-};
-
+import { convertMswMatchToPact } from "./convertMswMatchToPact";
 const sampleRequest = {
   id: "1fad2374-02e2-4b43-89d4-1c1e72183931",
   url: "http://localhost:8081/products",
