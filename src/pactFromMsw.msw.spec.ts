@@ -24,7 +24,7 @@ describe("API - With MSW mock generating a pact", () => {
     server.close();
     console.log(mswPact.returnAllPacts().length); // returns 2
     console.log(JSON.stringify(mswPact.returnAllPacts())); // returns any array of generated pacts
-    mswPact.clearPacts();
+    mswPact.clear();
     console.log(mswPact.returnAllPacts()); // returns []
   });
 

@@ -87,6 +87,9 @@ export const setupMswPact = ({
     },
     returnPact: async () => {
       try {
+        // TODO not sure about pactReadIndex, the expectation is
+        // this step is called after every test, but it will assume there is only
+        // only one mock interaction which probably isn't a safe assumption!
         const pactResult = Promise.all([
           mswHandledReqRes[pactReadIndex].matchedReq,
           mswHandledReqRes[pactReadIndex].matchedRes,
@@ -98,6 +101,12 @@ export const setupMswPact = ({
               return "This request was unhandled by msw";
             }
             console.log("Request matched and response mocked");
+            // TODO - this method will convert a single res/req to
+            // a single pact file, we probably just want to convert
+            // to an interaction object, and write all the pacts to a single
+            // file once in writeAllPacts.
+            // however what happens if we have multiple consumer/providers
+            // in a single test file?
             const pactFile = convertMswMatchToPact({
               request,
               response,
@@ -111,6 +120,7 @@ export const setupMswPact = ({
               console.log(j2s(pactFile));
             }
 
+            // TODO - move write logic to writeAllPacts method on main api
             if (writePact) {
               const filePath = `./msw_generated_pacts/msw_pact_${request.id}.json`;
               writeData2File(filePath, pactFile);
@@ -141,9 +151,12 @@ export const setupMswPact = ({
       }
     },
     returnAllPacts: () => {
+      // this assumes that returnPact() has been called to populate the pactResults array
+      // but if its empty, we could read them from mswHandledReqRes[]
       return pactResults;
     },
-    clearPacts: () => {
+    clear: () => {
+      mswHandledReqRes.length = 0;
       pactResults.length = 0;
       return;
     },
