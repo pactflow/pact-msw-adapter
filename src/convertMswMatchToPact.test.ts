@@ -1,8 +1,9 @@
+import { DefaultRequestBody, MockedRequest } from "msw";
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
-import { j2s } from "./utils";
+import { j2s } from "./utils/utils";
 const sampleRequest = {
   id: "1fad2374-02e2-4b43-89d4-1c1e72183931",
-  url: "http://localhost:8081/products",
+  url: new URL("http://localhost:8081/products"),
   method: "GET",
   body: "",
   headers: {
@@ -71,8 +72,11 @@ const generatedPact = {
 
 describe("writes an msw req/res to a pact", () => {
   it("should ", async () => {
-    expect(convertMswMatchToPact(sampleRequest, sampleResponse)).toEqual(
-      generatedPact
-    );
+    expect(
+      convertMswMatchToPact({
+        request: sampleRequest as any,
+        response: sampleResponse as any,
+      })
+    ).toEqual(generatedPact);
   });
 });

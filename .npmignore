@@ -1,0 +1,16 @@
+#Files
+
+tsconfig.json
+*.config.js
+setupTests.js
+yarn.lock
+yarn-error.log
+
+#Folders
+coverage
+logs
+msw_generated_pacts
+examples
+pacts
+pact
+src

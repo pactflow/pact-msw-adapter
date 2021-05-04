@@ -1,5 +1,5 @@
-import API from "./api";
-import { server, rest } from "./setupMswFromPact";
+import API from "../examples/react/src/api";
+import "./setupMswFromPact";
 
 describe("API - With MSW mock generated from pact", () => {
   test("get all products", async () => {

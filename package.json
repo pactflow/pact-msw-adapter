@@ -1,13 +1,49 @@
 {
-  "name": "pact-workshop-js",
+  "name": "msw-pact",
   "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "postinstall": "concurrently \"npm install --prefix consumer\" \"npm install --prefix provider\"",
-    "start": "concurrently \"npm start --prefix consumer\" \"npm start --prefix provider\"",
-    "lint": "concurrently \"cd consumer/ && npx eslint .\" \"cd provider/ && npx eslint .\""
+  "main": "./lib/mswPact.js",
+  "keywords": [
+    "pact",
+    "msw",
+    "mock-service-work",
+    "contract testing",
+    "mocks",
+    "testing"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/you54f/msw-pact.git"
   },
-  "dependencies": {
-    "concurrently": "^5.0.2"
+  "author": {
+    "name": "Yousaf Nabi",
+    "url": "https://you54f.com/"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "msw": ">=0.28.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:clean": "rimraf lib && tsc",
+    "test": "jest",
+    "test:msw": "jest  --verbose '\\w.msw.spec.ts'"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.14.0",
+    "@pact-foundation/pact": "^9.15.5",
+    "@types/axios": "^0.14.0",
+    "@types/jest": "^26.0.23",
+    "@typescript-eslint/eslint-plugin": "^2.16.0",
+    "@typescript-eslint/parser": "^2.16.0",
+    "axios": "^0.19.1",
+    "babel-jest": "^26.6.3",
+    "eslint": "^6.8.0",
+    "jest": "^26.6.3",
+    "msw": "^0.28.2",
+    "nock": "^11.7.2",
+    "regenerator-runtime": "^0.13.7",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^26.5.5",
+    "typescript": "^4.2.4"
   }
 }

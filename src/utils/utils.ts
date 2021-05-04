@@ -1,7 +1,7 @@
 import { writeFileSync, existsSync, mkdirSync } from "fs";
 var path = require("path");
 
-const ensureDirExists = (filePath) => {
+const ensureDirExists = (filePath: string) => {
   var dirname = path.dirname(filePath);
   if (existsSync(dirname)) {
     return true;
@@ -10,9 +10,9 @@ const ensureDirExists = (filePath) => {
   mkdirSync(dirname);
 };
 
-const j2s = (json) => JSON.stringify(json);
+const j2s = (json: Object) => JSON.stringify(json);
 
-const writeData2File = (filePath, data) => {
+const writeData2File = (filePath: string, data: Object) => {
   ensureDirExists(filePath);
   writeFileSync(filePath, j2s(data));
 };
