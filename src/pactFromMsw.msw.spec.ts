@@ -18,14 +18,16 @@ describe("API - With MSW mock generating a pact", () => {
   });
   afterEach(async () => {
     server.resetHandlers();
-    console.log(await mswPact.returnPact());
+    const pactsGeneratedAfterTest = await mswPact.returnPacts();
+    console.log(pactsGeneratedAfterTest);
   });
   afterAll(async () => {
-    server.close();
-    console.log(mswPact.returnAllPacts().length); // returns 2
-    console.log(JSON.stringify(mswPact.returnAllPacts())); // returns any array of generated pacts
+    const allPactsGeneratedAfterTestSuite = await mswPact.returnAllPacts();
+    console.log(allPactsGeneratedAfterTestSuite.length); // returns 2
+    console.log(JSON.stringify(allPactsGeneratedAfterTestSuite)); // returns any array of generated pacts
     mswPact.clear();
-    console.log(mswPact.returnAllPacts()); // returns []
+    console.log(allPactsGeneratedAfterTestSuite); // returns []
+    server.close();
   });
 
   test("get all products", async () => {

@@ -17,7 +17,7 @@ Instantiate your msw server and setup msw-pact
 
 ```js
 const server = setupServer();
-const mswPactProvider = setupMswPact({
+const mswPact = setupMswPact({
   server,
   options: { writePact: true },
 });
@@ -37,13 +37,19 @@ beforeAll(async () => {
   server.listen();
 });
 beforeEach(async () => {
-  mswPactProvider.listen();
+  mswPact.listen();
 });
 afterEach(async () => {
   server.resetHandlers();
-  console.log(await mswPactProvider.returnPact());
+  const pactsGeneratedAfterTest = await mswPact.returnPacts();
+  console.log(pactsGeneratedAfterTest);
 });
 afterAll(async () => {
+  const allPactsGeneratedAfterTestSuite = await mswPact.returnAllPacts();
+  console.log(allPactsGeneratedAfterTestSuite.length); // returns 2
+  console.log(JSON.stringify(allPactsGeneratedAfterTestSuite)); // returns any array of generated pacts
+  mswPact.clear();
+  console.log(allPactsGeneratedAfterTestSuite); // returns []
   server.close();
 });
 ```
@@ -71,7 +77,7 @@ import { setupServer } from "msw/node";
 import { setupMswPact } from "./mswPact";
 
 const server = setupServer();
-const mswPactProvider = setupMswPact({
+const mswPact = setupMswPact({
   server,
   options: { writePact: true },
 });
@@ -81,13 +87,19 @@ describe("API - With MSW mock generating a pact", () => {
     server.listen();
   });
   beforeEach(async () => {
-    mswPactProvider.listen();
+    mswPact.listen();
   });
   afterEach(async () => {
     server.resetHandlers();
-    console.log(await mswPactProvider.returnPact());
+    const pactsGeneratedAfterTest = await mswPact.returnPacts();
+    console.log(pactsGeneratedAfterTest);
   });
   afterAll(async () => {
+    const allPactsGeneratedAfterTestSuite = await mswPact.returnAllPacts();
+    console.log(allPactsGeneratedAfterTestSuite.length); // returns 2
+    console.log(JSON.stringify(allPactsGeneratedAfterTestSuite)); // returns any array of generated pacts
+    mswPact.clear();
+    console.log(allPactsGeneratedAfterTestSuite); // returns []
     server.close();
   });
 

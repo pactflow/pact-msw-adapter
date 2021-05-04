@@ -19,12 +19,6 @@ export const setupMswPact = ({
   server: SetupServerApi;
   options: MswPactOptions;
 }) => {
-  const { consumerName, providerName, debug, writePact } = options;
-
-  const timeoutValue = options.timeout ?? 200;
-
-  let pactReadIndex = 0;
-
   const mswHandledReqRes: {
     matchedReq: Promise<MockedRequest<DefaultRequestBody>>;
     matchedRes: Promise<IsomorphicResponse>;
@@ -85,15 +79,78 @@ export const setupMswPact = ({
 
       return mswHandledReqRes;
     },
-    returnPact: async () => {
-      try {
-        // TODO not sure about pactReadIndex, the expectation is
-        // this step is called after every test, but it will assume there is only
-        // only one mock interaction which probably isn't a safe assumption!
-        const pactResult = Promise.all([
-          mswHandledReqRes[pactReadIndex].matchedReq,
-          mswHandledReqRes[pactReadIndex].matchedRes,
-        ])
+    returnPacts: async () => {
+      return transformMswToPact({
+        mswHandledReqRes,
+        options,
+        pactResults,
+      });
+    },
+    returnAllPacts: async () => {
+      if (pactResults.length === 0 && mswHandledReqRes.length !== 0) {
+        // Ensure we have some transformed pacts to return to the user
+        await transformMswToPact({
+          mswHandledReqRes,
+          options,
+          pactResults,
+        });
+        return pactResults;
+      }
+      return pactResults;
+    },
+    clear: () => {
+      pactResults.length = 0;
+      return;
+    },
+  };
+};
+
+const transformMswToPact = async ({
+  mswHandledReqRes,
+  options,
+  pactResults,
+}: {
+  mswHandledReqRes: {
+    matchedReq: Promise<MockedRequest<DefaultRequestBody>>;
+    matchedRes: Promise<IsomorphicResponse>;
+  }[];
+  options: MswPactOptions;
+  pactResults: {
+    consumer: {
+      name: string;
+    };
+    provider: {
+      name: string;
+    };
+    interactions: {
+      description: string;
+      providerState: string;
+      request: {
+        method: string;
+        path: string;
+        headers: any;
+        body: DefaultRequestBody;
+      };
+      response: {
+        status: number;
+        headers: any;
+        body: any;
+      };
+    }[];
+    metadata: {
+      pactSpecification: {
+        version: string;
+      };
+    };
+  }[];
+}) => {
+  const { consumerName, providerName, debug, writePact } = options;
+
+  const timeoutValue = options.timeout ?? 200;
+  try {
+    const results = await Promise.all(
+      mswHandledReqRes.map(async (m) => {
+        const pactResult = Promise.all([m.matchedReq, m.matchedRes])
           .then((data) => {
             const request = data[0]; // MockedRequest<DefaultRequestBody>
             const response = data[1];
@@ -127,7 +184,6 @@ export const setupMswPact = ({
             }
             if (pactFile) {
               pactResults.push(pactFile);
-              pactReadIndex++;
             }
             return pactFile;
           })
@@ -144,21 +200,13 @@ export const setupMswPact = ({
 
         const pactResultOrTimeout = await Promise.race([pactResult, timeout]);
         return pactResultOrTimeout;
-      } catch (err) {
-        const genericError = "Unknown error occurred listening to pact";
-        console.error(genericError);
-        throw new Error(genericError);
-      }
-    },
-    returnAllPacts: () => {
-      // this assumes that returnPact() has been called to populate the pactResults array
-      // but if its empty, we could read them from mswHandledReqRes[]
-      return pactResults;
-    },
-    clear: () => {
-      mswHandledReqRes.length = 0;
-      pactResults.length = 0;
-      return;
-    },
-  };
+      })
+    );
+    mswHandledReqRes.length = 0;
+    return results;
+  } catch (err) {
+    const genericError = "Unknown error occurred listening to pact";
+    console.error(genericError);
+    throw new Error(genericError);
+  }
 };
