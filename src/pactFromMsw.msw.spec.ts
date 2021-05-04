@@ -9,17 +9,16 @@ const mswPactProvider = setupMswPact({
   options: { writePact: true },
 });
 
-
 describe("API - With MSW mock generating a pact", () => {
-  server.listen();
   beforeAll(async () => {
+    server.listen();
   });
   beforeEach(async () => {
-    mswPactProvider.listen()
+    mswPactProvider.listen();
   });
-  afterEach( () => {
+  afterEach(async () => {
     server.resetHandlers();
-    console.log( mswPactProvider.returnPact());
+    console.log(await mswPactProvider.returnPact());
   });
   afterAll(async () => {
     server.close();

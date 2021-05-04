@@ -44,7 +44,7 @@ export const setupMswPact = ({
     //  returnPact:({requestMatch,responseMocked}:{requestMatch:Promise<unknown>,responseMocked:Promise<unknown>})=>{
     returnPact: async () => {
       try {
-        const pactResult = Promise.all([requestMatch, responseMocked])
+        const pactResult =   Promise.all([ requestMatch,  responseMocked])
           .then((data) => {
             const request = data[0] as MockedRequest<DefaultRequestBody>; // MockedRequest<DefaultRequestBody>
             const response = data[1] as IsomorphicResponse;
@@ -75,16 +75,15 @@ export const setupMswPact = ({
             throw new Error(err);
           });
 
-        const timeout = new Promise((resolve) => {
-          let wait = setTimeout(() => {
+        const timeout =   new Promise((resolve) => {
+          const wait = setTimeout(() => {
             clearTimeout(wait);
-            resolve("Could not find pact match");
+             resolve("Could not find pact match");
           }, timeoutValue);
         });
 
-        let race = Promise.race([pactResult, timeout]);
-
-        return race;
+        const pactResultOrTimeout =  Promise.race([pactResult, timeout]);
+        return pactResultOrTimeout
       } catch (err) {
         const genericError = "Unknown error occurred listening to pact";
         console.error(genericError);

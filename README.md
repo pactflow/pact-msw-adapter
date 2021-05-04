@@ -13,43 +13,50 @@ import { setupServer } from "msw/node";
 import { setupMswPact } from "./mswPact";
 ```
 
-Instantiate your server and declare a variable to use later
+Instantiate your msw server and setup msw-pact
 
 ```js
 const server = setupServer();
-let pacts;
-```
-
-In your test frameworks beforeEach or beforeAll method
-
-```js
-pacts = setupMswPact({
+const mswPactProvider = setupMswPact({
   server,
   options: { writePact: true },
 });
 ```
 
-The following options are available
+The following parameters are accepted
 
 | Parameter | Required? | Type           | Description                                                |
 | --------- | --------- | -------------- | ---------------------------------------------------------- |
 | `server`  | true      | SetupServerApi | server provided by msw                                     |
 | `options` | false     | MswPactOptions | Override msw-pact options - see below for available params |
 
-After your test is finished, you can inspect the `pacts` object we created earlier
+In your test framework, setup mock-service-work and msw-pact similar to below
 
 ```js
-console.log(await pacts);
+beforeAll(async () => {
+  server.listen();
+});
+beforeEach(async () => {
+  mswPactProvider.listen();
+});
+afterEach(async () => {
+  server.resetHandlers();
+  console.log(await mswPactProvider.returnPact());
+});
+afterAll(async () => {
+  server.close();
+});
 ```
 
 ### options
 
-| Parameter      | Required? | Type    | Default    | Description                          |
-| -------------- | --------- | ------- | ---------- | ------------------------------------ |
-| `writePact`    | false     | boolean | false      | write pact to `./msw_generated_pact` |
-| `debug`        | false     | boolean | false      | Print verbose logging                |
-| `consumerName` | false     | string  | `consumer` | The consumer name                    |
-| `providerName` | false     | string  | `provider` | The provider name                    |
+| Parameter      | Required? | Type    | Default    | Description                                              |
+| -------------- | --------- | ------- | ---------- | -------------------------------------------------------- |
+| `timeout`      | false     | number  | 200        | amount of time in ms, returnPact() will wait for a match |
+| `writePact`    | false     | boolean | false      | write pact to `./msw_generated_pact`                     |
+| `debug`        | false     | boolean | false      | Print verbose logging                                    |
+| `consumerName` | false     | string  | `consumer` | The consumer name                                        |
+| `providerName` | false     | string  | `provider` | The provider name                                        |
 
 ### An example
 
