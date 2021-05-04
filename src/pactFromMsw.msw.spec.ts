@@ -4,7 +4,7 @@ import { setupServer } from "msw/node";
 import { setupMswPact } from "./mswPact";
 
 const server = setupServer();
-const mswPactProvider = setupMswPact({
+const mswPact = setupMswPact({
   server,
   options: { writePact: true },
 });
@@ -14,14 +14,18 @@ describe("API - With MSW mock generating a pact", () => {
     server.listen();
   });
   beforeEach(async () => {
-    mswPactProvider.listen();
+    mswPact.listen();
   });
   afterEach(async () => {
     server.resetHandlers();
-    console.log(await mswPactProvider.returnPact());
+    console.log(await mswPact.returnPact());
   });
   afterAll(async () => {
     server.close();
+    console.log(mswPact.returnAllPacts().length); // returns 2
+    console.log(JSON.stringify(mswPact.returnAllPacts())); // returns any array of generated pacts
+    mswPact.clearPacts();
+    console.log(mswPact.returnAllPacts()); // returns []
   });
 
   test("get all products", async () => {

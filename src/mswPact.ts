@@ -5,7 +5,7 @@ import { convertMswMatchToPact } from "./convertMswMatchToPact";
 import { IsomorphicResponse } from "@mswjs/interceptors";
 
 interface MswPactOptions {
-  timeout?:number;
+  timeout?: number;
   debug?: boolean;
   writePact?: boolean;
   consumerName?: string;
@@ -19,12 +19,46 @@ export const setupMswPact = ({
   server: SetupServerApi;
   options: MswPactOptions;
 }) => {
-  const { consumerName, providerName, debug, writePact} = options;
+  const { consumerName, providerName, debug, writePact } = options;
 
-  const timeoutValue = options.timeout ?? 200
-  
-  let requestMatch: Promise<unknown>;
-  let responseMocked: Promise<unknown>;
+  const timeoutValue = options.timeout ?? 200;
+
+  let pactReadIndex = 0;
+
+  const mswHandledReqRes: {
+    matchedReq: Promise<MockedRequest<DefaultRequestBody>>;
+    matchedRes: Promise<IsomorphicResponse>;
+  }[] = [];
+
+  const pactResults: {
+    consumer: {
+      name: string;
+    };
+    provider: {
+      name: string;
+    };
+    interactions: {
+      description: string;
+      providerState: string;
+      request: {
+        method: string;
+        path: string;
+        headers: any;
+        body: DefaultRequestBody;
+      };
+      response: {
+        status: number;
+        headers: any;
+        body: any;
+      };
+    }[];
+    metadata: {
+      pactSpecification: {
+        version: string;
+      };
+    };
+  }[] = [];
+
   return {
     listen: () => {
       server.on("request:unhandled", (unhandled) => {
@@ -32,22 +66,34 @@ export const setupMswPact = ({
         console.log("This request was unhandled by msw: " + url);
       });
 
-      requestMatch = new Promise((resolve) => {
+      const requestMatch: Promise<
+        MockedRequest<DefaultRequestBody>
+      > = new Promise((resolve) => {
         server.on("request:match", resolve);
       });
 
-      responseMocked = new Promise((resolve) => {
-        server.on("response:mocked", resolve);
+      const responseMocked: Promise<IsomorphicResponse> = new Promise(
+        (resolve) => {
+          server.on("response:mocked", resolve);
+        }
+      );
+
+      mswHandledReqRes.push({
+        matchedReq: requestMatch,
+        matchedRes: responseMocked,
       });
-      return { requestMatch, responseMocked };
+
+      return mswHandledReqRes;
     },
-    //  returnPact:({requestMatch,responseMocked}:{requestMatch:Promise<unknown>,responseMocked:Promise<unknown>})=>{
     returnPact: async () => {
       try {
-        const pactResult =   Promise.all([ requestMatch,  responseMocked])
+        const pactResult = Promise.all([
+          mswHandledReqRes[pactReadIndex].matchedReq,
+          mswHandledReqRes[pactReadIndex].matchedRes,
+        ])
           .then((data) => {
-            const request = data[0] as MockedRequest<DefaultRequestBody>; // MockedRequest<DefaultRequestBody>
-            const response = data[1] as IsomorphicResponse;
+            const request = data[0]; // MockedRequest<DefaultRequestBody>
+            const response = data[1];
             if (!request || !response) {
               return "This request was unhandled by msw";
             }
@@ -69,26 +115,37 @@ export const setupMswPact = ({
               const filePath = `./msw_generated_pacts/msw_pact_${request.id}.json`;
               writeData2File(filePath, pactFile);
             }
+            if (pactFile) {
+              pactResults.push(pactFile);
+              pactReadIndex++;
+            }
             return pactFile;
           })
           .catch((err) => {
             throw new Error(err);
           });
 
-        const timeout =   new Promise((resolve) => {
+        const timeout = new Promise((resolve) => {
           const wait = setTimeout(() => {
             clearTimeout(wait);
-             resolve("Could not find pact match");
+            resolve("Could not find pact match");
           }, timeoutValue);
-        });
+        }) as Promise<string>;
 
-        const pactResultOrTimeout =  Promise.race([pactResult, timeout]);
-        return pactResultOrTimeout
+        const pactResultOrTimeout = await Promise.race([pactResult, timeout]);
+        return pactResultOrTimeout;
       } catch (err) {
         const genericError = "Unknown error occurred listening to pact";
         console.error(genericError);
         throw new Error(genericError);
       }
+    },
+    returnAllPacts: () => {
+      return pactResults;
+    },
+    clearPacts: () => {
+      pactResults.length = 0;
+      return;
     },
   };
 };
