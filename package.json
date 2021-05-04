@@ -25,7 +25,7 @@
   "scripts": {
     "build": "tsc",
     "build:clean": "rimraf lib && tsc",
-    "test": "jest",
+    "test": "jest --verbose",
     "test:msw": "jest  --verbose '\\w.msw.spec.ts'"
   },
   "devDependencies": {

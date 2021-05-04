@@ -4,24 +4,23 @@ import { setupServer } from "msw/node";
 import { setupMswPact } from "./mswPact";
 
 const server = setupServer();
-const isDebug = process.env.MSW_PACT_DEBUG === "true";
-const writePact = process.env.WRITE_PACT === "true";
+const mswPactProvider = setupMswPact({
+  server,
+  options: { writePact: true },
+});
+
 
 describe("API - With MSW mock generating a pact", () => {
-  let pacts: any;
+  server.listen();
   beforeAll(async () => {
-    server.listen();
   });
   beforeEach(async () => {
-    pacts = setupMswPact({
-      server,
-      options: { writePact: true },
-    });
+    mswPactProvider.listen()
   });
   afterEach(async () => {
     server.resetHandlers();
     try {
-      console.log(await pacts);
+      console.log( await mswPactProvider.returnPact());
     } catch {
       //
     }
