@@ -30,7 +30,7 @@ The following parameters are accepted
 | `server`  | true      | SetupServerApi | server provided by msw                                     |
 | `options` | false     | MswPactOptions | Override msw-pact options - see below for available params |
 
-In your test framework, setup mock-service-work and msw-pact similar to below
+In your test framework, setup mock-service-work and msw-pact similar to your pre/post test setup. `Jest` shown.
 
 ```js
 beforeAll(async () => {
@@ -71,25 +71,21 @@ import { setupServer } from "msw/node";
 import { setupMswPact } from "./mswPact";
 
 const server = setupServer();
+const mswPactProvider = setupMswPact({
+  server,
+  options: { writePact: true },
+});
 
 describe("API - With MSW mock generating a pact", () => {
-  let pacts: any;
   beforeAll(async () => {
     server.listen();
   });
   beforeEach(async () => {
-    pacts = setupMswPact({
-      server,
-      options: { writePact: true },
-    });
+    mswPactProvider.listen();
   });
   afterEach(async () => {
     server.resetHandlers();
-    try {
-      console.log(await pacts);
-    } catch {
-      //
-    }
+    console.log(await mswPactProvider.returnPact());
   });
   afterAll(async () => {
     server.close();
