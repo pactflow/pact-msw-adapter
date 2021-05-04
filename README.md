@@ -53,7 +53,7 @@ afterAll(async () => {
 | Parameter      | Required? | Type    | Default    | Description                                              |
 | -------------- | --------- | ------- | ---------- | -------------------------------------------------------- |
 | `timeout`      | false     | number  | 200        | amount of time in ms, returnPact() will wait for a match |
-| `writePact`    | false     | boolean | false      | write pact to `./msw_generated_pact`                     |
+| `writePact`    | false     | boolean | false      | write pact to `./msw_generated_pacts`                    |
 | `debug`        | false     | boolean | false      | Print verbose logging                                    |
 | `consumerName` | false     | string  | `consumer` | The consumer name                                        |
 | `providerName` | false     | string  | `provider` | The provider name                                        |
@@ -131,4 +131,72 @@ describe("API - With MSW mock generating a pact", () => {
     );
   });
 });
+```
+
+This test will generate the following two pacts
+
+```json
+{
+  "consumer": { "name": "consumer" },
+  "provider": { "name": "provider" },
+  "interactions": [
+    {
+      "description": "412bfbc9-0804-4955-83b3-2ff9c3134a11",
+      "providerState": "",
+      "request": {
+        "method": "GET",
+        "path": "/product/10",
+        "headers": {
+          "accept": "application/json, text/plain, */*",
+          "authorization": "Bearer 2021-05-04T17:49:26.713Z",
+          "user-agent": "axios/0.19.2",
+          "x-msw-request-id": "412bfbc9-0804-4955-83b3-2ff9c3134a11",
+          "cookie": ""
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-powered-by": "msw",
+          "content-type": "application/json"
+        },
+        "body": { "id": "10", "type": "CREDIT_CARD", "name": "28 Degrees" }
+      }
+    }
+  ],
+  "metadata": { "pactSpecification": { "version": "2.0.0" } }
+}
+```
+
+```json
+{
+  "consumer": { "name": "consumer" },
+  "provider": { "name": "provider" },
+  "interactions": [
+    {
+      "description": "ffdfc4c4-0082-4e5c-8490-3c3a62f7d13b",
+      "providerState": "",
+      "request": {
+        "method": "GET",
+        "path": "/products",
+        "headers": {
+          "accept": "application/json, text/plain, */*",
+          "authorization": "Bearer 2021-05-04T17:49:26.690Z",
+          "user-agent": "axios/0.19.2",
+          "x-msw-request-id": "ffdfc4c4-0082-4e5c-8490-3c3a62f7d13b",
+          "cookie": ""
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-powered-by": "msw",
+          "content-type": "application/json"
+        },
+        "body": [{ "id": "09", "type": "CREDIT_CARD", "name": "Gem Visa" }]
+      }
+    }
+  ],
+  "metadata": { "pactSpecification": { "version": "2.0.0" } }
+}
 ```
