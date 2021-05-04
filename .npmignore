@@ -5,6 +5,7 @@ tsconfig.json
 setupTests.js
 yarn.lock
 yarn-error.log
+Makefile
 
 #Folders
 coverage

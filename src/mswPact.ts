@@ -1,11 +1,8 @@
-import { DefaultRequestBody, MockedRequest, rest } from "msw";
+import { DefaultRequestBody, MockedRequest } from "msw";
 import { SetupServerApi } from "msw/node";
 import { j2s, writeData2File } from "./utils/utils";
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
 import { IsomorphicResponse } from "@mswjs/interceptors";
-
-const isDebug = process.env.MSW_PACT_DEBUG;
-const writePact = process.env.WRITE_PACT;
 
 interface MswPactOptions {
   debug?: boolean;
