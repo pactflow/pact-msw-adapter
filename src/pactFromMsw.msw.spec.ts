@@ -17,13 +17,9 @@ describe("API - With MSW mock generating a pact", () => {
   beforeEach(async () => {
     mswPactProvider.listen()
   });
-  afterEach(async () => {
+  afterEach( () => {
     server.resetHandlers();
-    try {
-      console.log( await mswPactProvider.returnPact());
-    } catch {
-      //
-    }
+    console.log( mswPactProvider.returnPact());
   });
   afterAll(async () => {
     server.close();
