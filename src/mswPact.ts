@@ -4,57 +4,13 @@ import { j2s, writeData2File } from "./utils/utils";
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
 import { IsomorphicResponse } from "@mswjs/interceptors";
 
-interface MswPactOptions {
+export interface MswPactOptions {
   timeout?: number;
   debug?: boolean;
   writePact?: boolean;
   pactOutDir?: string;
   consumerName?: string;
   providerName?: string;
-}
-
-interface PactInteraction {
-  description: string;
-  providerState: string;
-  request: {
-    method: string;
-    path: string;
-    headers: any;
-    body: DefaultRequestBody;
-  };
-  response: {
-    status: number;
-    headers: any;
-    body: any;
-  };
-}
-
-interface PactParticipants {
-  consumer: {
-    name: string;
-  };
-  provider: {
-    name: string;
-  };
-}
-
-interface PactFile {
-  consumer: PactParticipants["consumer"];
-  provider: PactParticipants["provider"];
-  interactions: PactInteraction[];
-  metadata: PactFileMetaData;
-}
-
-export interface PactResults {
-  consumer: PactParticipants["consumer"];
-  provider: PactParticipants["provider"];
-  interactions: PactInteraction[];
-}
-
-interface PactFileMetaData {
-  pactSpecification: {
-    version: string;
-  };
 }
 
 export const setupMswPact = ({
@@ -64,11 +20,9 @@ export const setupMswPact = ({
   server: SetupServerApi;
   options?: MswPactOptions;
 }) => {
-  const mswHandledReqRes: {
-    matchedReq: Promise<MockedRequest<DefaultRequestBody>>;
-    matchedRes: Promise<IsomorphicResponse>;
-  }[] = [];
+  // TODO - support provider in a single test file?
 
+  const mswHandledReqRes: MswMatchedRequest[] = [];
   const pactResults: PactResults[] = [];
 
   return {
@@ -124,6 +78,7 @@ export const setupMswPact = ({
       pactsToProcess = pactsToProcess ?? pactResults;
 
       if (pactsToProcess) {
+        // TODO - dedupe pactResults so we only have one file per consumer/provider pair
         pactsToProcess.map((pacts) => {
           const pactFile: PactFile = {
             ...pacts,
@@ -157,10 +112,7 @@ const transformMswToPact = async ({
   options,
   pactResults,
 }: {
-  mswHandledReqRes: {
-    matchedReq: Promise<MockedRequest<DefaultRequestBody>>;
-    matchedRes: Promise<IsomorphicResponse>;
-  }[];
+  mswHandledReqRes: MswMatchedRequest[];
   options?: MswPactOptions;
   pactResults: PactResults[];
 }) => {
@@ -170,18 +122,12 @@ const transformMswToPact = async ({
       mswHandledReqRes.map(async (m) => {
         const pactResult = Promise.all([m.matchedReq, m.matchedRes])
           .then((data) => {
-            const request = data[0]; // MockedRequest<DefaultRequestBody>
+            const request = data[0];
             const response = data[1];
             if (!request || !response) {
               return { error: "This request was unhandled by msw" };
             }
             console.log("Request matched and response mocked");
-            // TODO - this method will convert a single res/req to
-            // a single pact file, we probably just want to convert
-            // to an interaction object, and write all the pacts to a single
-            // file once in writeAllPacts.
-            // however what happens if we have multiple consumer/providers
-            // in a single test file?
             const pactFile = convertMswMatchToPact({
               request,
               response,
@@ -228,3 +174,52 @@ const transformMswToPact = async ({
     throw new Error(genericError);
   }
 };
+
+export interface PactInteraction {
+  description: string;
+  providerState: string;
+  request: {
+    method: string;
+    path: string;
+    headers: any;
+    body: DefaultRequestBody;
+  };
+  response: {
+    status: number;
+    headers: any;
+    body: any;
+  };
+}
+
+export interface PactParticipants {
+  consumer: {
+    name: string;
+  };
+  provider: {
+    name: string;
+  };
+}
+
+export interface PactFile {
+  consumer: PactParticipants["consumer"];
+  provider: PactParticipants["provider"];
+  interactions: PactInteraction[];
+  metadata: PactFileMetaData;
+}
+
+export interface PactResults {
+  consumer: PactParticipants["consumer"];
+  provider: PactParticipants["provider"];
+  interactions: PactInteraction[];
+}
+
+export interface PactFileMetaData {
+  pactSpecification: {
+    version: string;
+  };
+}
+
+export interface MswMatchedRequest {
+  matchedReq: Promise<MockedRequest<DefaultRequestBody>>;
+  matchedRes: Promise<IsomorphicResponse>;
+}
