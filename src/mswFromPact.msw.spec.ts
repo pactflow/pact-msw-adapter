@@ -1,7 +1,15 @@
 import API from "../examples/react/src/api";
-import "./setupMswFromPact";
+import { setupPactMsw } from "./mswPact";
+import pactData from "./pact/frontendwebsite-productservice.json";
+
+const pactMsw = setupPactMsw();
+pactMsw.setupMswPactHandlers(pactData);
+const pactMswServer = pactMsw.pactMswServer;
 
 describe("API - With MSW mock generated from pact", () => {
+  beforeAll(() => pactMswServer.listen());
+  afterEach(() => pactMswServer.resetHandlers());
+  afterAll(() => pactMswServer.close());
   test("get all products", async () => {
     const products = [
       {

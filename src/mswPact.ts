@@ -3,6 +3,7 @@ import { SetupServerApi } from "msw/node";
 import { j2s, writeData2File } from "./utils/utils";
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
 import { IsomorphicResponse } from "@mswjs/interceptors";
+import { pactMswServer, setupMswPactHandlers } from "./setupMswFromPact";
 
 export interface MswPactOptions {
   timeout?: number;
@@ -107,6 +108,14 @@ export const setupMswPact = ({
   };
 };
 
+export const setupPactMsw = () => {
+  return {
+    pactMswServer,
+    setupMswPactHandlers,
+  };
+};
+
+export { convertMswMatchToPact };
 const transformMswToPact = async ({
   mswHandledReqRes,
   options,
