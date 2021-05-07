@@ -22,11 +22,8 @@ describe("API - With MSW mock generating a pact", () => {
     console.log(pactsGeneratedAfterTest);
   });
   afterAll(async () => {
-<<<<<<< HEAD
     mswPact.writePacts(); // writes the pacts to a file
 
-=======
->>>>>>> origin/main
     const allPactsGeneratedAfterTestSuite = await mswPact.returnAllPacts();
     console.log(allPactsGeneratedAfterTestSuite.length); // returns 2
     console.log(JSON.stringify(allPactsGeneratedAfterTestSuite)); // returns any array of generated pacts
