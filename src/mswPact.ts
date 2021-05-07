@@ -120,9 +120,11 @@ export const setupMswPact = ({
       pactResults.length = 0;
       return;
     },
-    writePacts: () => {
-      if (pactResults) {
-        pactResults.map((pacts) => {
+    writePacts: (pactsToProcess?: PactResults[]) => {
+      pactsToProcess = pactsToProcess ?? pactResults;
+
+      if (pactsToProcess) {
+        pactsToProcess.map((pacts) => {
           const pactFile: PactFile = {
             ...pacts,
             metadata: {

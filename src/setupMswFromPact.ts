@@ -47,7 +47,6 @@ const contractToHandlers = (contract: {
       createResponse(interaction)
     );
   });
-  // .filter((x) => x === []);
 };
 
 const createResponse = (interaction: InteractionState) => {
