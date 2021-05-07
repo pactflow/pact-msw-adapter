@@ -137,6 +137,12 @@ const transformMswToPact = async ({
               return { error: "This request was unhandled by msw" };
             }
             console.log("Request matched and response mocked");
+            // TODO - this method will convert a single res/req to
+            // a single pact file, we probably just want to convert
+            // to an interaction object, and write all the pacts to a single
+            // file once in writeAllPacts.
+            // however what happens if we have multiple consumer/providers
+            // in a single test file?
             const pactFile = convertMswMatchToPact({
               request,
               response,
@@ -150,6 +156,9 @@ const transformMswToPact = async ({
               console.log(j2s(pactFile));
             }
 
+            if (pactFile) {
+              pactResults.push(pactFile);
+            }
             if (pactFile) {
               pactResults.push(pactFile);
             }
