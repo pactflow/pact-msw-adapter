@@ -6,7 +6,7 @@ import { setupMswPact } from "./mswPact";
 const server = setupServer();
 const mswPact = setupMswPact({
   server,
-  options: { writePact: true },
+  options: { consumerName: "testConsumer", providerName: "testProvider" },
 });
 
 describe("API - With MSW mock generating a pact", () => {
@@ -22,6 +22,8 @@ describe("API - With MSW mock generating a pact", () => {
     console.log(pactsGeneratedAfterTest);
   });
   afterAll(async () => {
+    mswPact.writePacts(); // writes the pacts to a file
+
     const allPactsGeneratedAfterTestSuite = await mswPact.returnAllPacts();
     console.log(allPactsGeneratedAfterTestSuite.length); // returns 2
     console.log(JSON.stringify(allPactsGeneratedAfterTestSuite)); // returns any array of generated pacts

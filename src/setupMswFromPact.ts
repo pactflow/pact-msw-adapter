@@ -47,7 +47,6 @@ const contractToHandlers = (contract: {
       createResponse(interaction)
     );
   });
-  // .filter((x) => x === []);
 };
 
 const createResponse = (interaction: InteractionState) => {
@@ -69,12 +68,14 @@ const createResponse = (interaction: InteractionState) => {
   }
 };
 
-const setupHandlers = contractToHandlers(pactData as any).filter(
-  (x) => x !== undefined
-) as RestHandler<MockedRequest<DefaultRequestBody>>[];
+const setupMswPactHandlers = (pactData: any) => {
+  return contractToHandlers(pactData).filter(
+    (x) => x !== undefined
+  ) as RestHandler<MockedRequest<DefaultRequestBody>>[];
+};
 
-const server = setupServer(
-  ...setupHandlers,
+const pactMswServer = setupServer(
+  ...setupMswPactHandlers(pactData),
   rest.get("*", (req, res, ctx) => {
     console.log(`No pact interaction defined for ${req.url}`);
     return res(
@@ -84,8 +85,8 @@ const server = setupServer(
   })
 );
 
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+// beforeAll(() => pactMswServer.listen());
+// afterEach(() => pactMswServer.resetHandlers());
+// afterAll(() => pactMswServer.close());
 
-export { server, rest };
+export { pactMswServer, rest, setupMswPactHandlers };

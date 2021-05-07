@@ -19,7 +19,7 @@ Instantiate your msw server and setup msw-pact
 const server = setupServer();
 const mswPact = setupMswPact({
   server,
-  options: { writePact: true },
+  options: { consumerName: "myTestConsumer" },
 });
 ```
 
@@ -56,13 +56,13 @@ afterAll(async () => {
 
 ### options
 
-| Parameter      | Required? | Type    | Default    | Description                                              |
-| -------------- | --------- | ------- | ---------- | -------------------------------------------------------- |
-| `timeout`      | false     | number  | 200        | amount of time in ms, returnPact() will wait for a match |
-| `writePact`    | false     | boolean | false      | write pact to `./msw_generated_pacts`                    |
-| `debug`        | false     | boolean | false      | Print verbose logging                                    |
-| `consumerName` | false     | string  | `consumer` | The consumer name                                        |
-| `providerName` | false     | string  | `provider` | The provider name                                        |
+| Parameter      | Required? | Type    | Default                 | Description                                              |
+| -------------- | --------- | ------- | ----------------------- | -------------------------------------------------------- |
+| `timeout`      | false     | number  | 200                     | amount of time in ms, returnPact() will wait for a match |
+| `pactOutDir`   | false     | string  | `./msw_generated_pacts` | write pacts to the specified location                    |
+| `debug`        | false     | boolean | false                   | Print verbose logging                                    |
+| `consumerName` | false     | string  | `consumer`              | The consumer name                                        |
+| `providerName` | false     | string  | `provider`              | The provider name                                        |
 
 ### An example
 
@@ -77,10 +77,7 @@ import { setupServer } from "msw/node";
 import { setupMswPact } from "./mswPact";
 
 const server = setupServer();
-const mswPact = setupMswPact({
-  server,
-  options: { writePact: true },
-});
+const mswPact = setupMswPact({ server });
 
 describe("API - With MSW mock generating a pact", () => {
   beforeAll(async () => {
@@ -95,6 +92,7 @@ describe("API - With MSW mock generating a pact", () => {
     console.log(pactsGeneratedAfterTest);
   });
   afterAll(async () => {
+    mswPact.writePacts(); // writes the pacts to a file
     const allPactsGeneratedAfterTestSuite = await mswPact.returnAllPacts();
     console.log(allPactsGeneratedAfterTestSuite.length); // returns 2
     console.log(JSON.stringify(allPactsGeneratedAfterTestSuite)); // returns any array of generated pacts
@@ -211,4 +209,49 @@ This test will generate the following two pacts
   ],
   "metadata": { "pactSpecification": { "version": "2.0.0" } }
 }
+```
+
+### Generating msw mocks from pact files.
+
+If you have an existing pact file, you can generate msw mocks from these.
+
+Taken from [./src/mswFromPact.msw.spec.ts](./src/mswFromPact.msw.spec.ts)
+
+Testing an API client, used in a react application
+
+```js
+import API from "../examples/react/src/api";
+import { setupPactMsw } from "mswPact";
+import pactData from "./pact/frontendwebsite-productservice.json";
+
+const pactMsw = setupPactMsw();
+pactMsw.setupMswPactHandlers(pactData);
+const pactMswServer = pactMsw.pactMswServer;
+
+describe("API - With MSW mock generated from pact", () => {
+  beforeAll(() => pactMswServer.listen());
+  afterEach(() => pactMswServer.resetHandlers());
+  afterAll(() => pactMswServer.close());
+  test("get all products", async () => {
+    const products = [
+      {
+        id: "09",
+        type: "CREDIT_CARD",
+        name: "Gem Visa",
+      },
+    ];
+    const respProducts = await API.getAllProducts();
+    expect(respProducts).toEqual(products);
+  });
+
+  test("get product ID 10", async () => {
+    const product = {
+      id: "10",
+      type: "CREDIT_CARD",
+      name: "28 Degrees",
+    };
+    const respProduct = await API.getProduct("10");
+    expect(respProduct).toEqual(product);
+  });
+});
 ```
