@@ -19,7 +19,7 @@ Instantiate your msw server and setup msw-pact
 const server = setupServer();
 const mswPact = setupMswPact({
   server,
-  options: { writePact: true },
+  options: { consumerName: "myTestConsumer" },
 });
 ```
 
@@ -56,13 +56,13 @@ afterAll(async () => {
 
 ### options
 
-| Parameter      | Required? | Type    | Default    | Description                                              |
-| -------------- | --------- | ------- | ---------- | -------------------------------------------------------- |
-| `timeout`      | false     | number  | 200        | amount of time in ms, returnPact() will wait for a match |
-| `writePact`    | false     | boolean | false      | write pact to `./msw_generated_pacts`                    |
-| `debug`        | false     | boolean | false      | Print verbose logging                                    |
-| `consumerName` | false     | string  | `consumer` | The consumer name                                        |
-| `providerName` | false     | string  | `provider` | The provider name                                        |
+| Parameter      | Required? | Type    | Default                 | Description                                              |
+| -------------- | --------- | ------- | ----------------------- | -------------------------------------------------------- |
+| `timeout`      | false     | number  | 200                     | amount of time in ms, returnPact() will wait for a match |
+| `pactOutDir`   | false     | string  | `./msw_generated_pacts` | write pacts to the specified location                    |
+| `debug`        | false     | boolean | false                   | Print verbose logging                                    |
+| `consumerName` | false     | string  | `consumer`              | The consumer name                                        |
+| `providerName` | false     | string  | `provider`              | The provider name                                        |
 
 ### An example
 
@@ -77,10 +77,7 @@ import { setupServer } from "msw/node";
 import { setupMswPact } from "./mswPact";
 
 const server = setupServer();
-const mswPact = setupMswPact({
-  server,
-  options: { writePact: true },
-});
+const mswPact = setupMswPact({ server });
 
 describe("API - With MSW mock generating a pact", () => {
   beforeAll(async () => {
@@ -95,6 +92,7 @@ describe("API - With MSW mock generating a pact", () => {
     console.log(pactsGeneratedAfterTest);
   });
   afterAll(async () => {
+    mswPact.writePacts(); // writes the pacts to a file
     const allPactsGeneratedAfterTestSuite = await mswPact.returnAllPacts();
     console.log(allPactsGeneratedAfterTestSuite.length); // returns 2
     console.log(JSON.stringify(allPactsGeneratedAfterTestSuite)); // returns any array of generated pacts
