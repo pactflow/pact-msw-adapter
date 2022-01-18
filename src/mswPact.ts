@@ -3,7 +3,6 @@ import { SetupServerApi } from "msw/node";
 import { j2s, writeData2File } from "./utils/utils";
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
 import { IsomorphicResponse } from "@mswjs/interceptors";
-import { pactMswServer, setupMswPactHandlers } from "./setupMswFromPact";
 
 export interface MswPactOptions {
   timeout?: number;
@@ -105,13 +104,6 @@ export const setupMswPact = ({
         return new Error("No pacts are available to write");
       }
     },
-  };
-};
-
-export const setupPactMsw = () => {
-  return {
-    pactMswServer,
-    setupMswPactHandlers,
   };
 };
 
