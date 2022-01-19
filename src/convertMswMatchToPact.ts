@@ -1,18 +1,17 @@
-import { IsomorphicResponse } from "@mswjs/interceptors";
 import { DefaultRequestBody, MockedRequest } from "msw";
 import { PactResults } from "./mswPact";
 
-export const convertMswMatchToPact = ({
+export const convertMswMatchToPact = async ({
   request,
   response,
   consumerName,
   providerName,
 }: {
   request: MockedRequest<DefaultRequestBody>;
-  response: IsomorphicResponse;
+  response: Response;
   consumerName?: string;
   providerName?: string;
-}): PactResults => {
+}): Promise<PactResults> => {
   const createPact: PactResults = {
     consumer: {
       name: consumerName ?? "consumer",
@@ -37,7 +36,7 @@ export const convertMswMatchToPact = ({
           headers: response.headers._headers,
           body: response.body
             ? response.headers.get("content-type")?.includes("json")
-              ? JSON.parse(response.body)
+              ? (await response.json())
               : response.body
             : undefined,
         },

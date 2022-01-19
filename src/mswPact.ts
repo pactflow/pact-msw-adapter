@@ -1,8 +1,6 @@
-import { DefaultRequestBody, MockedRequest } from "msw";
-import { SetupServerApi } from "msw/node";
+import { DefaultRequestBody, MockedRequest, SetupWorkerApi } from "msw";
 import { j2s, writeData2File } from "./utils/utils";
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
-import { IsomorphicResponse } from "@mswjs/interceptors";
 
 export interface MswPactOptions {
   timeout?: number;
@@ -17,7 +15,7 @@ export const setupMswPact = ({
   server,
   options,
 }: {
-  server: SetupServerApi;
+  server: SetupWorkerApi;
   options?: MswPactOptions;
 }) => {
   // TODO - support provider in a single test file?
@@ -38,9 +36,9 @@ export const setupMswPact = ({
         server.on("request:match", resolve);
       });
 
-      const responseMocked: Promise<IsomorphicResponse> = new Promise(
+      const responseMocked: Promise<Response> = new Promise(
         (resolve) => {
-          server.on("response:mocked", resolve);
+          server.on("response:mocked", (res) => resolve(res));
         }
       );
 
@@ -122,7 +120,7 @@ const transformMswToPact = async ({
     const results = await Promise.all(
       mswHandledReqRes.map(async (m) => {
         const pactResult = Promise.all([m.matchedReq, m.matchedRes])
-          .then((data) => {
+          .then(async (data) => {
             const request = data[0];
             const response = data[1];
             if (!request || !response) {
@@ -135,7 +133,7 @@ const transformMswToPact = async ({
             // file once in writeAllPacts.
             // however what happens if we have multiple consumer/providers
             // in a single test file?
-            const pactFile = convertMswMatchToPact({
+            const pactFile = await convertMswMatchToPact({
               request,
               response,
               consumerName: options?.consumerName,
@@ -231,5 +229,5 @@ export interface PactFileMetaData {
 
 export interface MswMatchedRequest {
   matchedReq: Promise<MockedRequest<DefaultRequestBody>>;
-  matchedRes: Promise<IsomorphicResponse>;
+  matchedRes: Promise<Response>;
 }

@@ -1,9 +1,8 @@
 import API from "../examples/react/src/api";
-import { rest } from "msw";
-import { setupServer } from "msw/node";
+import { rest, setupWorker } from "msw";
 import { setupMswPact } from "./mswPact";
 
-const server = setupServer();
+const server = setupWorker();
 const mswPact = setupMswPact({
   server,
   options: { consumerName: "testConsumer", providerName: "testProvider" },
@@ -11,7 +10,7 @@ const mswPact = setupMswPact({
 
 describe("API - With MSW mock generating a pact", () => {
   beforeAll(async () => {
-    server.listen();
+    server.start();
   });
   beforeEach(async () => {
     mswPact.listen();
@@ -29,7 +28,7 @@ describe("API - With MSW mock generating a pact", () => {
     console.log(JSON.stringify(allPactsGeneratedAfterTestSuite)); // returns any array of generated pacts
     mswPact.clear();
     console.log(allPactsGeneratedAfterTestSuite); // returns []
-    server.close();
+    server.stop();
   });
 
   test("get all products", async () => {
