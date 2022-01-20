@@ -1,6 +1,6 @@
 {
   "name": "@ijuani/msw-pact",
-  "version": "0.5.0-8",
+  "version": "0.5.0-9",
   "main": "./lib/mswPact.js",
   "keywords": [
     "pact",
