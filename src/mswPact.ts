@@ -1,5 +1,5 @@
 import { DefaultRequestBody, MockedRequest, SetupWorkerApi } from "msw";
-import { j2s, writeData2File } from "./utils/utils";
+import { addTimeout, checkUrlFilters, j2s, writeData2File } from "./utils/utils";
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
 
 export interface MswPactOptions {
@@ -31,31 +31,12 @@ export const setupMswPact = ({
         console.log("[msw-pact] Listening for new matches");
       }
     
-      const requestMatch: Promise<
-        MockedRequest<DefaultRequestBody>
-      > = new Promise((resolve) => {
-        server.on("request:match", (res) => {
-          if (options?.debug) {
-            console.groupCollapsed("[msw-pact] Request matched");
-            console.log(res);
-            console.groupEnd();
-          }
-          resolve(res);
-        });
-      });
+      const requestMatch: Promise<MockedRequest<DefaultRequestBody>>
+        = new Promise((resolve) => server.on("request:match", resolve));
 
-      const responseMocked: Promise<Response> = new Promise(
-        (resolve) => {
-          server.on("response:mocked", (res) => {
-            if (options?.debug) {
-              console.groupCollapsed("[msw-pact] Response mocked");
-              console.log(res);
-              console.groupEnd();
-            }
-            resolve(res);
-          });
-        }
-      );
+      const responseMocked: Promise<Response>
+        = new Promise((resolve) =>
+          server.on("response:mocked", (res) => resolve(res)));
 
       const match: MswMatchedRequest = {
         matchedReq: requestMatch,
@@ -64,12 +45,8 @@ export const setupMswPact = ({
 
       server.on("request:unhandled", (unhandled) => {
         const { url } = unhandled;
-        const urlString = url.toString();
 
-        const includeFilter = !options?.includeUrl || options?.includeUrl.some(inc => urlString.includes(inc));
-        const excludeFilter = !options?.excludeUrl || !options?.excludeUrl.some(exc => urlString.includes(exc));
-
-        if (includeFilter && excludeFilter) {
+        if (checkUrlFilters(url.toString(), options)) {
           match.errors = `[msw-pact] Unhandled request: ${url}`;
         }
       });
@@ -106,6 +83,8 @@ export const setupMswPact = ({
 
       if (pactsToProcess) {
         // TODO - dedupe pactResults so we only have one file per consumer/provider pair
+        // Note: There are scenarios such as feature flagging where you want more than one file per consumer/provider pair
+
         pactsToProcess.map((pacts) => {
           const pactFile: PactFile = {
             ...pacts,
@@ -148,73 +127,90 @@ const transformMswToPact = async ({
   try {
     const results = await Promise.all(
       mswHandledReqRes.map(async (m) => {
-        const pactResult = Promise.all([m.matchedReq, m.matchedRes])
-          .then(async (data) => {
-            if (m.errors) {
-              throw new Error(m.errors);
-            }
-
-            const request = data[0];
-            const response = data[1];
-            if (!request || !response) {
-              throw new Error("[msw-pact] Request unhandled by msw");
-            }
-
-            console.groupCollapsed("[msw-pact] Request matched and response mocked");
-            // TODO - this method will convert a single res/req to
-            // a single pact file, we probably just want to convert
-            // to an interaction object, and write all the pacts to a single
-            // file once in writeAllPacts.
-            // however what happens if we have multiple consumer/providers
-            // in a single test file?
-            try {
-              const pactFile = await convertMswMatchToPact({
-                request,
-                response,
-                consumerName: options?.consumerName,
-                providerName: options?.providerName,
-              });
-  
-              if (options?.debug) {
-                console.log(j2s(request));
-                console.log(j2s(response));
-                console.log(j2s(pactFile));
-              }
-              
-              if (pactFile) {
-                pactResults.push(pactFile);
-              }
-              if (pactFile) {
-                pactResults.push(pactFile);
-              }
-
-              return pactFile;
-            } finally {
-              console.groupEnd();
-            }
-          })
-          .catch((err) => {
-            if (err instanceof Error) {
-              throw err;
-            }
-
-            throw new Error(err);
-          });
-
-        const timeout = new Promise(
-          (resolve: (value: { error: string }) => void) => {
-            const wait = setTimeout(() => {
-              clearTimeout(wait);
-              resolve({
-                error:
-                  "[msw-pact] Timed out waiting for request match in MSW, did you remember to issue a request to your mock?",
-              });
-            }, timeoutValue);
+        const asyncReq = m.matchedReq.then(req => {
+          if (!req || !checkUrlFilters(req.url.toString(), options)) {
+            return;
           }
-        );
 
-        const pactResultOrTimeout = await Promise.race([pactResult, timeout]);
-        return pactResultOrTimeout;
+          if (options?.debug) {
+            console.groupCollapsed("[msw-pact] Request matched");
+            console.log(req);
+            console.groupEnd();
+          }
+
+          return req;
+        });
+
+        const asyncRes = m.matchedRes.then(res => {
+          if (!res || !checkUrlFilters(res.url.toString(), options)) {
+            return;
+          }
+
+          if (options?.debug) {
+            console.groupCollapsed("[msw-pact] Response mocked");
+            console.log(res);
+            console.groupEnd();
+          }
+
+          return res;
+        });
+
+        
+        return Promise.all([
+          addTimeout(asyncReq, 'request match', timeoutValue),
+          addTimeout(asyncRes, 'response mock', timeoutValue)
+        ])
+        .then(async (data) => {
+          if (m.errors) {
+            throw new Error(m.errors);
+          }
+
+          const request = data[0];
+          const response = data[1];
+          if (!request || !response) {
+            throw new Error("[msw-pact] Request unhandled by msw");
+          }
+
+          console.groupCollapsed("[msw-pact] Request matched and response mocked");
+          // TODO - this method will convert a single res/req to
+          // a single pact file, we probably just want to convert
+          // to an interaction object, and write all the pacts to a single
+          // file once in writeAllPacts.
+          // however what happens if we have multiple consumer/providers
+          // in a single test file?
+          try {
+            const pactFile = await convertMswMatchToPact({
+              request,
+              response,
+              consumerName: options?.consumerName,
+              providerName: options?.providerName,
+            });
+
+            if (options?.debug) {
+              console.log(j2s(request));
+              console.log(j2s(response));
+              console.log(j2s(pactFile));
+            }
+            
+            if (pactFile) {
+              pactResults.push(pactFile);
+            }
+            if (pactFile) {
+              pactResults.push(pactFile);
+            }
+
+            return pactFile;
+          } finally {
+            console.groupEnd();
+          }
+        })
+        .catch((err) => {
+          if (err instanceof Error) {
+            throw err;
+          }
+
+          throw new Error(err);
+        });
       })
     );
     mswHandledReqRes.length = 0;

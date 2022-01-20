@@ -1,4 +1,5 @@
 import { writeFileSync, existsSync, mkdirSync } from "fs";
+import { MswPactOptions } from "../mswPact";
 var path = require("path");
 
 const ensureDirExists = (filePath: string) => {
@@ -16,4 +17,11 @@ const writeData2File = (filePath: string, data: Object) => {
   ensureDirExists(filePath);
   writeFileSync(filePath, j2s(data));
 };
-export { j2s, ensureDirExists, writeData2File };
+
+const checkUrlFilters = (urlString: string, options?: MswPactOptions) => {
+  const includeFilter = !options?.includeUrl || options?.includeUrl.some(inc => urlString.includes(inc));
+  const excludeFilter = !options?.excludeUrl || !options?.excludeUrl.some(exc => urlString.includes(exc));
+  return includeFilter && excludeFilter;
+};
+
+export { j2s, ensureDirExists, writeData2File, checkUrlFilters };
