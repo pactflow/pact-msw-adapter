@@ -24,4 +24,14 @@ const checkUrlFilters = (urlString: string, options?: MswPactOptions) => {
   return includeFilter && excludeFilter;
 };
 
-export { j2s, ensureDirExists, writeData2File, checkUrlFilters };
+const addTimeout = async<T> (promise: Promise<T>, label: string, timeout: number) => {
+  const asyncTimeout = new Promise<void>((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`[msw-pact] ${label} timed out after ${timeout}ms`));
+    }, timeout);
+  });
+
+  return Promise.race([promise, asyncTimeout]);
+}
+
+export { j2s, ensureDirExists, writeData2File, checkUrlFilters, addTimeout };
