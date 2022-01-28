@@ -45,15 +45,15 @@ const ensureDirExists = (filePath: string) => {
 
 const writeData2File = (filePath: string, data: Object) => {
   ensureDirExists(filePath);
-  writeFileSync(filePath, j2s(data));
+  writeFileSync(filePath, JSON.stringify(data));
 };
 
 const checkUrlFilters = (urlString: string, options: MswPactOptions) => {
   const providerFilter = Object.values(options.providers)
-    ?.some(validPaths =>validPaths.some(path => urlString.includes(path)));
+    ?.some(validPaths => validPaths.some(path => urlString.includes(path)));
   const includeFilter = !options.includeUrl || options.includeUrl.some(inc => urlString.includes(inc));
   const excludeFilter = !options.excludeUrl || !options.excludeUrl.some(exc => urlString.includes(exc));
-  return includeFilter && excludeFilter;
+  return includeFilter && excludeFilter && providerFilter;
 };
 
 const addTimeout = async<T> (promise: Promise<T>, label: string, timeout: number) => {
@@ -66,4 +66,4 @@ const addTimeout = async<T> (promise: Promise<T>, label: string, timeout: number
   return Promise.race([promise, asyncTimeout]);
 }
 
-export { logPrefix, log, warning, logGroup, j2s, ensureDirExists, writeData2File, checkUrlFilters, addTimeout };
+export { log, warning, logGroup, writeData2File, checkUrlFilters, addTimeout };
