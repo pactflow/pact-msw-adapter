@@ -24,7 +24,7 @@ const logGroup = (message: any | any[], options?: { endGroup?: boolean }) => {
   if (isArray) {
     const [label, ...content] = message;
     log(label, { group: true });
-    content.forEach(c => console.log(c));
+    content.forEach((c: any) => console.log(c));
   } else {
     log(message, { group: true });
   }
