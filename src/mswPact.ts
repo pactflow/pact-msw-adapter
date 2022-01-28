@@ -1,5 +1,5 @@
-import { DefaultRequestBody, MockedRequest, RestHandler, SetupWorkerApi } from 'msw';
-import { addTimeout, checkUrlFilters, j2s, log, logGroup, warning, writeData2File } from './utils/utils';
+import { DefaultRequestBody, MockedRequest, SetupWorkerApi } from 'msw';
+import { addTimeout, checkUrlFilters, log, logGroup, warning, writeData2File } from './utils/utils';
 import { convertMswMatchToPact } from './convertMswMatchToPact';
 import { EventEmitter } from 'events';
 
@@ -12,24 +12,33 @@ export interface MswPactOptions {
   includeUrl?: string[];
   excludeUrl?: string[];
 }
+export interface MswPactOptionsInternal {
+  timeout: number;
+  debug: boolean;
+  pactOutDir: string;
+  consumer: string;
+  providers: { [name: string]: string[] };
+  includeUrl?: string[];
+  excludeUrl?: string[];
+}
 
 export const setupMswPact = ({
   worker,
-  handlers,
-  options,
+  options: externalOptions,
 }: {
   worker: SetupWorkerApi;
-  handlers: RestHandler<MockedRequest<DefaultRequestBody>>[];
   options: MswPactOptions;
 }) => {
   const emitter = new EventEmitter();
 
-  options = options || {};
-  options.timeout = options.timeout || 200;
-  options.debug = options.debug || false;
-  options.pactOutDir = options.pactOutDir || './msw_generated_pacts/';
+  const options: MswPactOptionsInternal = {
+    ...externalOptions,
+    timeout: externalOptions.timeout || 200,
+    debug: externalOptions.debug || false,
+    pactOutDir: externalOptions.pactOutDir || './msw_generated_pacts/'
+  };
 
-  logGroup(`Adapter enabled${options?.debug ? ' on debug mode' : ''}`);
+  logGroup(`Adapter enabled${options.debug ? ' on debug mode' : ''}`);
   console.log('options:', options);
   console.groupEnd();
 
@@ -49,7 +58,7 @@ export const setupMswPact = ({
     const url = req.url.toString();
     if (!checkUrlFilters(url, options)) return;
 
-    if (options?.debug) {
+    if (options.debug) {
       logGroup(['Matching request', req], { endGroup: true });
     }
 
@@ -105,7 +114,7 @@ export const setupMswPact = ({
       return;
     }
 
-    if (options?.debug) {
+    if (options.debug) {
       logGroup(['Mocked response', response], { endGroup: true });
     }
 
@@ -195,24 +204,23 @@ export { convertMswMatchToPact };
 const transformMswToPact = async (
   matches: MswMatch[],
   activeRequestIds: string[],
-  options: MswPactOptions,
+  options: MswPactOptionsInternal,
   emitter: EventEmitter
 ): Promise<PactFile[]> => {
-  
-  // TODO: Lock new requests, error on clear/new-test if locked
-  const requestsCompleted = new Promise<void>(resolve => {
-    const events = ['msw-pact:expired ', 'msw-pact:match', 'msw-pact:new-test', 'msw-pact:clear'];    
-    const listener = () => {
-      if (activeRequestIds.length === 0) {
-        events.forEach((ev) => emitter.off(ev, listener));
-        resolve();
-      }
-    };
-    events.forEach((ev) => emitter.on(ev, listener));  
-  });
-  await requestsCompleted;
-
   try {
+    // TODO: Lock new requests, error on clear/new-test if locked
+    const requestsCompleted = new Promise<void>(resolve => {
+      const events = ['msw-pact:expired ', 'msw-pact:match', 'msw-pact:new-test', 'msw-pact:clear'];    
+      const listener = () => {
+        if (activeRequestIds.length === 0) {
+          events.forEach((ev) => emitter.off(ev, listener));
+          resolve();
+        }
+      };
+      events.forEach((ev) => emitter.on(ev, listener));  
+    });
+    await addTimeout(requestsCompleted, 'requests completed listener', options.timeout * 2);
+
     const pactFiles: PactFile[] = [];
     const providers = Object.entries(options.providers);
     const matchesByProvider: { [key: string]: MswMatch[] } = {};
@@ -224,8 +232,14 @@ const transformMswToPact = async (
     });
 
     for (const [provider, providerMatches] of Object.entries(matchesByProvider)) {
-      pactFiles.push(await convertMswMatchToPact({
-        consumer: options.consumer, provider, matches: providerMatches }));
+      const pactFile = await addTimeout(
+        convertMswMatchToPact(
+          { consumer: options.consumer, provider, matches: providerMatches }
+        ), 'msw match parser', options.timeout);
+
+      if (pactFile) {
+        pactFiles.push(pactFile);
+      }
     }
     return pactFiles;
   } catch (err) {

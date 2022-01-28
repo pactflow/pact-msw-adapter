@@ -43,8 +43,6 @@ const ensureDirExists = (filePath: string) => {
   mkdirSync(dirname);
 };
 
-const j2s = (json: Object) => JSON.stringify(json);
-
 const writeData2File = (filePath: string, data: Object) => {
   ensureDirExists(filePath);
   writeFileSync(filePath, j2s(data));
