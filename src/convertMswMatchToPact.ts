@@ -1,48 +1,42 @@
-import { DefaultRequestBody, MockedRequest } from "msw";
-import { PactResults } from "./mswPact";
+import { PactFile, MswMatch } from './mswPact';
 
 export const convertMswMatchToPact = async ({
-  request,
-  response,
-  consumerName,
-  providerName,
+  consumer,
+  provider,
+  matches,
 }: {
-  request: MockedRequest<DefaultRequestBody>;
-  response: Response;
-  consumerName?: string;
-  providerName?: string;
-}): Promise<PactResults> => {
-  const createPact: PactResults = {
-    consumer: {
-      name: consumerName ?? "consumer",
-    },
-    provider: {
-      name: providerName ?? "provider",
-    },
-    interactions: [
-      {
-        description: request.id,
+  consumer: string;
+  provider: string;
+  matches: MswMatch[];
+}): Promise<PactFile> => {
+  const pactFile: PactFile = {
+    consumer: { name: consumer },
+    provider: { name: provider },
+    interactions:
+      await Promise.all(matches.map(async (match) => ({
+        description: match.request.id,
         providerState: "",
         request: {
-          method: request.method,
-          path: request.url.pathname,
-          // @ts-ignore
-          headers: request.headers._headers,
-          body: request.bodyUsed ? request.body : undefined,
+          method: match.request.method,
+          path: match.request.url.pathname,
+          headers: match.request.headers['_headers'],
+          body: match.request.bodyUsed ? match.request.body : undefined,
         },
         response: {
-          status: response.status,
-          // @ts-ignore
-          headers: response.headers._headers,
-          body: response.body
-            ? response.headers.get("content-type")?.includes("json")
-              ? (await response.json())
-              : response.body
+          status: match.response.status,
+          headers: match.response.headers,
+          body: match.response.body
+            ? match.response.headers.get("content-type")?.includes("json")
+              ? (await match.response.json())
+              : match.response.body
             : undefined,
         },
+      }))),
+    metadata: {
+      pactSpecification: {
+        version: '2.0.0',
       },
-    ],
+    },
   };
-
-  return createPact;
+  return pactFile;
 };
