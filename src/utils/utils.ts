@@ -1,4 +1,4 @@
-import { writeFileSync, existsSync, mkdirSync } from "fs";
+import fs from 'fs';
 import { MswPactOptions } from "../mswPact";
 var path = require("path");
 
@@ -36,16 +36,21 @@ const logGroup = (message: any | any[], options?: { endGroup?: boolean }) => {
 
 const ensureDirExists = (filePath: string) => {
   var dirname = path.dirname(filePath);
-  if (existsSync(dirname)) {
+  if (fs?.existsSync(dirname)) {
     return true;
   }
-  ensureDirExists(dirname);
-  mkdirSync(dirname);
+  fs?.mkdirSync(dirname);
 };
 
 const writeData2File = (filePath: string, data: Object) => {
   ensureDirExists(filePath);
-  writeFileSync(filePath, JSON.stringify(data));
+  fs?.writeFileSync(filePath, JSON.stringify(data));
+  if (!fs) {
+    log('You need a node environment to save files.', { mode: 'warning', group: true });
+    console.log('filePath:', filePath);
+    console.log('contents:', data);
+    console.groupEnd();
+  }
 };
 
 const checkUrlFilters = (urlString: string, options: MswPactOptions) => {
