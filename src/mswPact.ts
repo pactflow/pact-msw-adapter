@@ -210,6 +210,11 @@ const transformMswToPact = async (
   try {
     // TODO: Lock new requests, error on clear/new-test if locked
     const requestsCompleted = new Promise<void>(resolve => {
+      if (activeRequestIds.length === 0) {
+        resolve();
+        return;
+      }
+
       const events = ['msw-pact:expired ', 'msw-pact:match', 'msw-pact:new-test', 'msw-pact:clear'];    
       const listener = () => {
         if (activeRequestIds.length === 0) {
