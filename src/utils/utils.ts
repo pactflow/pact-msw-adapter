@@ -36,16 +36,16 @@ const logGroup = (message: any | any[], options?: { endGroup?: boolean }) => {
 
 const ensureDirExists = (filePath: string) => {
   var dirname = path.dirname(filePath);
-  if (fs?.existsSync(dirname)) {
+  if (fs.existsSync?.(dirname)) {
     return true;
   }
-  fs?.mkdirSync(dirname);
+  fs.mkdirSync?.(dirname);
 };
 
 const writeData2File = (filePath: string, data: Object) => {
   ensureDirExists(filePath);
-  fs?.writeFileSync(filePath, JSON.stringify(data));
-  if (!fs) {
+  fs.writeFileSync?.(filePath, JSON.stringify(data));
+  if (!fs.existsSync) {
     log('You need a node environment to save files.', { mode: 'warning', group: true });
     console.log('filePath:', filePath);
     console.log('contents:', data);

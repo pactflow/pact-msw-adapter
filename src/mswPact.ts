@@ -167,7 +167,7 @@ export const setupMswPact = ({
         throw new Error(`Found errors on msw requests.\n${errors}`);
       }
     },
-    writeToFile: async () => {
+    writeToFile: async (writer: (path: string, data: object) => void = writeData2File) => {
       // TODO - dedupe pactResults so we only have one file per consumer/provider pair
       // Note: There are scenarios such as feature flagging where you want more than one file per consumer/provider pair
 
@@ -181,7 +181,7 @@ export const setupMswPact = ({
             Date.now().toString(),
           ].join('-') +
           '.json';
-        writeData2File(filePath, pactFile);
+        writer(filePath, pactFile);
       });
     },
     clear: () => {
