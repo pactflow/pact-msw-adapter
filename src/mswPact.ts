@@ -174,7 +174,7 @@ export const setupMswPact = ({
       const pactFiles = await transformMswToPact(matches, activeRequestIds, options, emitter);
       pactFiles.forEach((pactFile) => {
         const filePath =
-          options.pactOutDir +
+          options.pactOutDir + '/' +
           [
             pactFile.consumer.name,
             pactFile.provider.name,
