@@ -4,6 +4,8 @@ Create MSW (mock-service-worker) mocks, and generate pact contracts from the rec
 
 Note:- This is an alpha version and interface changes are to be expected. If you wish to contribute please get in touch!
 
+Check out this issue for the initial proposal on msw-pacts repo https://github.com/mswjs/msw/issues/572
+
 ### How to use
 
 In your tests, import msw and msw pact.
