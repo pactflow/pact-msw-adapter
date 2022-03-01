@@ -6,29 +6,31 @@ import { setupMswPact } from "./mswPact";
 const server = setupServer();
 const mswPact = setupMswPact({
   server,
-  options: { consumerName: "testConsumer", providerName: "testProvider" },
+  options: {
+    consumer: "testConsumer", providers: { ['testProvider']: ['products'] },
+    debug: true,
+    includeUrl: ['products','/product'],
+    excludeUrl: ['/product/11'],
+  },
 });
 
 describe("API - With MSW mock generating a pact", () => {
   beforeAll(async () => {
     server.listen();
   });
-  beforeEach(async () => {
-    mswPact.listen();
-  });
-  afterEach(async () => {
-    server.resetHandlers();
-    const pactsGeneratedAfterTest = await mswPact.returnPacts();
-    console.log(pactsGeneratedAfterTest);
-  });
-  afterAll(async () => {
-    mswPact.writePacts(); // writes the pacts to a file
 
-    const allPactsGeneratedAfterTestSuite = await mswPact.returnAllPacts();
-    console.log(allPactsGeneratedAfterTestSuite.length); // returns 2
-    console.log(JSON.stringify(allPactsGeneratedAfterTestSuite)); // returns any array of generated pacts
+  beforeEach(async () => {
+    mswPact.newTest();
+  });
+
+  afterEach(async () => {
+    mswPact.verifyTest();
+    server.resetHandlers();
+  });
+
+  afterAll(async () => {
+   await mswPact.writeToFile(); // writes the pacts to a file
     mswPact.clear();
-    console.log(allPactsGeneratedAfterTestSuite); // returns []
     server.close();
   });
 
@@ -67,7 +69,7 @@ describe("API - With MSW mock generating a pact", () => {
   });
 
   test("unhandled route", async () => {
-    await expect(API.getProduct("10")).rejects.toThrow(
+    await expect(API.getProduct("11")).rejects.toThrow(
       "connect ECONNREFUSED 127.0.0.1:8081"
     );
   });
