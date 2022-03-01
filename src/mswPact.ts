@@ -28,7 +28,7 @@ export const setupMswPact = ({
 
   return {
     listen: () => {
-      server.on("request:unhandled", (unhandled) => {
+      server.events.on("request:unhandled", (unhandled) => {
         const { url } = unhandled;
         console.log("This request was unhandled by msw: " + url);
       });
@@ -36,12 +36,12 @@ export const setupMswPact = ({
       const requestMatch: Promise<
         MockedRequest<DefaultRequestBody>
       > = new Promise((resolve) => {
-        server.on("request:match", resolve);
+        server.events.on("request:match", resolve);
       });
 
       const responseMocked: Promise<IsomorphicResponse> = new Promise(
         (resolve) => {
-          server.on("response:mocked", resolve);
+          server.events.on("response:mocked", resolve);
         }
       );
 
