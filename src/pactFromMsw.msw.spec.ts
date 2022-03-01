@@ -19,6 +19,11 @@ describe("API - With MSW mock generating a pact", () => {
     server.listen();
   });
 
+  beforeEach(async () => {
+    mswPact.newTest();
+
+  });
+
   afterEach(async () => {
     mswPact.verifyTest();
     server.resetHandlers();

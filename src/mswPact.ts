@@ -224,22 +224,22 @@ const transformMswToPact = async (
   try {
     // TODO: Lock new requests, error on clear/new-test if locked
 
-    // const requestsCompleted = new Promise<void>(resolve => {
-    //   if (activeRequestIds.length === 0) {
-    //     resolve();
-    //     return;
-    //   }
+    const requestsCompleted = new Promise<void>(resolve => {
+      if (activeRequestIds.length === 0) {
+        resolve();
+        return;
+      }
 
-    //   const events = ['msw-pact:expired ', 'msw-pact:match', 'msw-pact:new-test', 'msw-pact:clear'];    
-    //   const listener = () => {
-    //     if (activeRequestIds.length === 0) {
-    //       events.forEach((ev) => emitter.off(ev, listener));
-    //       resolve();
-    //     }
-    //   };
-    //   events.forEach((ev) => emitter.on(ev, listener));  
-    // });
-    // await addTimeout(requestsCompleted, 'requests completed listener', options.timeout * 2);
+      const events = ['msw-pact:expired ', 'msw-pact:match', 'msw-pact:new-test', 'msw-pact:clear'];    
+      const listener = () => {
+        if (activeRequestIds.length === 0) {
+          events.forEach((ev) => emitter.off(ev, listener));
+          resolve();
+        }
+      };
+      events.forEach((ev) => emitter.on(ev, listener));  
+    });
+    await addTimeout(requestsCompleted, 'requests completed listener', options.timeout * 2);
 
     const pactFiles: PactFile[] = [];
     const providers = Object.entries(options.providers);
