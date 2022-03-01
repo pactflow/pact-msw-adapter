@@ -10,23 +10,43 @@ Check out this issue for the initial proposal on msw-pacts repo https://github.c
 
 In your tests, import msw and msw pact.
 
+For node based environments
+
 ```js
 import { setupServer } from "msw/node";
-import { setupWorker } from "msw";
 import { setupMswPact } from "./mswPact";
 ```
 
-Instantiate your msw server and setup msw-pact
+For browser based enviromnents
+
+```js
+import { setupWorker } from "msw";;
+import { setupMswPact } from "./mswPact";
+```
+
+
+Instantiate your msw server/worker and setup msw-pact
+
+Node based
 
 ```js
 const server = setupServer();
+const mswPact = setupMswPact({
+  options: consumer: "testConsumer", providers: { ['testProvider']: ['products'] },
+  server
+});
+```
+
+Browser based
+
+```js
 const worker = setupWorker();
 const mswPact = setupMswPact({
-  options: { consumerName: "myTestConsumer" },
-  server,
+  options: consumer: "testConsumer", providers: { ['testProvider']: ['products'] },
   worker
 });
 ```
+
 
 The following parameters are accepted
 
@@ -41,6 +61,9 @@ In your test framework, setup mock-service-work and msw-pact similar to your pre
 ```js
 beforeAll(async () => {
   server.listen();
+});
+beforeEach(async () => {
+  mswPact.newTest();
 });
 afterEach(async () => {
   mswPact.verifyTest();
@@ -60,13 +83,28 @@ afterAll(async () => {
 | `timeout`      | false     | number  | 200                     | amount of time in ms, returnPact() will wait for a match |
 | `pactOutDir`   | false     | string  | `./msw_generated_pacts` | write pacts to the specified location                    |
 | `debug`        | false     | boolean | false                   | Print verbose logging                                    |
-| `consumerName` | false     | string  | `consumer`              | The consumer name                                        |
-| `providerName` | false     | string  | `provider`              | The provider name                                        |
+| `consumer` | true     | string  | `consumer`              | The consumer name                                        |
+| `provider` | true     | { [name: string]: string[] }  |              | An array of provider names, and valid paths to create pacts from matches                                        |
+| `includeUrl` | false     | string[]  |             | URL path patterns to include in pact file serialisation, from msw matches                                      |
+| `excludeUrl` | false     | string[]  |              | URL path patterns to exclude in pact file serialisation, from msw matches                                    |
+
+See below for sample configuration
+
+```
+const mswPact = setupMswPact({
+  server,
+  options: {
+    consumer: "testConsumer", providers: { ['testProvider']: ['products'] },
+    debug: true,
+    includeUrl: ['products','/product'],
+    excludeUrl: ['/product/11'],
+  },
+});
+
+```
 
 ### An example
 
-Taken from [./src/pactFromMsw.msw.spec.ts](./src/pactFromMsw.msw.spec.ts)
+See [./src/pactFromMsw.msw.spec.ts](./src/pactFromMsw.msw.spec.ts) for an example testing an API client, used in a react application
 
-Testing an API client, used in a react application
-
-This test will generate the following two pacts
+This test will generate the following two pacts, which can be found in the `./msw_generated_pacts` folder

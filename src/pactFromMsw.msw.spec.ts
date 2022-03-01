@@ -7,7 +7,7 @@ const server = setupServer();
 const mswPact = setupMswPact({
   server,
   options: {
-    consumer: "testConsumer", providers: { name: ['foo'], ['product-provider']: ['products'] },
+    consumer: "testConsumer", providers: { ['testProvider']: ['products'] },
     debug: true,
     includeUrl: ['products','/product'],
     excludeUrl: ['/product/11'],
@@ -21,7 +21,6 @@ describe("API - With MSW mock generating a pact", () => {
 
   beforeEach(async () => {
     mswPact.newTest();
-
   });
 
   afterEach(async () => {
