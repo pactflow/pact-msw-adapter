@@ -58,10 +58,15 @@ const checkUrlFilters = (urlString: string, options: MswPactOptions) => {
     ?.some(validPaths => validPaths.some(path => urlString.includes(path)));
   const includeFilter = !options.includeUrl || options.includeUrl.some(inc => urlString.includes(inc));
   const excludeFilter = !options.excludeUrl || !options.excludeUrl.some(exc => urlString.includes(exc));
-  return includeFilter && excludeFilter && providerFilter;
+  const matchIsAllowed = includeFilter && excludeFilter && providerFilter
+  if (options.debug) {
+    logGroup(['Checking request against url filters', { urlString, providerFilter, includeFilter, excludeFilter, matchIsAllowed }]);
+  }
+
+  return matchIsAllowed;
 };
 
-const addTimeout = async<T> (promise: Promise<T>, label: string, timeout: number) => {
+const addTimeout = async<T>(promise: Promise<T>, label: string, timeout: number) => {
   const asyncTimeout = new Promise<void>((_, reject) => {
     setTimeout(() => {
       reject(new Error(`[msw-pact] ${label} timed out after ${timeout}ms`));

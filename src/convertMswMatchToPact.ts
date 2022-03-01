@@ -28,7 +28,7 @@ export const convertMswMatchToPact = async ({
           headers: match.response.headers,
           body: match.response.body
             ? match.response.headers.get("content-type")?.includes("json")
-              ? (await match.response.json())
+              ? (JSON.stringify(match.response.body))
               : match.response.body
             : undefined,
         },

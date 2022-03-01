@@ -32,13 +32,13 @@ export const setupMswPact = ({
   worker?: SetupWorkerApi;
   server?: SetupServerApi;
 }) => {
-  if (!worker && !server){
+  if (!worker && !server) {
     throw new Error('Either a worker or server must be provided')
   }
 
   const mswMocker = worker ? worker : server
 
-  if (!mswMocker){
+  if (!mswMocker) {
     throw new Error('Could setup worker or server')
   }
   const emitter = new EventEmitter();
@@ -56,7 +56,7 @@ export const setupMswPact = ({
 
   // This can include expired requests
   const pendingRequests: MockedRequest[] = []; // Requests waiting for their responses
-  
+
   const unhandledRequests: string[] = []; // Requests that need to be handled
   const expiredRequests: ExpiredRequest[] = []; // Requests that have expired (timeout)
   const orphanResponses: string[] = []; // Responses from previous tests
@@ -69,7 +69,6 @@ export const setupMswPact = ({
   mswMocker.events.on('request:match', (req) => {
     const url = req.url.toString();
     if (!checkUrlFilters(url, options)) return;
-
     if (options.debug) {
       logGroup(['Matching request', req], { endGroup: true });
     }
@@ -93,7 +92,7 @@ export const setupMswPact = ({
     }, options.timeout);
   });
 
-  mswMocker.events.on('response:mocked', (response, reqId)=> {
+  mswMocker.events.on('response:mocked', (response, reqId) => {
     const reqIdx = pendingRequests.findIndex(req => req.id === reqId);
     if (reqIdx < 0) return; // Filtered and (expired and cleared) requests
 
@@ -108,7 +107,7 @@ export const setupMswPact = ({
       const expiredReq = expiredRequests.find(expired => expired.reqId === reqId);
       if (oldReqId) {
         orphanResponses.push(request.url.toString());
-        log(`Orphan response: ${request.url}`, { mode: 'warning', group: expiredReq !== undefined});
+        log(`Orphan response: ${request.url}`, { mode: 'warning', group: expiredReq !== undefined });
       }
 
       if (expiredReq) {
@@ -139,7 +138,7 @@ export const setupMswPact = ({
   mswMocker.events.on('request:unhandled', (req) => {
     const url = req.url.toString();
     if (!checkUrlFilters(url, options)) return;
-    
+
     unhandledRequests.push(url);
     warning(`Unhandled request: ${url}`);
   });
@@ -163,8 +162,7 @@ export const setupMswPact = ({
         errors += `Expired requests:\n${expiredRequests
           .map(expired => ({ expired, req: pendingRequests.find(req => req.id === expired.reqId) }))
           .filter(({ expired, req }) => expired && req)
-          .map(({expired, req}) => `${req!.url.pathname}${
-              expired.duration ? `took ${expired.duration}ms and` : ''
+          .map(({ expired, req }) => `${req!.url.pathname}${expired.duration ? `took ${expired.duration}ms and` : ''
             } timed out after ${options.timeout}ms`)
           .join('\n')}\n`;
         expiredRequests.length = 0;
@@ -182,8 +180,12 @@ export const setupMswPact = ({
     writeToFile: async (writer: (path: string, data: object) => void = writeData2File) => {
       // TODO - dedupe pactResults so we only have one file per consumer/provider pair
       // Note: There are scenarios such as feature flagging where you want more than one file per consumer/provider pair
+      console.log('Found the following number of matches to write to a file:- ' + matches.length)
 
       const pactFiles = await transformMswToPact(matches, activeRequestIds, options, emitter);
+      console.log(pactFiles)
+
+
       pactFiles.forEach((pactFile) => {
         const filePath =
           options.pactOutDir + '/' +
@@ -198,11 +200,11 @@ export const setupMswPact = ({
     },
     clear: () => {
       pendingRequests.length = 0;
-      
+
       unhandledRequests.length = 0;
       expiredRequests.length = 0;
       orphanResponses.length = 0;
-      
+
       oldRequestIds.length = 0;
       activeRequestIds.length = 0;
       matches.length = 0;
@@ -221,22 +223,23 @@ const transformMswToPact = async (
 ): Promise<PactFile[]> => {
   try {
     // TODO: Lock new requests, error on clear/new-test if locked
-    const requestsCompleted = new Promise<void>(resolve => {
-      if (activeRequestIds.length === 0) {
-        resolve();
-        return;
-      }
 
-      const events = ['msw-pact:expired ', 'msw-pact:match', 'msw-pact:new-test', 'msw-pact:clear'];    
-      const listener = () => {
-        if (activeRequestIds.length === 0) {
-          events.forEach((ev) => emitter.off(ev, listener));
-          resolve();
-        }
-      };
-      events.forEach((ev) => emitter.on(ev, listener));  
-    });
-    await addTimeout(requestsCompleted, 'requests completed listener', options.timeout * 2);
+    // const requestsCompleted = new Promise<void>(resolve => {
+    //   if (activeRequestIds.length === 0) {
+    //     resolve();
+    //     return;
+    //   }
+
+    //   const events = ['msw-pact:expired ', 'msw-pact:match', 'msw-pact:new-test', 'msw-pact:clear'];    
+    //   const listener = () => {
+    //     if (activeRequestIds.length === 0) {
+    //       events.forEach((ev) => emitter.off(ev, listener));
+    //       resolve();
+    //     }
+    //   };
+    //   events.forEach((ev) => emitter.on(ev, listener));  
+    // });
+    // await addTimeout(requestsCompleted, 'requests completed listener', options.timeout * 2);
 
     const pactFiles: PactFile[] = [];
     const providers = Object.entries(options.providers);
@@ -248,11 +251,11 @@ const transformMswToPact = async (
       matchesByProvider[provider].push(match);
     });
 
+
     for (const [provider, providerMatches] of Object.entries(matchesByProvider)) {
-      const pactFile = await addTimeout(
-        convertMswMatchToPact(
-          { consumer: options.consumer, provider, matches: providerMatches }
-        ), 'msw match parser', options.timeout);
+      const pactFile =
+          await convertMswMatchToPact(
+            { consumer: options.consumer, provider, matches: providerMatches })
 
       if (pactFile) {
         pactFiles.push(pactFile);
@@ -264,7 +267,7 @@ const transformMswToPact = async (
       throw err;
     }
 
-    if (err && typeof(err) === 'string')
+    if (err && typeof (err) === 'string')
       err = new Error(err);
 
     console.groupCollapsed('%c[msw-pact] Unexpected error.', 'color:coral;font-weight:bold;');
@@ -314,7 +317,7 @@ export interface PactFileMetaData {
 
 export interface MswMatch {
   request: MockedRequest;
-  response: Response|IsomorphicResponse;
+  response: Response | IsomorphicResponse;
 }
 
 export interface ExpiredRequest {
