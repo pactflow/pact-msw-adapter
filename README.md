@@ -14,14 +14,14 @@ For node based environments
 
 ```js
 import { setupServer } from "msw/node";
-import { setupMswPact } from "./mswPact";
+import { setupMswPact } from "msw-pact";
 ```
 
 For browser based enviromnents
 
 ```js
 import { setupWorker } from "msw";;
-import { setupMswPact } from "./mswPact";
+import { setupMswPact } from "msw-pact";
 ```
 
 
