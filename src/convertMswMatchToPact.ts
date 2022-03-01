@@ -13,7 +13,8 @@ export const convertMswMatchToPact = async ({
     consumer: { name: consumer },
     provider: { name: provider },
     interactions:
-      await Promise.all(matches.map(async (match) => ({
+      await Promise.all(matches.map(async (match) => 
+      ({
         description: match.request.id,
         providerState: "",
         request: {

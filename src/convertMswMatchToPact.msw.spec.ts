@@ -1,6 +1,4 @@
-import { DefaultRequestBody, MockedRequest } from "msw";
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
-import { j2s } from "./utils/utils";
 const sampleRequest = {
   id: "1fad2374-02e2-4b43-89d4-1c1e72183931",
   url: new URL("http://localhost:8081/products"),
@@ -36,7 +34,7 @@ const sampleResponse = {
     _headers: { "x-powered-by": "msw", "content-type": "application/json" },
     _names: {},
   },
-  body: j2s([{ id: "09", type: "CREDIT_CARD", name: "Gem Visa" }]),
+  body: JSON.stringify([{ id: "09", type: "CREDIT_CARD", name: "Gem Visa" }]),
 };
 
 const generatedPact = {
@@ -73,9 +71,13 @@ const generatedPact = {
 describe("writes an msw req/res to a pact", () => {
   it("should ", async () => {
     expect(
-      convertMswMatchToPact({
-        request: sampleRequest as any,
-        response: sampleResponse as any,
+      await convertMswMatchToPact({
+        matches: [{
+          request: sampleRequest as any,
+          response: sampleResponse as any,
+        }],
+        consumer: 'foo',
+        provider: 'bar'
       })
     ).toEqual(generatedPact);
   });
