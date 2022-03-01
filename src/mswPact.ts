@@ -2,7 +2,8 @@ import { DefaultRequestBody, MockedRequest, SetupWorkerApi } from 'msw';
 import { addTimeout, checkUrlFilters, log, logGroup, warning, writeData2File } from './utils/utils';
 import { convertMswMatchToPact } from './convertMswMatchToPact';
 import { EventEmitter } from 'events';
-
+import { SetupServerApi } from 'msw/lib/types/node/glossary';
+import { IsomorphicResponse } from '@mswjs/interceptors'
 export interface MswPactOptions {
   timeout?: number;
   debug?: boolean;
@@ -23,12 +24,23 @@ export interface MswPactOptionsInternal {
 }
 
 export const setupMswPact = ({
-  worker,
   options: externalOptions,
+  worker,
+  server
 }: {
-  worker: SetupWorkerApi;
   options: MswPactOptions;
+  worker?: SetupWorkerApi;
+  server?: SetupServerApi;
 }) => {
+  if (!worker && !server){
+    throw new Error('Either a worker or server must be provided')
+  }
+
+  const mswMocker = worker ? worker : server
+
+  if (!mswMocker){
+    throw new Error('Could setup worker or server')
+  }
   const emitter = new EventEmitter();
 
   const options: MswPactOptionsInternal = {
@@ -54,7 +66,7 @@ export const setupMswPact = ({
   const matches: MswMatch[] = []; // Completed request-response pairs
 
 
-  worker.events.on('request:match', (req) => {
+  mswMocker.events.on('request:match', (req) => {
     const url = req.url.toString();
     if (!checkUrlFilters(url, options)) return;
 
@@ -81,7 +93,7 @@ export const setupMswPact = ({
     }, options.timeout);
   });
 
-  worker.events.on('response:mocked', (response, reqId) => {
+  mswMocker.events.on('response:mocked', (response, reqId)=> {
     const reqIdx = pendingRequests.findIndex(req => req.id === reqId);
     if (reqIdx < 0) return; // Filtered and (expired and cleared) requests
 
@@ -119,12 +131,12 @@ export const setupMswPact = ({
     }
 
     activeRequestIds.splice(activeReqIdx, 1);
-    const match = { request, response };
+    const match = { request, response: response as Response };
     emitter.emit('msw-pact:match', match);
     matches.push(match);
   });
 
-  worker.events.on('request:unhandled', (req) => {
+  mswMocker.events.on('request:unhandled', (req) => {
     const url = req.url.toString();
     if (!checkUrlFilters(url, options)) return;
     
@@ -302,7 +314,7 @@ export interface PactFileMetaData {
 
 export interface MswMatch {
   request: MockedRequest;
-  response: Response;
+  response: Response|IsomorphicResponse;
 }
 
 export interface ExpiredRequest {

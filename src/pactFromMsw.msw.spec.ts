@@ -1,27 +1,28 @@
 import API from "../examples/react/src/api";
-import { rest, setupWorker } from "msw";
+import { rest } from "msw";
+import {  setupServer } from "msw/node";
 import { setupMswPact } from "./mswPact";
 
-const worker = setupWorker();
+const server = setupServer();
 const mswPact = setupMswPact({
-  worker,
+  server,
   options: { consumer: "testConsumer",providers:{ name: ['foo' ]} },
 });
 
 describe("API - With MSW mock generating a pact", () => {
   beforeAll(async () => {
-    worker.start();
+    server.listen();
   });
 
   afterEach(async () => {
-    worker.resetHandlers();
+    server.resetHandlers();
     const pactsGeneratedAfterTest = mswPact.verifyTest();
     console.log(pactsGeneratedAfterTest);
   });
   afterAll(async () => {
     mswPact.writeToFile(); // writes the pacts to a file
     mswPact.clear();
-    worker.stop();
+    server.close();
   });
 
   test("get all products", async () => {
@@ -32,7 +33,7 @@ describe("API - With MSW mock generating a pact", () => {
         name: "Gem Visa",
       },
     ];
-    worker.use(
+    server.use(
       rest.get(API.url + "/products", (req, res, ctx) => {
         return res(ctx.status(200), ctx.json(products));
       })
@@ -48,7 +49,7 @@ describe("API - With MSW mock generating a pact", () => {
       type: "CREDIT_CARD",
       name: "28 Degrees",
     };
-    worker.use(
+    server.use(
       rest.get(API.url + "/product/10", (req, res, ctx) => {
         return res(ctx.status(200), ctx.json(product));
       })
