@@ -260,7 +260,7 @@ const transformMswToPact = async (
 
     for (const [provider, providerMatches] of Object.entries(matchesByProvider)) {
       const pactFile =
-          await convertMswMatchToPact(
+          convertMswMatchToPact(
             { consumer: options.consumer, provider, matches: providerMatches })
 
       if (pactFile) {

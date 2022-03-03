@@ -46,7 +46,7 @@ const sampleMatch: MswMatch[] = [{
 describe("writes an msw req/res to a pact", () => {
   it("should ", async () => {
     expect(
-      await convertMswMatchToPact({
+      convertMswMatchToPact({
         matches: sampleMatch as any,
         consumer: 'interaction.consumer.name',
         provider: 'interaction.provider.name'
