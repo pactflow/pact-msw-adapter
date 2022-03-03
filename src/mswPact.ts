@@ -39,7 +39,7 @@ export const setupMswPact = ({
   const mswMocker = worker ? worker : server
 
   if (!mswMocker) {
-    throw new Error('Could setup worker or server')
+    throw new Error('Could not setup either the worker or server')
   }
   const emitter = new EventEmitter();
 
@@ -51,8 +51,10 @@ export const setupMswPact = ({
   };
 
   logGroup(`Adapter enabled${options.debug ? ' on debug mode' : ''}`);
-  console.log('options:', options);
-  console.groupEnd();
+  if (options.debug) {
+    logGroup(['options:', options], { endGroup: true });
+  }
+ 
 
   // This can include expired requests
   const pendingRequests: MockedRequest[] = []; // Requests waiting for their responses
@@ -92,7 +94,7 @@ export const setupMswPact = ({
     }, options.timeout);
   });
 
-  mswMocker.events.on('response:mocked', (response, reqId) => {
+  mswMocker.events.on('response:mocked', (response:Response|IsomorphicResponse, reqId:string) => {
     const reqIdx = pendingRequests.findIndex(req => req.id === reqId);
     if (reqIdx < 0) return; // Filtered and (expired and cleared) requests
 
@@ -180,10 +182,14 @@ export const setupMswPact = ({
     writeToFile: async (writer: (path: string, data: object) => void = writeData2File) => {
       // TODO - dedupe pactResults so we only have one file per consumer/provider pair
       // Note: There are scenarios such as feature flagging where you want more than one file per consumer/provider pair
-      console.log('Found the following number of matches to write to a file:- ' + matches.length)
-
+        logGroup(['Found the following number of matches to write to a file:- ' + matches.length]);
+    
       const pactFiles = await transformMswToPact(matches, activeRequestIds, options, emitter);
-      console.log(pactFiles)
+      if (!pactFiles)
+      {
+        logGroup(['writeToFile() was called but no pact files were generated, did you forget to await the writeToFile() method?', matches.length], { endGroup: true });
+
+      }
 
 
       pactFiles.forEach((pactFile) => {
