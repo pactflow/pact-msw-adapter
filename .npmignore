@@ -6,6 +6,7 @@ setupTests.js
 yarn.lock
 yarn-error.log
 Makefile
+renovate.json
 
 #Folders
 coverage
@@ -15,3 +16,5 @@ examples
 pacts
 pact
 src
+.github
+scripts

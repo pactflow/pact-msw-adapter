@@ -17,6 +17,5 @@ yarn-error.log*
 
 # msw
 msw_generated_pacts/
-lib
 pacts/
 logs/
