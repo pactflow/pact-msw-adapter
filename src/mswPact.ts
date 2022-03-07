@@ -265,8 +265,7 @@ const transformMswToPact = async (
     for (const [provider, providerMatches] of Object.entries(matchesByProvider)) {
       const pactFile =
         convertMswMatchToPact(
-          { consumer: options.consumer, provider, matches: providerMatches, headers: {excludeHeaders: options.excludeHeaders} })
-console.log(JSON.stringify(pactFile))
+          { consumer: options.consumer, provider, matches: providerMatches, headers: { excludeHeaders: options.excludeHeaders } })
       if (pactFile) {
         pactFiles.push(pactFile);
       }
