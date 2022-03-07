@@ -1,7 +1,7 @@
 {
   "name": "msw-pact",
   "version": "0.8.1",
-  "main": "./lib/mswPact.js",
+  "main": "./dist/mswPact.js",
   "keywords": [
     "pact",
     "msw",
@@ -24,7 +24,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:clean": "rimraf lib && tsc",
+    "build:clean": "rimraf dist && tsc",
     "test": "jest --verbose",
     "test:msw": "jest  --verbose '\\w.msw.spec.ts'",
     "dist:ci":"npm run build:clean && npm test"
