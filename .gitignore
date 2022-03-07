@@ -19,3 +19,4 @@ yarn-error.log*
 msw_generated_pacts/
 pacts/
 logs/
+dist/
