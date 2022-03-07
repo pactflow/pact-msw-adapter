@@ -1,6 +1,6 @@
 import { PactFile, MswMatch } from './mswPact';
 
-export const convertMswMatchToPact = async ({
+export const convertMswMatchToPact = ({
   consumer,
   provider,
   matches,
@@ -8,12 +8,12 @@ export const convertMswMatchToPact = async ({
   consumer: string;
   provider: string;
   matches: MswMatch[];
-}): Promise<PactFile> => {
+}): PactFile => {
   const pactFile: PactFile = {
     consumer: { name: consumer },
     provider: { name: provider },
     interactions:
-      await Promise.all(matches.map(async (match) => 
+      matches.map( (match) => 
       ({
         description: match.request.id,
         providerState: "",
@@ -28,11 +28,11 @@ export const convertMswMatchToPact = async ({
           headers: match.response.headers,
           body: match.response.body
             ? match.response.headers.get("content-type")?.includes("json")
-              ? (JSON.stringify(match.response.body))
+              ? (JSON.parse(match.response.body as string))
               : match.response.body
             : undefined,
         },
-      }))),
+      })),
     metadata: {
       pactSpecification: {
         version: '2.0.0',

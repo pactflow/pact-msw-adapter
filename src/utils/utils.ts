@@ -1,6 +1,6 @@
-import * as fs from 'fs';
 import { MswPactOptions } from "../mswPact";
 var path = require("path");
+let fs: any; // dynamic import
 
 const logPrefix = '[msw-pact]';
 const logColors = {
@@ -43,13 +43,19 @@ const ensureDirExists = (filePath: string) => {
 };
 
 const writeData2File = (filePath: string, data: Object) => {
-  ensureDirExists(filePath);
-  fs.writeFileSync?.(filePath, JSON.stringify(data));
-  if (!fs.existsSync) {
+  if (!fs) {
+    try {
+      fs = require('fs');
+    } catch (e) {}
+  }
+  if (!fs?.existsSync) {
     log('You need a node environment to save files.', { mode: 'warning', group: true });
     console.log('filePath:', filePath);
     console.log('contents:', data);
     console.groupEnd();
+  } else {
+    ensureDirExists(filePath);
+    fs.writeFileSync?.(filePath, JSON.stringify(data));
   }
 };
 
