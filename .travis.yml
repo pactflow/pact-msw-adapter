@@ -1,0 +1,35 @@
+language: node_js
+node_js:
+  - '10'
+  - '12'
+  - '14'
+os:
+  - linux
+matrix:
+  fast_finish: true
+cache: yarn
+env:
+  global:
+    # npmrc
+    - secure: xyz
+script: ./scripts/build.sh
+before_deploy:
+  - npm prune --production
+  - npm run deploy:prepare
+deploy:
+  - provider: releases
+    api_key:
+      secure: xyz
+    file: mswpact.tar.gz
+    skip_cleanup: true
+    on:
+      tags: true
+      branch: master
+      node: '10'
+  - provider: script
+    skip_cleanup: true
+    script: ./scripts/publish.sh
+    on:
+      tags: true
+      branch: master
+      node: '10'
