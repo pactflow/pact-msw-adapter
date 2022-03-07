@@ -32,7 +32,7 @@
     "release:trigger": "git push --follow-tags origin main && ./scripts/trigger-release.sh"
   },
   "devDependencies": {
-    "@babel/preset-env": "7.14.1",
+    "@babel/preset-env": "7.16.11",
     "@pact-foundation/pact": "^9.17.2",
     "@types/axios": "0.14.0",
     "@types/jest": "26.0.23",
