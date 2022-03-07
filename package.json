@@ -1,6 +1,6 @@
 {
   "name": "msw-pact",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "main": "./dist/mswPact.js",
   "keywords": [
     "pact",
@@ -27,7 +27,9 @@
     "build:clean": "rimraf dist && tsc",
     "test": "jest --verbose",
     "test:msw": "jest  --verbose '\\w.msw.spec.ts'",
-    "dist:ci":"npm run build:clean && npm test"
+    "dist:ci": "npm run build:clean && npm test",
+    "release:prep": "yarn run standard-version",
+    "release:trigger": "yarn run./scripts/trigger-release.sh"
   },
   "devDependencies": {
     "@babel/preset-env": "7.14.1",
@@ -44,6 +46,7 @@
     "nock": "11.9.1",
     "regenerator-runtime": "0.13.7",
     "rimraf": "3.0.2",
+    "standard-version": "^9.3.2",
     "ts-jest": "26.5.6",
     "typescript": "4.2.4"
   }
