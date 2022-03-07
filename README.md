@@ -54,6 +54,7 @@ Let's start by listing it's methods:
 | pactOutDir | `false` | `string` | ./msw_generated_pacts/ | path to write pact files into |
 | includeUrl | `false` | `string[]` | | inclusive filters for network calls |
 | excludeUrl | `false` | `string[]` | | exclusive filters for network calls |
+| excludeHeaders | `false` | `string[]` | | exclude generated headers from being written to request/response objects in pact file |
 | debug | `false` | `boolean` | `false` | prints verbose information about msw-pact events |
 
 ## Route filtering
@@ -64,6 +65,18 @@ This mechanism has three layers, in order of priority:
 - `excludeUrl`: All paths containing any of the strings present in this array will be ignored.
 - `includeUrl`: All paths not containing any of the strings in this array will be ignored.
 - `providers`: Paths not containing any of the strings listed in the map’s values will be ignored.
+
+The first two layers can be skipped by setting it’s value to `undefined`. The third layer is mandatory.
+
+## Header filtering
+
+By default msw-pact capture and serialise all request and response headers captured, in the generated pact file.
+
+You may wish to exclude these on a global basis
+
+This mechanism currently has a layer
+- `excludeHeaders`: All headers containing any of the strings present in this array will be ignored.
+
 
 The first two layers can be skipped by setting it’s value to `undefined`. The third layer is mandatory.
 
