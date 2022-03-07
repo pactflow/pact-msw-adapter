@@ -28,8 +28,8 @@
     "test": "jest --verbose",
     "test:msw": "jest  --verbose '\\w.msw.spec.ts'",
     "dist:ci": "npm run build:clean && npm test",
-    "release:prep": "yarn run standard-version",
-    "release:trigger": "git push --follow-tags origin main && ./scripts/trigger-release.sh"
+    "release": "standard-version",
+    "release:trigger": "./scripts/trigger-release.sh"
   },
   "devDependencies": {
     "@babel/preset-env": "7.14.1",
