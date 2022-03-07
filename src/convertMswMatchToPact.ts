@@ -29,7 +29,7 @@ export const convertMswMatchToPact = ({
         },
         response: {
           status: match.response.status,
-          headers: headers?.excludeHeaders ? omit((match.response.headers as Headers)['_headers'], headers.excludeHeaders) : match.response.headers,
+          headers: headers?.excludeHeaders ? omit((match.response.headers as Headers)['_headers'], headers.excludeHeaders) : (match.response.headers as Headers)['_headers'],
           body: match.response.body
             ? match.response.headers.get("content-type")?.includes("json")
               ? (JSON.parse(match.response.body as string))

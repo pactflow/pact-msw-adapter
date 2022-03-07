@@ -21,7 +21,7 @@ const generatedPact:PactFile = {
       response: {
         status: 200,
         body: [{ id: "09", type: "CREDIT_CARD", name: "Gem Visa" }],
-        headers: new Headers({ "x-powered-by": "msw", "content-type": "application/json" }) as  Headers,
+        headers: { "x-powered-by": "msw", "content-type": "application/json" },
       },
     },
   ],
@@ -39,7 +39,7 @@ const sampleMatch: MswMatch[] = [{
     "bodyUsed": false, "credentials": "same-origin"
   },
   "response": {
-    "status": 200, "statusText": "OK", "headers": new Headers({ "x-powered-by": "msw", "content-type": "application/json" }) as Headers,
+    "status": 200, "statusText": "OK", "headers": new Headers({ "x-powered-by": "msw", "content-type": "application/json" }),
     "body": JSON.stringify([{ id: "09", type: "CREDIT_CARD", name: "Gem Visa" }])
   }
 }]
