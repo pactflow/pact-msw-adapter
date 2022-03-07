@@ -1,6 +1,6 @@
 {
   "name": "msw-pact",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "main": "./dist/mswPact.js",
   "keywords": [
     "pact",
