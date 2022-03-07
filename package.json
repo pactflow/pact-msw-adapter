@@ -1,6 +1,6 @@
 {
   "name": "msw-pact",
-  "version": "0.8.0-alpha-01",
+  "version": "0.8.0-alpha-02",
   "main": "./lib/mswPact.js",
   "keywords": [
     "pact",
