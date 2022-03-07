@@ -24,12 +24,12 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-      branch: master
+      branch: main
       node: '10'
   - provider: script
     skip_cleanup: true
     script: ./scripts/publish.sh
     on:
       tags: true
-      branch: master
+      branch: main
       node: '10'
