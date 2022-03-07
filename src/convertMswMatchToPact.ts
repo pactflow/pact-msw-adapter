@@ -1,31 +1,35 @@
 import { PactFile, MswMatch } from './mswPact';
-
+import { omit } from 'lodash';
+import { HeadersObject, Headers } from 'headers-polyfill';
 export const convertMswMatchToPact = ({
   consumer,
   provider,
   matches,
+  headers
 }: {
   consumer: string;
   provider: string;
   matches: MswMatch[];
+  headers?: { excludeHeaders: string[] | undefined }
 }): PactFile => {
+  
   const pactFile: PactFile = {
     consumer: { name: consumer },
     provider: { name: provider },
     interactions:
-      matches.map( (match) => 
+      matches.map((match) =>
       ({
         description: match.request.id,
         providerState: "",
         request: {
           method: match.request.method,
           path: match.request.url.pathname,
-          headers: match.request.headers['_headers'],
+          headers: headers?.excludeHeaders ?  omit(match.request.headers['_headers'], headers.excludeHeaders) : match.request.headers['_headers'],
           body: match.request.bodyUsed ? match.request.body : undefined,
         },
         response: {
           status: match.response.status,
-          headers: match.response.headers,
+          headers: headers?.excludeHeaders ? omit(match.response.headers['_headers'] as Headers, headers.excludeHeaders) : match.response.headers,
           body: match.response.body
             ? match.response.headers.get("content-type")?.includes("json")
               ? (JSON.parse(match.response.body as string))

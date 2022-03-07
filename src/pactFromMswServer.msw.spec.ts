@@ -8,9 +8,10 @@ const mswPact = setupMswPact({
   server,
   options: {
     consumer: "testConsumer", providers: { ['testProvider']: ['products'],['testProvider2']: ['/product/10'] },
-    debug: true,
+    // debug: true,
     includeUrl: ['products', '/product'],
     excludeUrl: ['/product/11'],
+    excludeHeaders: ["x-powered-by","cookie"]
   },
 });
 
@@ -89,12 +90,12 @@ describe("API - With MSW mock generating a pact", () => {
       "authorization": expect.any(String) ,
       "user-agent": expect.any(String),
       "host": "localhost:8081",
-      "cookie": ""
+      // "cookie": ""
     })
     expect(pactResults[0].interactions[0].response.status).toEqual(200)
 
     expect(pactResults[0].interactions[0].response.headers._headers).toEqual({
-      "x-powered-by": "msw",
+      // "x-powered-by": "msw",
       "content-type": "application/json"
     })
     expect(pactResults[0].interactions[0].response.body).toEqual([
