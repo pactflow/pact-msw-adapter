@@ -109,6 +109,10 @@ See [./src/pactFromMsw.msw.spec.ts](./src/pactFromMsw.msw.spec.ts) for an exampl
 
 This test will generate the following two pacts, which can be found in the `./msw_generated_pacts` folder
 
-## Contributors - Made possible by these awesome people! You are welcome to contribute too!
+## Contributors
+
+Made possible by these awesome people! You are welcome to contribute too!
 
 ![Repo Contributors](https://contrib.rocks/image?repo=YOU54F/msw-pact)
+
+Special thanks to [Juan Cruz](https://github.com/IJuanI) for being an early adopter and improving the experience!
