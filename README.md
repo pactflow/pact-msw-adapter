@@ -111,4 +111,4 @@ This test will generate the following two pacts, which can be found in the `./ms
 
 ## Contributors - Made possible by these awesome people! You are welcome to contribute too!
 
-![Repo Contributors](https://contrib.rocks/image?repo=YOU54F/cypress-slack-reporter)
+![Repo Contributors](https://contrib.rocks/image?repo=YOU54F/msw-pact)
