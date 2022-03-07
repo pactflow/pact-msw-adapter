@@ -39,7 +39,7 @@ export const setupMswPact = ({
   const mswMocker = worker ? worker : server
 
   if (!mswMocker) {
-    throw new Error('Could setup worker or server')
+    throw new Error('Could not setup either the worker or server')
   }
   const emitter = new EventEmitter();
 
@@ -51,8 +51,12 @@ export const setupMswPact = ({
   };
 
   logGroup(`Adapter enabled${options.debug ? ' on debug mode' : ''}`);
-  console.log('options:', options);
-  console.groupEnd();
+  if (options.debug) {
+    logGroup(['options:', options], { endGroup: true });
+  } else {
+    console.groupEnd();
+  }
+
 
   // This can include expired requests
   const pendingRequests: MockedRequest[] = []; // Requests waiting for their responses
@@ -92,7 +96,7 @@ export const setupMswPact = ({
     }, options.timeout);
   });
 
-  mswMocker.events.on('response:mocked', (response, reqId) => {
+  mswMocker.events.on('response:mocked', (response: Response | IsomorphicResponse, reqId: string) => {
     const reqIdx = pendingRequests.findIndex(req => req.id === reqId);
     if (reqIdx < 0) return; // Filtered and (expired and cleared) requests
 
@@ -180,10 +184,13 @@ export const setupMswPact = ({
     writeToFile: async (writer: (path: string, data: object) => void = writeData2File) => {
       // TODO - dedupe pactResults so we only have one file per consumer/provider pair
       // Note: There are scenarios such as feature flagging where you want more than one file per consumer/provider pair
-      console.log('Found the following number of matches to write to a file:- ' + matches.length)
+      logGroup(['Found the following number of matches to write to a file:- ' + matches.length]);
 
       const pactFiles = await transformMswToPact(matches, activeRequestIds, options, emitter);
-      console.log(pactFiles)
+      if (!pactFiles) {
+        logGroup(['writeToFile() was called but no pact files were generated, did you forget to await the writeToFile() method?', matches.length], { endGroup: true });
+
+      }
 
 
       pactFiles.forEach((pactFile) => {
@@ -230,14 +237,14 @@ const transformMswToPact = async (
         return;
       }
 
-      const events = ['msw-pact:expired ', 'msw-pact:match', 'msw-pact:new-test', 'msw-pact:clear'];    
+      const events = ['msw-pact:expired ', 'msw-pact:match', 'msw-pact:new-test', 'msw-pact:clear'];
       const listener = () => {
         if (activeRequestIds.length === 0) {
           events.forEach((ev) => emitter.off(ev, listener));
           resolve();
         }
       };
-      events.forEach((ev) => emitter.on(ev, listener));  
+      events.forEach((ev) => emitter.on(ev, listener));
     });
     await addTimeout(requestsCompleted, 'requests completed listener', options.timeout * 2);
 
@@ -254,8 +261,8 @@ const transformMswToPact = async (
 
     for (const [provider, providerMatches] of Object.entries(matchesByProvider)) {
       const pactFile =
-          await convertMswMatchToPact(
-            { consumer: options.consumer, provider, matches: providerMatches })
+        convertMswMatchToPact(
+          { consumer: options.consumer, provider, matches: providerMatches })
 
       if (pactFile) {
         pactFiles.push(pactFile);
