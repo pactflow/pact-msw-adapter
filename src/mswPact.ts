@@ -22,7 +22,6 @@ export interface MswPactOptionsInternal {
   providers: { [name: string]: string[] };
   includeUrl?: string[];
   excludeUrl?: string[];
-  includeHeaders?: string[];
   excludeHeaders?: string[];
 }
 
