@@ -108,3 +108,7 @@ const mswPact = setupMswPact({
 See [./src/pactFromMsw.msw.spec.ts](./src/pactFromMsw.msw.spec.ts) for an example testing an API client, used in a react application
 
 This test will generate the following two pacts, which can be found in the `./msw_generated_pacts` folder
+
+## Contributors - Made possible by these awesome people! You are welcome to contribute too!
+
+![Repo Contributors](https://contrib.rocks/image?repo=YOU54F/cypress-slack-reporter)
