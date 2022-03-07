@@ -77,9 +77,6 @@ You may wish to exclude these on a global basis
 This mechanism currently has a layer
 - `excludeHeaders`: All headers containing any of the strings present in this array will be ignored.
 
-
-The first two layers can be skipped by setting it’s value to `undefined`. The third layer is mandatory.
-
 ## Custom file writers
 
 The adapter uses by default node’s filesystem to write pact files to disk. This makes it incompatible with browser environments where `fs` is not available. To overcome this, `msw-pact` allows for defining custom functions for writting files to disk.
