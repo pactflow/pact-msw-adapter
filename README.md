@@ -70,9 +70,9 @@ The first two layers can be skipped by setting it’s value to `undefined`. The 
 
 ## Header filtering
 
-By default msw-pact capture and serialise all request and response headers captured, in the generated pact file.
+By default msw-pact captures and serialises all request and response headers captured, in the generated pact file.
 
-You may wish to exclude these on a global basis
+You may wish to exclude these on a global basis.
 
 This mechanism currently has a layer
 - `excludeHeaders`: All headers containing any of the strings present in this array will be ignored.
