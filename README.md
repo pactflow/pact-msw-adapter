@@ -30,7 +30,9 @@ import { setupWorker } from "msw";
 import { setupMswPact } from "msw-pact";
 ```
 
-See [./src/pactFromMsw.msw.spec.ts](./src/pactFromMsw.msw.spec.ts) for an example testing an API client, used in a react application
+See [./src/pactFromMswServer.msw.spec.ts](./src/pactFromMswServer.msw.spec.ts) for an example testing an API client, used in a react application
+
+This test will generate pacts, which can be found in the `./msw_generated_pacts` folder
 
 ## How to use
 
@@ -195,12 +197,6 @@ Without further do, it looks like the following:
 ```
 
 Here, `matchingRules` represent the assertions of the expectation, while `body`, `query` and `path` contains it's example values.
-
-### An example
-
-See [./src/pactFromMsw.msw.spec.ts](./src/pactFromMsw.msw.spec.ts) for an example testing an API client, used in a react application
-
-This test will generate the following two pacts, which can be found in the `./msw_generated_pacts` folder
 
 ## Contributors
 
