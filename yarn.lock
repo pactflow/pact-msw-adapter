@@ -1396,7 +1396,7 @@
     unzipper "^0.10.10"
     url-join "^4.0.0"
 
-"@pact-foundation/pact@^9.17.2":
+"@pact-foundation/pact@9.17.2":
   version "9.17.2"
   resolved "https://registry.yarnpkg.com/@pact-foundation/pact/-/pact-9.17.2.tgz#7baa06cc29d66f52463e39b528fe18c774f1a269"
   integrity sha512-q87I/NHzEeZeS2Zf/M15wzoept9WY0VU/he1o8wn5yJLkRTLeUnFBCp3jB4yj8RhAa708gVoKYpvk48HP3tOXw==
@@ -6671,7 +6671,7 @@ stack-utils@^2.0.2:
   dependencies:
     escape-string-regexp "^2.0.0"
 
-standard-version@^9.3.2:
+standard-version@9.3.2:
   version "9.3.2"
   resolved "https://registry.yarnpkg.com/standard-version/-/standard-version-9.3.2.tgz#28db8c1be66fd2d736f28f7c5de7619e64cd6dab"
   integrity sha512-u1rfKP4o4ew7Yjbfycv80aNMN2feTiqseAhUhrrx2XtdQGmu7gucpziXe68Z4YfHVqlxVEzo4aUA0Iu3VQOTgQ==
