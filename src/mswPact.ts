@@ -12,6 +12,7 @@ export interface MswPactOptions {
   providers: { [name: string]: string[] };
   includeUrl?: string[];
   excludeUrl?: string[];
+  excludeHeaders?: string[];
 }
 export interface MswPactOptionsInternal {
   timeout: number;
@@ -21,6 +22,7 @@ export interface MswPactOptionsInternal {
   providers: { [name: string]: string[] };
   includeUrl?: string[];
   excludeUrl?: string[];
+  excludeHeaders?: string[];
 }
 
 export const setupMswPact = ({
@@ -262,8 +264,7 @@ const transformMswToPact = async (
     for (const [provider, providerMatches] of Object.entries(matchesByProvider)) {
       const pactFile =
         convertMswMatchToPact(
-          { consumer: options.consumer, provider, matches: providerMatches })
-
+          { consumer: options.consumer, provider, matches: providerMatches, headers: { excludeHeaders: options.excludeHeaders } })
       if (pactFile) {
         pactFiles.push(pactFile);
       }
