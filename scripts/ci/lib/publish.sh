@@ -13,5 +13,5 @@ echo "--> Releasing version ${VERSION}"
 
 echo "--> Releasing artifacts"
 echo "    Publishing pact-msw-adapter@${VERSION}..."
-npm publish --public--acess --tag latest
+npm publish --public--access --tag latest
 echo "    done!"
