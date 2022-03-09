@@ -1,6 +1,6 @@
 <!-- Thank you for making a pull request! -->
 
-<!-- msw-pact is built and maintained by developers like you, and we appreciate contributions very much. You are awesome! -->
+<!-- pact-msw-adapter is built and maintained by developers like you, and we appreciate contributions very much. You are awesome! -->
 
 <!-- Our changelog is automatically built from our commit history, using conventional changelog. This means we'd like to take care that: -->
 

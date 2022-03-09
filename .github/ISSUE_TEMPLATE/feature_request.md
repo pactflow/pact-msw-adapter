@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Request a new feature (or a modification to an existing feature) for msw-pact
+about: Request a new feature (or a modification to an existing feature) for pact-msw-adapter
 title: ''
 labels: enhancement
 assignees: ''

@@ -1,33 +1,33 @@
-# msw-pact
+# pact-msw-adapter
 
 Generate pact contracts from the recorded mock service worker interactions.
 
 Note:- This is an alpha version and interface changes are to be expected. If you wish to contribute please get in touch!
 
-Check out this issue for the initial proposal on msw-pacts repo https://github.com/mswjs/msw/issues/572
+Check out this issue for the initial proposal on msw's repo https://github.com/mswjs/msw/issues/572
 
 ##  Getting started
 
 ```
-npm install msw-pact -save-dev 
+npm install pact-msw-adapter -save-dev 
 ```
 or yarn
 ```
-yarn add -D msw-pact 
+yarn add -D pact-msw-adapter 
 ```
 
 MSW provides a `setupServer` for node environments and `setupWorker` for browser based environment
 
 ```js
 import { setupServer } from "msw/node";
-import { setupMswPact } from "msw-pact";
+import { setupMswPactAdapter } from "pact-msw-adapter";
 ```
 
 For browser based enviromnents
 
 ```js
 import { setupWorker } from "msw";
-import { setupMswPact } from "msw-pact";
+import { setupMswPactAdapter } from "pact-msw-adapter";
 ```
 
 See [./src/pactFromMswServer.msw.spec.ts](./src/pactFromMswServer.msw.spec.ts) for an example testing an API client, used in a react application
@@ -37,10 +37,10 @@ This test will generate pacts, which can be found in the `./msw_generated_pacts`
 ## How to use
 
 Let's start by listing it's methods:
-- `setupMswPact`: Generates an msw-pact instance. It also allows for several options on the adapter.
+- `setupMswPactAdapter`: Generates an pact-msw-adapter instance. It also allows for several options on the adapter.
 - `newTest`: Tells the adapter a new test is about to start. This is used for validating msw calls.
 - `verifyTest`: Waits for all pending network calls to finish or timeout, and asserts that all these calls started and finished on the same test without unexpected errors, and that there were no calls to included urls which aren't handled by msw.
-- `clear`: Resets all msw-pact's internal states, same effect as generating a new msw-pact instance.
+- `clear`: Resets all pact-msw-adapter's internal states, same effect as generating a new pact-msw-adapter instance.
 - `writeToFile`: Dumps all the recorded msw calls to pact files, generating one pact file for each consumer-provider call. For browser environments, it requires a custom file writter as argument.
 
 
@@ -57,11 +57,11 @@ Let's start by listing it's methods:
 | includeUrl | `false` | `string[]` | | inclusive filters for network calls |
 | excludeUrl | `false` | `string[]` | | exclusive filters for network calls |
 | excludeHeaders | `false` | `string[]` | | exclude generated headers from being written to request/response objects in pact file |
-| debug | `false` | `boolean` | `false` | prints verbose information about msw-pact events |
+| debug | `false` | `boolean` | `false` | prints verbose information about pact-msw-adapter events |
 
 ## Route filtering
 
-By default msw-pact will try to record an interaction for every single network call, including external dependencies, fonts or static resources. This is why we’re implementing a route filtering mechanism to include only relevant paths in our pact files.
+By default pact-msw-adapter will try to record an interaction for every single network call, including external dependencies, fonts or static resources. This is why we’re implementing a route filtering mechanism to include only relevant paths in our pact files.
 
 This mechanism has three layers, in order of priority:
 - `excludeUrl`: All paths containing any of the strings present in this array will be ignored.
@@ -72,7 +72,7 @@ The first two layers can be skipped by setting it’s value to `undefined`. The 
 
 ## Header filtering
 
-By default msw-pact captures and serialises all request and response headers captured, in the generated pact file.
+By default pact-msw-adapter captures and serialises all request and response headers captured, in the generated pact file.
 
 You may wish to exclude these on a global basis.
 
@@ -81,7 +81,7 @@ This mechanism currently has a layer
 
 ## Custom file writers
 
-The adapter uses by default node’s filesystem to write pact files to disk. This makes it incompatible with browser environments where `fs` is not available. To overcome this, `msw-pact` allows for defining custom functions for writting files to disk.
+The adapter uses by default node’s filesystem to write pact files to disk. This makes it incompatible with browser environments where `fs` is not available. To overcome this, `pact-msw-adapter` allows for defining custom functions for writting files to disk.
 
 ```js
 writeToFile(writer?: (path: string, data: object) => void): Promise<void>
@@ -95,30 +95,30 @@ The `data` field consists of a javascript object containing a pact file (check t
 
 ## Pact files generation
 
-`msw-pact` will dump all the recorded requests into pact files when `writeToFile` is called.
+`pact-msw-adapter` will dump all the recorded requests into pact files when `writeToFile` is called.
 
-A recorded request is a request which has started and been successfully mocked by msw since msw-pact has been instantiated or cleared. This can include duplicated requests and does not distinguishes between different test runs.
+A recorded request is a request which has started and been successfully mocked by msw since pact-msw-adapter has been instantiated or cleared. This can include duplicated requests and does not distinguishes between different test runs.
 
 Each time `writeToFile` is run, it will generate one pact file for every consumer-provider pair. In practice, consumers are fixed, making it to generate one pact file per provider.
 
-In order to do this, `msw-pact` uses the providers map to asociate a request with a provider. The providers map is iterated in order and each request is associated with exactly one provider.
+In order to do this, `pact-msw-adapter` uses the providers map to asociate a request with a provider. The providers map is iterated in order and each request is associated with exactly one provider.
 
-Once this association is done, `msw-pact` will translate each request to a pact interaction and group these interactions on pact files by provider.
+Once this association is done, `pact-msw-adapter` will translate each request to a pact interaction and group these interactions on pact files by provider.
 
 
 <details>
-  <summary>msw-pact implementation</summary>
+  <summary>pact-msw-adapter implementation</summary>
     <br>
 
 ```js
-import { setupMswPact } from 'msw-pact';
+import { setupMswPactAdapter } from 'pact-msw-adapter';
 
-let mswPact: any = undefined;
+let pactMswAdapter: any = undefined;
 
 beforeEach(async () => {
-    if (!mswPact) {
+    if (!pactMswAdapter) {
         cy.window().then(window => {
-            mswPact = setupMswPact({
+            pactMswAdapter = setupMswPactAdapter({
                 worker: window.msw.worker,
                 options: {
                     consumer: 'web-ea',
@@ -131,17 +131,17 @@ beforeEach(async () => {
                     // debug: true
                 },
               });
-            mswPact.newTest();
+            pactMswAdapter.newTest();
         });
     } else {
-        mswPact.newTest();
+        pactMswAdapter.newTest();
     }
 });
 afterEach(async () => {
-    if (!mswPact) return;
+    if (!pactMswAdapter) return;
     
     try {
-        await mswPact.verifyTest();
+        await pactMswAdapter.verifyTest();
     } catch (err) {
         // cypress doesn't like errors on hooks...
         if (process.env.NODE_ENV !== 'production') {
@@ -155,10 +155,10 @@ afterEach(async () => {
     }
 });
 after(async () => {
-    if (!mswPact) return;
+    if (!pactMswAdapter) return;
 
-    await mswPact.writeToFile((path: string, data: object) => cy.writeFile(path, data));
-    mswPact.clear();
+    await pactMswAdapter.writeToFile((path: string, data: object) => cy.writeFile(path, data));
+    pactMswAdapter.clear();
 });
 ```
 </details>
@@ -202,6 +202,6 @@ Here, `matchingRules` represent the assertions of the expectation, while `body`,
 
 Made possible by these awesome people! You are welcome to contribute too!
 
-![Repo Contributors](https://contrib.rocks/image?repo=YOU54F/msw-pact)
+![Repo Contributors](https://contrib.rocks/image?repo=YOU54F/pact-msw-adapter)
 
 Special thanks to [Juan Cruz](https://github.com/IJuanI) for being an early adopter and improving the experience!
