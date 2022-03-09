@@ -9,25 +9,25 @@ Check out this issue for the initial proposal on msw's repo https://github.com/m
 ##  Getting started
 
 ```
-npm install pact-msw-adapter -save-dev 
+npm install @pactflow/pact-msw-adapter -save-dev 
 ```
 or yarn
 ```
-yarn add -D pact-msw-adapter 
+yarn add -D @pactflow/pact-msw-adapter 
 ```
 
 MSW provides a `setupServer` for node environments and `setupWorker` for browser based environment
 
 ```js
 import { setupServer } from "msw/node";
-import { setupMswPactAdapter } from "pact-msw-adapter";
+import { setupMswPactAdapter } from "@pactflow/pact-msw-adapter";
 ```
 
 For browser based enviromnents
 
 ```js
 import { setupWorker } from "msw";
-import { setupMswPactAdapter } from "pact-msw-adapter";
+import { setupMswPactAdapter } from "@pactflow/pact-msw-adapter";
 ```
 
 See [./src/pactFromMswServer.msw.spec.ts](./src/pactFromMswServer.msw.spec.ts) for an example testing an API client, used in a react application
@@ -111,7 +111,7 @@ Once this association is done, `pact-msw-adapter` will translate each request to
     <br>
 
 ```js
-import { setupMswPactAdapter } from 'pact-msw-adapter';
+import { setupMswPactAdapter } from '@pactflow/pact-msw-adapter';
 
 let pactMswAdapter: any = undefined;
 
@@ -202,6 +202,6 @@ Here, `matchingRules` represent the assertions of the expectation, while `body`,
 
 Made possible by these awesome people! You are welcome to contribute too!
 
-![Repo Contributors](https://contrib.rocks/image?repo=YOU54F/pact-msw-adapter)
+![Repo Contributors](https://contrib.rocks/image?repo=pactflow/pact-msw-adapter)
 
 Special thanks to [Juan Cruz](https://github.com/IJuanI) for being an early adopter and improving the experience!
