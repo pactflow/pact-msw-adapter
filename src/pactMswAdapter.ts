@@ -4,7 +4,7 @@ import { convertMswMatchToPact } from './convertMswMatchToPact';
 import { EventEmitter } from 'events';
 import { SetupServerApi } from 'msw/lib/types/node/glossary';
 import { IsomorphicResponse } from '@mswjs/interceptors'
-export interface MswPactAdapterOptions {
+export interface PactMswAdapterOptions {
   timeout?: number;
   debug?: boolean;
   pactOutDir?: string;
@@ -14,7 +14,7 @@ export interface MswPactAdapterOptions {
   excludeUrl?: string[];
   excludeHeaders?: string[];
 }
-export interface MswPactAdapterOptionsInternal {
+export interface PactMswAdapterOptionsInternal {
   timeout: number;
   debug: boolean;
   pactOutDir: string;
@@ -25,12 +25,12 @@ export interface MswPactAdapterOptionsInternal {
   excludeHeaders?: string[];
 }
 
-export const setupMswPactAdapter = ({
+export const setupPactMswAdapter = ({
   options: externalOptions,
   worker,
   server
 }: {
-  options: MswPactAdapterOptions;
+  options: PactMswAdapterOptions;
   worker?: SetupWorkerApi;
   server?: SetupServerApi;
 }) => {
@@ -45,7 +45,7 @@ export const setupMswPactAdapter = ({
   }
   const emitter = new EventEmitter();
 
-  const options: MswPactAdapterOptionsInternal = {
+  const options: PactMswAdapterOptionsInternal = {
     ...externalOptions,
     timeout: externalOptions.timeout || 200,
     debug: externalOptions.debug || false,
@@ -227,7 +227,7 @@ export { convertMswMatchToPact };
 const transformMswToPact = async (
   matches: MswMatch[],
   activeRequestIds: string[],
-  options: MswPactAdapterOptionsInternal,
+  options: PactMswAdapterOptionsInternal,
   emitter: EventEmitter
 ): Promise<PactFile[]> => {
   try {

@@ -1,4 +1,4 @@
-import { MswPactAdapterOptions } from "../pactMswAdapter";
+import { PactMswAdapterOptions } from "../pactMswAdapter";
 var path = require("path");
 let fs: any; // dynamic import
 
@@ -59,7 +59,7 @@ const writeData2File = (filePath: string, data: Object) => {
   }
 };
 
-const checkUrlFilters = (urlString: string, options: MswPactAdapterOptions) => {
+const checkUrlFilters = (urlString: string, options: PactMswAdapterOptions) => {
   const providerFilter = Object.values(options.providers)
     ?.some(validPaths => validPaths.some(path => urlString.includes(path)));
   const includeFilter = !options.includeUrl || options.includeUrl.some(inc => urlString.includes(inc));

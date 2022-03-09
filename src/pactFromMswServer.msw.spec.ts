@@ -1,10 +1,10 @@
 import API from "../examples/react/src/api";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-import { PactFile, setupMswPactAdapter } from "./pactMswAdapter";
+import { PactFile, setupPactMswAdapter } from "./pactMswAdapter";
 
 const server = setupServer();
-const pactMswAdapter = setupMswPactAdapter({
+const pactMswAdapter = setupPactMswAdapter({
   server,
   options: {
     consumer: "testConsumer", providers: { ['testProvider']: ['products'],['testProvider2']: ['/product/10'] },

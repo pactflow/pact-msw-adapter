@@ -9,7 +9,7 @@ Check out this issue for the initial proposal on msw's repo https://github.com/m
 ##  Getting started
 
 ```
-npm install @pactflow/pact-msw-adapter -save-dev 
+npm install f -save-dev 
 ```
 or yarn
 ```
@@ -20,14 +20,14 @@ MSW provides a `setupServer` for node environments and `setupWorker` for browser
 
 ```js
 import { setupServer } from "msw/node";
-import { setupMswPactAdapter } from "@pactflow/pact-msw-adapter";
+import { setupPactMswAdapter } from "@pactflow/pact-msw-adapter";
 ```
 
 For browser based enviromnents
 
 ```js
 import { setupWorker } from "msw";
-import { setupMswPactAdapter } from "@pactflow/pact-msw-adapter";
+import { setupPactMswAdapter } from "@pactflow/pact-msw-adapter";
 ```
 
 See [./src/pactFromMswServer.msw.spec.ts](./src/pactFromMswServer.msw.spec.ts) for an example testing an API client, used in a react application
@@ -37,7 +37,7 @@ This test will generate pacts, which can be found in the `./msw_generated_pacts`
 ## How to use
 
 Let's start by listing it's methods:
-- `setupMswPactAdapter`: Generates an pact-msw-adapter instance. It also allows for several options on the adapter.
+- `setupPactMswAdapter`: Generates an pact-msw-adapter instance. It also allows for several options on the adapter.
 - `newTest`: Tells the adapter a new test is about to start. This is used for validating msw calls.
 - `verifyTest`: Waits for all pending network calls to finish or timeout, and asserts that all these calls started and finished on the same test without unexpected errors, and that there were no calls to included urls which aren't handled by msw.
 - `clear`: Resets all pact-msw-adapter's internal states, same effect as generating a new pact-msw-adapter instance.
@@ -111,14 +111,14 @@ Once this association is done, `pact-msw-adapter` will translate each request to
     <br>
 
 ```js
-import { setupMswPactAdapter } from '@pactflow/pact-msw-adapter';
+import { setupPactMswAdapter } from '@pactflow/pact-msw-adapter';
 
 let pactMswAdapter: any = undefined;
 
 beforeEach(async () => {
     if (!pactMswAdapter) {
         cy.window().then(window => {
-            pactMswAdapter = setupMswPactAdapter({
+            pactMswAdapter = setupPactMswAdapter({
                 worker: window.msw.worker,
                 options: {
                     consumer: 'web-ea',
