@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Report a bug with msw-pact-adapter
+about: Report a bug with pact-msw-adapter
 title: ''
 labels: bug
 assignees: ''
