@@ -1,10 +1,10 @@
 import API from "../examples/react/src/api";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-import { PactFile, setupPactMswAdapter } from "./pactMswAdapter";
+import { PactFile, setupMswPactAdapter } from "./mswPactAdapter";
 
 const server = setupServer();
-const pactMswAdapter = setupPactMswAdapter({
+const mswPactAdapter = setupMswPactAdapter({
   server,
   options: {
     consumer: "testConsumer", providers: { ['testProvider']: ['products'],['testProvider2']: ['/product/10'] },
@@ -21,17 +21,17 @@ describe("API - With MSW mock generating a pact", () => {
   });
 
   beforeEach(async () => {
-    pactMswAdapter.newTest();
+    mswPactAdapter.newTest();
   });
 
   afterEach(async () => {
-    pactMswAdapter.verifyTest();
+    mswPactAdapter.verifyTest();
     server.resetHandlers();
   });
 
   afterAll(async () => {
-    await pactMswAdapter.writeToFile(); // writes the pacts to a file
-    pactMswAdapter.clear();
+    await mswPactAdapter.writeToFile(); // writes the pacts to a file
+    mswPactAdapter.clear();
     server.close();
   });
 
@@ -77,7 +77,7 @@ describe("API - With MSW mock generating a pact", () => {
 
   test("creates pact files", async () => {
     let pactResults: PactFile[] = []
-    await pactMswAdapter.writeToFile((path, data) => { pactResults.push(data as PactFile) }); // writes the pacts to a file
+    await mswPactAdapter.writeToFile((path, data) => { pactResults.push(data as PactFile) }); // writes the pacts to a file
     expect(pactResults.length).toEqual(2)
     expect(pactResults[0].consumer.name).toEqual('testConsumer')
     expect(pactResults[0].provider.name).toEqual('testProvider')
