@@ -1,6 +1,6 @@
 <!-- Thank you for making a pull request! -->
 
-<!-- msw-pact is built and maintained by developers like you, and we appreciate contributions very much. You are awesome! -->
+<!-- pact-msw-adapter is built and maintained by developers like you, and we appreciate contributions very much. You are awesome! -->
 
 <!-- Our changelog is automatically built from our commit history, using conventional changelog. This means we'd like to take care that: -->
 
@@ -15,7 +15,7 @@ merge, but you'll lose attribution for your change. -->
 
 ### Checklist
 
-- [ ] `npm run format:check && npm run lint && npm run build && npm run test` all pass on my machine
+- [ ] `yarn run dist:ci` passes on my machine
 - [ ] I have followed the commit message guidelines, with messages suitable for appearing in the changelog
 
 ### Description

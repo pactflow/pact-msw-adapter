@@ -12,6 +12,6 @@ echo "--> Preparing npmrc file"
 echo "--> Releasing version ${VERSION}"
 
 echo "--> Releasing artifacts"
-echo "    Publishing msw-pact@${VERSION}..."
-npm publish --tag latest
+echo "    Publishing pact-msw-adapter@${VERSION}..."
+npm publish --public--access --tag latest
 echo "    done!"
