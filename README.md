@@ -2,14 +2,12 @@
 
 Generate pact contracts from the recorded mock service worker interactions.
 
-Note:- This is an alpha version and interface changes are to be expected. If you wish to contribute please get in touch!
-
 Check out this issue for the initial proposal on msw's repo https://github.com/mswjs/msw/issues/572
 
 ##  Getting started
 
 ```
-npm install f -save-dev 
+npm install @pactflow/pact-msw-adapter --save-dev 
 ```
 or yarn
 ```
