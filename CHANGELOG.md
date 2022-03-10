@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.4](https://github.com/pactflow/msw-pact-adapter/compare/v0.10.3...v0.10.4) (2022-03-10)
+
+
+### Features
+
+* rename to <toolName>-pact-adapter for consistency ([#37](https://github.com/pactflow/msw-pact-adapter/issues/37)) ([239883c](https://github.com/pactflow/msw-pact-adapter/commit/239883c07c26fb449b301d0ecf153f929f86b7a7))
+
 ### [0.10.3](https://github.com/pactflow/pact-msw-adapter/compare/v0.10.1...v0.10.3) (2022-03-10)
 
 
