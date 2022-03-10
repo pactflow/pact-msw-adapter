@@ -1,8 +1,8 @@
-import { PactMswAdapterOptions } from "../pactMswAdapter";
+import { MswPactAdapterOptions } from "../mswPactAdapter";
 var path = require("path");
 let fs: any; // dynamic import
 
-const logPrefix = '[pact-msw-adapter]';
+const logPrefix = '[msw-pact-adapter]';
 const logColors = {
   log: 'forestgreen',
   warning: 'gold',
@@ -59,7 +59,7 @@ const writeData2File = (filePath: string, data: Object) => {
   }
 };
 
-const checkUrlFilters = (urlString: string, options: PactMswAdapterOptions) => {
+const checkUrlFilters = (urlString: string, options: MswPactAdapterOptions) => {
   const providerFilter = Object.values(options.providers)
     ?.some(validPaths => validPaths.some(path => urlString.includes(path)));
   const includeFilter = !options.includeUrl || options.includeUrl.some(inc => urlString.includes(inc));
@@ -75,7 +75,7 @@ const checkUrlFilters = (urlString: string, options: PactMswAdapterOptions) => {
 const addTimeout = async<T>(promise: Promise<T>, label: string, timeout: number) => {
   const asyncTimeout = new Promise<void>((_, reject) => {
     setTimeout(() => {
-      reject(new Error(`[pact-msw-adapter] ${label} timed out after ${timeout}ms`));
+      reject(new Error(`[msw-pact-adapter] ${label} timed out after ${timeout}ms`));
     }, timeout);
   });
 

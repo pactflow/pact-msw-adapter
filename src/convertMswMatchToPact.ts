@@ -1,4 +1,4 @@
-import { PactFile, MswMatch } from './pactMswAdapter';
+import { PactFile, MswMatch } from './mswPactAdapter';
 import { omit } from 'lodash';
 import { HeadersObject, Headers } from 'headers-polyfill';
 export const convertMswMatchToPact = ({

@@ -1,5 +1,5 @@
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
-import { MswMatch, PactFile } from "./pactMswAdapter";
+import { MswMatch, PactFile } from "./mswPactAdapter";
 import { Headers } from 'headers-polyfill';
 
 const generatedPact:PactFile = {

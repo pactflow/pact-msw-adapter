@@ -4,7 +4,7 @@ import { convertMswMatchToPact } from './convertMswMatchToPact';
 import { EventEmitter } from 'events';
 import { SetupServerApi } from 'msw/lib/types/node/glossary';
 import { IsomorphicResponse } from '@mswjs/interceptors'
-export interface PactMswAdapterOptions {
+export interface MswPactAdapterOptions {
   timeout?: number;
   debug?: boolean;
   pactOutDir?: string;
@@ -14,7 +14,7 @@ export interface PactMswAdapterOptions {
   excludeUrl?: string[];
   excludeHeaders?: string[];
 }
-export interface PactMswAdapterOptionsInternal {
+export interface MswPactAdapterOptionsInternal {
   timeout: number;
   debug: boolean;
   pactOutDir: string;
@@ -25,12 +25,12 @@ export interface PactMswAdapterOptionsInternal {
   excludeHeaders?: string[];
 }
 
-export const setupPactMswAdapter = ({
+export const setupMswPactAdapter = ({
   options: externalOptions,
   worker,
   server
 }: {
-  options: PactMswAdapterOptions;
+  options: MswPactAdapterOptions;
   worker?: SetupWorkerApi;
   server?: SetupServerApi;
 }) => {
@@ -45,7 +45,7 @@ export const setupPactMswAdapter = ({
   }
   const emitter = new EventEmitter();
 
-  const options: PactMswAdapterOptionsInternal = {
+  const options: MswPactAdapterOptionsInternal = {
     ...externalOptions,
     timeout: externalOptions.timeout || 200,
     debug: externalOptions.debug || false,
@@ -86,7 +86,7 @@ export const setupPactMswAdapter = ({
 
     setTimeout(() => {
       const activeIdx = activeRequestIds.indexOf(req.id);
-      emitter.emit('pact-msw-adapter:expired', req);
+      emitter.emit('msw-pact-adapter:expired', req);
       if (activeIdx >= 0) { // Could be removed if completed or the test ended
         activeRequestIds.splice(activeIdx, 1);
         expiredRequests.push({
@@ -137,7 +137,7 @@ export const setupPactMswAdapter = ({
 
     activeRequestIds.splice(activeReqIdx, 1);
     const match = { request, response: response as Response };
-    emitter.emit('pact-msw-adapter:match', match);
+    emitter.emit('msw-pact-adapter:match', match);
     matches.push(match);
   });
 
@@ -154,7 +154,7 @@ export const setupPactMswAdapter = ({
     newTest: () => {
       oldRequestIds.push(...activeRequestIds);
       activeRequestIds.length = 0;
-      emitter.emit('pact-msw-adapter:new-test');
+      emitter.emit('msw-pact-adapter:new-test');
     },
     verifyTest: () => {
       let errors = '';
@@ -217,7 +217,7 @@ export const setupPactMswAdapter = ({
       oldRequestIds.length = 0;
       activeRequestIds.length = 0;
       matches.length = 0;
-      emitter.emit('pact-msw-adapter:clear');
+      emitter.emit('msw-pact-adapter:clear');
       return;
     },
   };
@@ -227,7 +227,7 @@ export { convertMswMatchToPact };
 const transformMswToPact = async (
   matches: MswMatch[],
   activeRequestIds: string[],
-  options: PactMswAdapterOptionsInternal,
+  options: MswPactAdapterOptionsInternal,
   emitter: EventEmitter
 ): Promise<PactFile[]> => {
   try {
@@ -239,7 +239,7 @@ const transformMswToPact = async (
         return;
       }
 
-      const events = ['pact-msw-adapter:expired ', 'pact-msw-adapter:match', 'pact-msw-adapter:new-test', 'pact-msw-adapter:clear'];
+      const events = ['msw-pact-adapter:expired ', 'msw-pact-adapter:match', 'msw-pact-adapter:new-test', 'msw-pact-adapter:clear'];
       const listener = () => {
         if (activeRequestIds.length === 0) {
           events.forEach((ev) => emitter.off(ev, listener));
@@ -278,7 +278,7 @@ const transformMswToPact = async (
     if (err && typeof (err) === 'string')
       err = new Error(err);
 
-    console.groupCollapsed('%c[pact-msw-adapter] Unexpected error.', 'color:coral;font-weight:bold;');
+    console.groupCollapsed('%c[msw-pact-adapter] Unexpected error.', 'color:coral;font-weight:bold;');
     console.log(err);
     console.groupEnd();
     throw err;
