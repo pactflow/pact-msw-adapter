@@ -1,25 +1,54 @@
 import API from "./api";
-import nock from "nock";
+import { rest } from "msw";
+import { setupServer } from "msw/node";
+import { setupPactMswAdapter } from "../../../src/pactMswAdapter";
+
+const server = setupServer();
+const pactMswAdapter = setupPactMswAdapter({
+  server,
+  options: {
+    consumer: "testConsumer", providers: { ['testProvider']: ['products'], ['testProvider2']: ['/product/10'] },
+    debug: true,
+    includeUrl: ['products', '/product'],
+    excludeUrl: ['/product/11'],
+    excludeHeaders: ["x-powered-by", "cookie"]
+  },
+});
 
 describe("API", () => {
+  beforeAll(() => {
+    server.listen();
+  });
+
+  beforeEach(() => {
+    pactMswAdapter.newTest();
+  });
+
+  afterEach(() => {
+    pactMswAdapter.verifyTest();
+    server.resetHandlers();
+  });
+
+  afterAll(async () => {
+    await pactMswAdapter.writeToFile(); // writes the pacts to a file
+    pactMswAdapter.clear();
+    server.close();
+  });
+
   test("get all products", async () => {
     const products = [
       {
-        id: "9",
+        id: "09",
         type: "CREDIT_CARD",
-        name: "GEM Visa",
-        version: "v2",
-      },
-      {
-        id: "10",
-        type: "CREDIT_CARD",
-        name: "28 Degrees",
-        version: "v1",
+        name: "Gem Visa",
       },
     ];
-    nock(API.url)
-      .get("/products")
-      .reply(200, products, { "Access-Control-Allow-Origin": "*" });
+    server.use(
+      rest.get(API.url + "/products", (req, res, ctx) => {
+        return res(ctx.status(200), ctx.json(products));
+      })
+    );
+
     const respProducts = await API.getAllProducts();
     expect(respProducts).toEqual(products);
   });
@@ -29,11 +58,12 @@ describe("API", () => {
       id: "50",
       type: "CREDIT_CARD",
       name: "28 Degrees",
-      version: "v1",
     };
-    nock(API.url)
-      .get("/product/50")
-      .reply(200, product, { "Access-Control-Allow-Origin": "*" });
+    server.use(
+      rest.get(API.url + "/product/50", (req, res, ctx) => {
+        return res(ctx.status(200), ctx.json(product));
+      })
+    );
     const respProduct = await API.getProduct("50");
     expect(respProduct).toEqual(product);
   });
