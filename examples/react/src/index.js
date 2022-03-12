@@ -1,10 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import "./consumer/index.css";
-import App from "./consumer/App";
-import ProductPage from "./consumer/ProductPage";
-import ErrorPage from "./consumer/ErrorPage";
+import "./index.css";
+import App from "./App";
+import ProductPage from "./ProductPage";
+import ErrorPage from "./ErrorPage";
+
+if (process.env.NODE_ENV === 'development') {
+  const { worker } = require('./mocks/browser')
+  worker.start()
+}
 
 const routing = (
   <Router>

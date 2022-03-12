@@ -1,11 +1,10 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import 'spectre.css/dist/spectre.min.css';
 import 'spectre.css/dist/spectre-icons.min.css';
 import 'spectre.css/dist/spectre-exp.min.css';
 import Heading from "./Heading";
 import Layout from "./Layout";
-import {withRouter} from "react-router";
 import API from "./api";
 import PropTypes from 'prop-types';
 
@@ -37,19 +36,19 @@ ProductTableRow.propTypes = productPropTypes;
 
 function ProductTable(props) {
     const products = props.products.map(p => (
-        <ProductTableRow key={p.id} product={p}/>
+        <ProductTableRow key={p.id} product={p} />
     ));
     return (
         <table className="table table-striped table-hover">
             <thead>
-            <tr>
-                <th>Name</th>
-                <th>Type</th>
-                <th/>
-            </tr>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th />
+                </tr>
             </thead>
             <tbody>
-            {products}
+                {products}
             </tbody>
         </table>
     );
@@ -117,16 +116,16 @@ class App extends React.Component {
     render() {
         return (
             <Layout>
-                <Heading text="Products" href="/"/>
+                <Heading text="Products" href="/" />
                 <div className="form-group col-2">
                     <label className="form-label" htmlFor="input-product-search">Search</label>
                     <input id="input-product-search" className="form-input" type="text"
-                           value={this.state.searchText} onChange={this.onSearchTextChange}/>
+                        value={this.state.searchText} onChange={this.onSearchTextChange} />
                 </div>
                 {
                     this.state.loading ?
-                        <div className="loading loading-lg centered"/> :
-                        <ProductTable products={this.state.visibleProducts}/>
+                        <div className="loading loading-lg centered" /> :
+                        <ProductTable products={this.state.visibleProducts} />
                 }
             </Layout>
         );
@@ -135,8 +134,8 @@ class App extends React.Component {
 
 App.propTypes = {
     history: PropTypes.shape({
-            push: PropTypes.func.isRequired
-        }
+        push: PropTypes.func.isRequired
+    }
     ).isRequired
 };
 

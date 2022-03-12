@@ -4,7 +4,7 @@ import 'spectre.css/dist/spectre-icons.min.css';
 import 'spectre.css/dist/spectre-exp.min.css';
 import Layout from "./Layout";
 import Heading from "./Heading";
-import {withRouter} from "react-router";
+import {withRouter} from "react-router-dom";
 import API from "./api";
 import PropTypes from 'prop-types';
 

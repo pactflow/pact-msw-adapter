@@ -155,6 +155,7 @@ export const setupPactMswAdapter = ({
       oldRequestIds.push(...activeRequestIds);
       activeRequestIds.length = 0;
       emitter.emit('pact-msw-adapter:new-test');
+
     },
     verifyTest: () => {
       let errors = '';
@@ -184,16 +185,26 @@ export const setupPactMswAdapter = ({
       }
     },
     writeToFile: async (writer: (path: string, data: object) => void = writeData2File) => {
+
       // TODO - dedupe pactResults so we only have one file per consumer/provider pair
       // Note: There are scenarios such as feature flagging where you want more than one file per consumer/provider pair
-      logGroup(['Found the following number of matches to write to a file:- ' + matches.length]);
+      logGroup(['Found the following number of matches to write to a file:- ' + matches.length], { endGroup: true });
+      logGroup(JSON.stringify(matches), { endGroup: true });
 
-      const pactFiles = await transformMswToPact(matches, activeRequestIds, options, emitter);
+      let pactFiles: PactFile[]
+        try {
+          pactFiles = await transformMswToPact(matches, activeRequestIds, options, emitter);
+
+        } catch (error) {
+          logGroup(['An error occurred parsing the JSON file',error]);
+          throw new Error('error generating pact files')
+        }
+      
+
       if (!pactFiles) {
         logGroup(['writeToFile() was called but no pact files were generated, did you forget to await the writeToFile() method?', matches.length], { endGroup: true });
 
       }
-
 
       pactFiles.forEach((pactFile) => {
         const filePath =
