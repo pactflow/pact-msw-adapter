@@ -100,9 +100,10 @@ export const setupPactMswAdapter = ({
   });
 
   mswMocker.events.on('response:mocked', async (response: any, reqId: string) => {
-
+    // https://mswjs.io/docs/extensions/life-cycle-events#responsemocked
+    // Note that the res instance differs between the browser and Node.js. 
+    // Take this difference into account when operating with it.
     const newResponse =  {...response}
-
     if (isWorker){
       newResponse.body = await response.text()
       newResponse.bodyUsed = true
