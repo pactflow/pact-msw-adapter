@@ -20,3 +20,7 @@ msw_generated_pacts/
 pacts/
 logs/
 dist/
+
+screenshots/
+videos/
+reports/

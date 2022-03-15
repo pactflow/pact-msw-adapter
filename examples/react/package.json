@@ -8,16 +8,14 @@
     "react-dom": "^16.12.0",
     "react-router": "latest",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "3.3.0",
+    "react-scripts": "3.4.3",
     "spectre.css": "^0.5.8"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "CI=true react-scripts test --verbose",
-    "eject": "react-scripts eject",
-    "test:pact": "CI=true react-scripts test  --verbose --testTimeout 30000 pact.spec.js",
-    "posttest:pact": "node publish.pact.js"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -35,7 +33,6 @@
     ]
   },
   "devDependencies": {
-    "@pact-foundation/pact": "^9.11.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@types/axios": "^0.14.0",
     "@types/react": "^17.0.4",
@@ -44,13 +41,16 @@
     "@typescript-eslint/eslint-plugin": "^2.16.0",
     "@typescript-eslint/parser": "^2.16.0",
     "babel-eslint": "^10.0.3",
+    "cypress": "^9.5.1",
     "eslint": "^6.8.0",
     "eslint-config-react-app": "^5.1.0",
     "eslint-plugin-flowtype": "^3.13.0",
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.17.0",
-    "eslint-plugin-react-hooks": "^1.7.0",
-    "nock": "^11.7.2"
+    "eslint-plugin-react-hooks": "^1.7.0"
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }

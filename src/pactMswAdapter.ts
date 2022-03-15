@@ -37,7 +37,8 @@ export const setupPactMswAdapter = ({
   if (!worker && !server) {
     throw new Error('Either a worker or server must be provided')
   }
-
+ 
+  const isWorker = worker ? !!worker : false
   const mswMocker = worker ? worker : server
 
   if (!mswMocker) {
@@ -98,7 +99,17 @@ export const setupPactMswAdapter = ({
     }, options.timeout);
   });
 
-  mswMocker.events.on('response:mocked', (response: Response | IsomorphicResponse, reqId: string) => {
+  mswMocker.events.on('response:mocked', async (response: any, reqId: string) => {
+    // https://mswjs.io/docs/extensions/life-cycle-events#responsemocked
+    // Note that the res instance differs between the browser and Node.js. 
+    // Take this difference into account when operating with it.
+    const newResponse =  {...response}
+    if (isWorker){
+      newResponse.body = await response.text()
+      newResponse.bodyUsed = true
+    }
+    logGroup(JSON.stringify(newResponse), { endGroup: true });
+
     const reqIdx = pendingRequests.findIndex(req => req.id === reqId);
     if (reqIdx < 0) return; // Filtered and (expired and cleared) requests
 
@@ -132,11 +143,11 @@ export const setupPactMswAdapter = ({
     }
 
     if (options.debug) {
-      logGroup(['Mocked response', response], { endGroup: true });
+      logGroup(['Mocked response', newResponse], { endGroup: true });
     }
 
     activeRequestIds.splice(activeReqIdx, 1);
-    const match = { request, response: response as Response };
+    const match = { request, response: newResponse };
     emitter.emit('pact-msw-adapter:match', match);
     matches.push(match);
   });
@@ -155,6 +166,7 @@ export const setupPactMswAdapter = ({
       oldRequestIds.push(...activeRequestIds);
       activeRequestIds.length = 0;
       emitter.emit('pact-msw-adapter:new-test');
+
     },
     verifyTest: () => {
       let errors = '';
@@ -184,16 +196,26 @@ export const setupPactMswAdapter = ({
       }
     },
     writeToFile: async (writer: (path: string, data: object) => void = writeData2File) => {
+
       // TODO - dedupe pactResults so we only have one file per consumer/provider pair
       // Note: There are scenarios such as feature flagging where you want more than one file per consumer/provider pair
-      logGroup(['Found the following number of matches to write to a file:- ' + matches.length]);
+      logGroup(['Found the following number of matches to write to a file:- ' + matches.length], { endGroup: true });
+      logGroup(JSON.stringify(matches), { endGroup: true });
 
-      const pactFiles = await transformMswToPact(matches, activeRequestIds, options, emitter);
+      let pactFiles: PactFile[]
+        try {
+          pactFiles = await transformMswToPact(matches, activeRequestIds, options, emitter);
+
+        } catch (error) {
+          logGroup(['An error occurred parsing the JSON file',error]);
+          throw new Error('error generating pact files')
+        }
+      
+
       if (!pactFiles) {
         logGroup(['writeToFile() was called but no pact files were generated, did you forget to await the writeToFile() method?', matches.length], { endGroup: true });
 
       }
-
 
       pactFiles.forEach((pactFile) => {
         const filePath =

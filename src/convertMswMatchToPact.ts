@@ -12,7 +12,7 @@ export const convertMswMatchToPact = ({
   matches: MswMatch[];
   headers?: { excludeHeaders: string[] | undefined }
 }): PactFile => {
-  
+
   const pactFile: PactFile = {
     consumer: { name: consumer },
     provider: { name: provider },
@@ -24,15 +24,14 @@ export const convertMswMatchToPact = ({
         request: {
           method: match.request.method,
           path: match.request.url.pathname,
-          headers: headers?.excludeHeaders ?  omit(match.request.headers['_headers'], headers.excludeHeaders) : match.request.headers['_headers'],
+          headers: headers?.excludeHeaders ? omit(match.request.headers['_headers'], headers.excludeHeaders) : match.request.headers['_headers'],
           body: match.request.bodyUsed ? match.request.body : undefined,
         },
         response: {
           status: match.response.status,
           headers: headers?.excludeHeaders ? omit((match.response.headers as Headers)['_headers'], headers.excludeHeaders) : (match.response.headers as Headers)['_headers'],
           body: match.response.body
-            ? match.response.headers.get("content-type")?.includes("json")
-              ? (JSON.parse(match.response.body as string))
+            ? match.response.headers.get("content-type")?.includes("json") && (typeof match.response.body === 'string' || match.response.body instanceof String) ? JSON.parse(match.response.body as string)
               : match.response.body
             : undefined,
         },
