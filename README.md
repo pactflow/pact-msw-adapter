@@ -28,9 +28,11 @@ import { setupWorker } from "msw";
 import { setupPactMswAdapter } from "@pactflow/pact-msw-adapter";
 ```
 
-See [./src/pactFromMswServer.msw.spec.ts](./src/pactFromMswServer.msw.spec.ts) for an example testing an API client, used in a react application
+See [./src/pactFromMswServer.msw.spec.ts](./src/pactFromMswServer.msw.spec.ts) msw mock server example (jest/msw/react)
 
-This test will generate pacts, which can be found in the `./msw_generated_pacts` folder
+See [./examples/react/cypress/integration/pactFromMswWorker.spec.js](./examples/react/cypress/integration/pactFromMswWorker.spec.js)  msw mock worker example (cypress/msw/react)
+
+These tests will generate pacts, which can be found in the `./msw_generated_pacts` folder
 
 ## How to use
 
