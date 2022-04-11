@@ -15,7 +15,10 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "CI=true react-scripts test --verbose",
-    "eject": "react-scripts eject"
+    "test:cypress": "cypress run",
+    "test:cypress:open": "cypress open",
+    "eject": "react-scripts eject",
+    "start:test:cy:run":"start-server-and-test http://localhost:3000 test:cypress"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -48,7 +51,8 @@
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.17.0",
-    "eslint-plugin-react-hooks": "^1.7.0"
+    "eslint-plugin-react-hooks": "^1.7.0",
+    "start-server-and-test": "^1.14.0"
   },
   "msw": {
     "workerDirectory": "public"

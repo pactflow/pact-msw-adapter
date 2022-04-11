@@ -56,3 +56,15 @@ jobs:
         shell: bash
         env:
           NODE_VERSION: ${{ matrix.node-version }}
+      - run: cd examples/react && yarn install
+        shell: bash
+        env:
+          NODE_VERSION: ${{ matrix.node-version }}
+      - run: cd examples/react && yarn test
+        shell: bash
+        env:
+          NODE_VERSION: ${{ matrix.node-version }}
+      - run: cd examples/react && yarn start:test:cy:run
+        shell: bash
+        env:
+          NODE_VERSION: ${{ matrix.node-version }}
