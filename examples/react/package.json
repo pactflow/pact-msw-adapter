@@ -15,7 +15,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "cross-env CI=true react-scripts test --verbose",
-    "test:cypress": "cypress run",
+    "test:cypress": "cypress run --browser chrome",
     "test:cypress:open": "cypress open",
     "eject": "react-scripts eject",
     "start:test:cy:run": "start-server-and-test http://localhost:3000 test:cypress"
@@ -46,6 +46,7 @@
     "babel-eslint": "^10.0.3",
     "cross-env": "^7.0.3",
     "cypress": "^9.5.1",
+    "cypress-log-to-output": "^1.1.2",
     "eslint": "^6.8.0",
     "eslint-config-react-app": "^5.1.0",
     "eslint-plugin-flowtype": "^3.13.0",

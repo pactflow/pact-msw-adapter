@@ -65,16 +65,10 @@ describe('Tests setupPactMswAdapter with msw works', async () => {
                 cy.writeFile(path, data)
             });
        } catch (err) {
-           // cypress doesn't like errors on hooks...
-           if (process.env.NODE_ENV !== 'production') {
                console.groupCollapsed('%cError generating pacts.', 'color:coral;font-weight:bold;');
                console.log(err);
                console.groupEnd();
-           } else {
-               // fail on pipelines
-               console.log(err)
                throw err;
-           }
        }
 
         pactMswAdapter.clear();
