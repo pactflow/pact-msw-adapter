@@ -4,3 +4,5 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)" # Figure out where the 
 
 yarn install
 yarn run dist:ci
+yarn run example:install:link
+yarn run example:test:all

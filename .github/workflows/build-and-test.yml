@@ -21,18 +21,6 @@ jobs:
       - run: scripts/ci/build-and-test.sh
         env:
           NODE_VERSION: ${{ matrix.node-version }}
-      - run: cd examples/react && yarn install
-        shell: bash
-        env:
-          NODE_VERSION: ${{ matrix.node-version }}
-      - run: cd examples/react && yarn test
-        shell: bash
-        env:
-          NODE_VERSION: ${{ matrix.node-version }}
-      - run: cd examples/react && yarn start:test:cy:run
-        shell: bash
-        env:
-          NODE_VERSION: ${{ matrix.node-version }}
 
   build-and-test-ubuntu:
     runs-on: ubuntu-latest
@@ -49,18 +37,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: scripts/ci/build-and-test.sh
-        env:
-          NODE_VERSION: ${{ matrix.node-version }}
-      - run: cd examples/react && yarn install
-        shell: bash
-        env:
-          NODE_VERSION: ${{ matrix.node-version }}
-      - run: cd examples/react && yarn test
-        shell: bash
-        env:
-          NODE_VERSION: ${{ matrix.node-version }}
-      - run: cd examples/react && yarn start:test:cy:run
-        shell: bash
         env:
           NODE_VERSION: ${{ matrix.node-version }}
 

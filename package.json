@@ -29,7 +29,13 @@
     "test:msw": "jest  --verbose '\\w.msw.spec.ts'",
     "dist:ci": "npm run build:clean && npm test",
     "release": "standard-version",
-    "release:trigger": "./scripts/trigger-release.sh"
+    "release:trigger": "./scripts/trigger-release.sh",
+    "example:test:cy": "cd examples/react && npm start:test:cy:run",
+    "example:test:unit": "cd examples/react && npm start",
+    "example:test:all": "npm run example:test:unit && npm run example:test:cy",
+    "example:link": "cd examples/react && yarn link @pactflow/pact-msw-adapter",
+    "example:install": "cd examples/react && yarn install",
+    "example:install:link": "yarn link && npm run example:install && npm run example:link"
   },
   "devDependencies": {
     "@babel/preset-env": "7.16.11",
