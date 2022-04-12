@@ -8,3 +8,4 @@ yarn link
 yarn example:link
 yarn example:install
 yarn example:test:unit
+yarn example:test:cy
