@@ -23,7 +23,7 @@ jobs:
         shell: bash
       - run: yarn run dist:ci
         shell: bash
-      - run: yarn run link
+      - run: yarn link
         shell: bash
       - run: yarn run example:link
         shell: bash
@@ -52,7 +52,7 @@ jobs:
         shell: bash
       - run: yarn run dist:ci
         shell: bash
-      - run: yarn run link
+      - run: yarn link
         shell: bash
       - run: yarn run example:link
         shell: bash
@@ -79,7 +79,7 @@ jobs:
         shell: bash
       - run: yarn run dist:ci
         shell: bash
-      - run: yarn run link
+      - run: yarn link
         shell: bash
       - run: yarn run example:link
         shell: bash
