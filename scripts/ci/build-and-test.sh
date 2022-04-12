@@ -7,3 +7,4 @@ yarn run dist:ci
 yarn link
 yarn example:link
 yarn example:install
+yarn example:unit
