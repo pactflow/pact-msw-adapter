@@ -1,6 +1,6 @@
 
 import { setupServer } from "msw/node";
-import { setupPactMswAdapter } from "../../../src/pactMswAdapter";
+import { setupPactMswAdapter } from "@pactflow/pact-msw-adapter";
 import { handlers } from './mocks/handlers'
 
 // This configures a request mocking server with the given request handlers.

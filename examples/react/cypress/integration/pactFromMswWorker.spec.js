@@ -1,7 +1,7 @@
 
 // / <reference types="cypress" />
 
-import { setupPactMswAdapter } from '../../../../src/pactMswAdapter';
+import { setupPactMswAdapter } from '@pactflow/pact-msw-adapter';
 
 let pactMswAdapter = undefined;
 
