@@ -110,27 +110,9 @@ export const setupPactMswAdapter = ({
       // https://mswjs.io/docs/extensions/life-cycle-events#responsemocked
       // Note that the res instance differs between the browser and Node.js.
       // Take this difference into account when operating with it.
-      let workerResponseText: string | undefined;
-      let serverResponseText: string | undefined;
-      let workerResponseHeaders: Headers = response.headers;
-      let serverResponseHeaders: Headers = response.headers;
-      if (!isWorker) {
-        console.log('Using mswServer, response is Type IsomorphicResponse');
-        let serverResponse = response as IsomorphicResponse;
-        serverResponseText = serverResponse.body;
-        serverResponseHeaders = serverResponse.headers as Headers;
-        console.log('serverResponse', serverResponse);
-        console.log('serverResponseText', serverResponseText);
-        console.log('serverResponseHeaders', serverResponseHeaders);
-      } else {
-        console.log('Using mswServer, response is Type Response');
-        let workerResponse = response as Response;
-        workerResponseText = await workerResponse.text();
-        workerResponseHeaders = workerResponse.headers as Headers;
-        console.log('workerResponse', workerResponse);
-        console.log('workerResponseText', workerResponseText);
-        console.log('workerResponseHeaders', workerResponseHeaders);
-      }
+      const responseBody: string | undefined = isWorker
+        ? await(response as Response).text()
+        : (response as IsomorphicResponse).body;
 
       logGroup(JSON.stringify(response), { endGroup: true });
 
@@ -181,9 +163,8 @@ export const setupPactMswAdapter = ({
       activeRequestIds.splice(activeReqIdx, 1);
       const match: MswMatch = {
         request,
-        response: response,
-        body: isWorker ? workerResponseText : serverResponseText,
-        headers: isWorker ? workerResponseHeaders : serverResponseHeaders
+        response,
+        body: responseBody
       };
       emitter.emit('pact-msw-adapter:match', match);
       matches.push(match);
@@ -262,7 +243,6 @@ export const setupPactMswAdapter = ({
           activeRequestIds,
           options,
           emitter,
-          isWorker
         );
       } catch (error) {
         logGroup(['An error occurred parsing the JSON file', error]);
@@ -313,19 +293,23 @@ const transformMswToPact = async (
   matches: MswMatch[],
   activeRequestIds: string[],
   options: PactMswAdapterOptionsInternal,
-  emitter: EventEmitter,
-  isWorker: boolean
+  emitter: EventEmitter
 ): Promise<PactFile[]> => {
   try {
     // TODO: Lock new requests, error on clear/new-test if locked
 
-    const requestsCompleted = new Promise<void>(resolve => {
+    const requestsCompleted = new Promise<void>((resolve) => {
       if (activeRequestIds.length === 0) {
         resolve();
         return;
       }
 
-      const events = ['pact-msw-adapter:expired ', 'pact-msw-adapter:match', 'pact-msw-adapter:new-test', 'pact-msw-adapter:clear'];
+      const events = [
+        'pact-msw-adapter:expired ',
+        'pact-msw-adapter:match',
+        'pact-msw-adapter:new-test',
+        'pact-msw-adapter:clear'
+      ];
       const listener = () => {
         if (activeRequestIds.length === 0) {
           events.forEach((ev) => emitter.off(ev, listener));
@@ -334,23 +318,34 @@ const transformMswToPact = async (
       };
       events.forEach((ev) => emitter.on(ev, listener));
     });
-    await addTimeout(requestsCompleted, 'requests completed listener', options.timeout * 2);
+    await addTimeout(
+      requestsCompleted,
+      'requests completed listener',
+      options.timeout * 2
+    );
 
     const pactFiles: PactFile[] = [];
     const providers = Object.entries(options.providers);
     const matchesByProvider: { [key: string]: MswMatch[] } = {};
     matches.forEach((match) => {
       const url = match.request.url.toString();
-      const provider = providers.find(([_, paths]) => paths.some(path => url.includes(path)))?.[0] || 'unknown';
+      const provider =
+        providers.find(([_, paths]) =>
+          paths.some((path) => url.includes(path))
+        )?.[0] || 'unknown';
       if (!matchesByProvider[provider]) matchesByProvider[provider] = [];
       matchesByProvider[provider].push(match);
     });
 
-
-    for (const [provider, providerMatches] of Object.entries(matchesByProvider)) {
-      const pactFile =
-        convertMswMatchToPact(
-          { consumer: options.consumer, provider, matches: providerMatches, headers: { excludeHeaders: options.excludeHeaders }, isWorker })
+    for (const [provider, providerMatches] of Object.entries(
+      matchesByProvider
+    )) {
+      const pactFile = convertMswMatchToPact({
+        consumer: options.consumer,
+        provider,
+        matches: providerMatches,
+        headers: { excludeHeaders: options.excludeHeaders }
+      });
       if (pactFile) {
         pactFiles.push(pactFile);
       }
@@ -361,10 +356,12 @@ const transformMswToPact = async (
       throw err;
     }
 
-    if (err && typeof (err) === 'string')
-      err = new Error(err);
+    if (err && typeof err === 'string') err = new Error(err);
 
-    console.groupCollapsed('%c[pact-msw-adapter] Unexpected error.', 'color:coral;font-weight:bold;');
+    console.groupCollapsed(
+      '%c[pact-msw-adapter] Unexpected error.',
+      'color:coral;font-weight:bold;'
+    );
     console.log(err);
     console.groupEnd();
     throw err;
@@ -413,7 +410,6 @@ export interface MswMatch {
   request: MockedRequest;
   response: IsomorphicResponse | Response;
   body: string|undefined;
-  headers: Headers;
 }
 
 export interface ExpiredRequest {

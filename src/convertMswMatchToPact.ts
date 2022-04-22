@@ -5,13 +5,11 @@ export const convertMswMatchToPact =  ({
   provider,
   matches,
   headers,
-  isWorker
 }: {
   consumer: string;
   provider: string;
   matches: MswMatch[];
   headers?: { excludeHeaders: string[] | undefined };
-  isWorker?: boolean;
 }): PactFile => {
   const pactFile: PactFile = {
     consumer: { name: consumer },
@@ -32,35 +30,15 @@ export const convertMswMatchToPact =  ({
           status: match.response.status,
           headers: headers?.excludeHeaders
             ? omit(
-                Object.fromEntries(match.headers.entries()),
+                Object.fromEntries(match.response.headers.entries()),
                 headers.excludeHeaders
               )
-            : Object.fromEntries(match.headers.entries()),
-          // headers: isWorker
-          //   ? headers?.excludeHeaders
-          //     ? omit(
-          //         Object.fromEntries(match.headers.entries()),
-          //         headers.excludeHeaders
-          //       )
-          //     : Object.fromEntries(match.headers.entries())
-          //   : headers?.excludeHeaders
-          //   ? omit(match.headers, headers.excludeHeaders)
-          //   : match.headers,
-          // body: match.body ? JSON.parse(match.body) : undefined
+            : Object.fromEntries(match.response.headers.entries()),
           body: match.body
-            ? match.headers.get('content-type')?.includes('json')
+            ? match.response.headers.get('content-type')?.includes('json')
               ? JSON.parse(match.body)
               : match.body
-            : // body: match.body
-              //   ? !isWorker
-              //     ? // @ts-ignore
-              //       match.headers.get('content-type')?.includes('json')
-              //       ? JSON.parse(match.body)
-              //       : match.body
-              //     : match.headers.get('content-type')?.includes('json')
-              //     ? JSON.parse(match.body)
-              //     : match.body
-              undefined
+            : undefined
         }
       };
     }),
