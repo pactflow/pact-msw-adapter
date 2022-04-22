@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "dependencies": {
     "axios": "^0.19.1",
-    "prop-types": "latest",
+    "prop-types": "15.8.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-router": "latest",
+    "react-router": "5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
     "spectre.css": "^0.5.8"
@@ -14,8 +14,12 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "CI=true react-scripts test --verbose",
-    "eject": "react-scripts eject"
+    "test": "cross-env CI=true react-scripts test --verbose",
+    "test:cypress": "cypress run --browser chrome",
+    "test:cypress:open": "cypress open",
+    "eject": "react-scripts eject",
+    "start:test:cy:run": "start-server-and-test http://localhost:3000 test:cypress",
+    "start:test:cy:open": "start-server-and-test http://localhost:3000 test:cypress:open"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -41,14 +45,17 @@
     "@typescript-eslint/eslint-plugin": "^2.16.0",
     "@typescript-eslint/parser": "^2.16.0",
     "babel-eslint": "^10.0.3",
+    "cross-env": "^7.0.3",
     "cypress": "^9.5.1",
+    "cypress-log-to-output": "^1.1.2",
     "eslint": "^6.8.0",
     "eslint-config-react-app": "^5.1.0",
     "eslint-plugin-flowtype": "^3.13.0",
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.17.0",
-    "eslint-plugin-react-hooks": "^1.7.0"
+    "eslint-plugin-react-hooks": "^1.7.0",
+    "start-server-and-test": "^1.14.0"
   },
   "msw": {
     "workerDirectory": "public"
