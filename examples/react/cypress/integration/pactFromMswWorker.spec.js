@@ -25,7 +25,7 @@ describe('Tests setupPactMswAdapter with msw works', async () => {
                         // pactOutDir: './pacts',
                         // excludeUrl: ['static/'],
                         includeUrl: ['/products', '/product/09'],
-                        // excludeHeaders: ["x-powered-by", "cookie"],
+                        excludeHeaders: ["ignore-me"],
                         // debug: true
                     },
                   });

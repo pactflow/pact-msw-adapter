@@ -1,7 +1,7 @@
 import { PactFile, MswMatch } from "./pactMswAdapter";
 import { omit } from "lodash";
 import { IsomorphicResponse } from "@mswjs/interceptors";
-export const convertMswMatchToPact = ({
+export const convertMswMatchToPact =  ({
   consumer,
   provider,
   matches,
@@ -17,53 +17,39 @@ export const convertMswMatchToPact = ({
   const pactFile: PactFile = {
     consumer: { name: consumer },
     provider: { name: provider },
-    interactions: matches.map((match) => {
-      let responseHeaders;
-      let isServer = false;
-      let matcher: any;
-      if(!isWorker){
-        console.log("isWorker? - this should be false",isWorker);
-        let serverResponse = match.response as IsomorphicResponse;
-        responseHeaders = serverResponse.headers["_headers"];
-        if (!responseHeaders) throw new Error()
-        matcher = serverResponse;
-        isServer = true;
-
-      }else {
-        console.log("isWorker? - this should be true",isWorker);
-        let workerResponse = match.response as Response;
-        // matcher  = workerResponse
-        matcher.body = workerResponse.text();
-        matcher = {
-          ...workerResponse,
-          ...matcher,
-        };
-        console.log(workerResponse);
-      }
-
+    interactions:  matches.map(  (match) => {
       return {
         description: match.request.id,
-        providerState: "",
+        providerState: '',
         request: {
           method: match.request.method,
           path: match.request.url.pathname,
           headers: headers?.excludeHeaders
-            ? omit(match.request.headers["_headers"], headers.excludeHeaders)
-            : match.request.headers["_headers"],
-          body: match.request.bodyUsed ? match.request.body : undefined,
+            ? omit(match.request.headers['_headers'], headers.excludeHeaders)
+            : match.request.headers['_headers'],
+          body: match.request.bodyUsed ? match.request.body : undefined
         },
         response: {
           status: match.response.status,
-          headers: headers?.excludeHeaders
-            ? omit(responseHeaders, headers.excludeHeaders)
-            : responseHeaders,
-          body: match.response.body
-            ? typeof match.response.body === "string" ||
-              match.response.body instanceof String
-              ? JSON.parse(match.response.body.toString())
-              : match.response.body
-            : undefined,
-        },
+          // headers: isWorker? Object.fromEntries(match.headers.entries()) : match.headers,
+          headers: isWorker
+            ? headers?.excludeHeaders
+              ? omit(
+                  Object.fromEntries(match.headers.entries()),
+                  headers.excludeHeaders
+                )
+              : Object.fromEntries(match.headers.entries())
+            : headers?.excludeHeaders
+            ? omit(match.headers, headers.excludeHeaders)
+            : match.headers,
+          body: match.body ? JSON.parse(match.body) : undefined
+          // body: match.response.body
+          //   ? typeof match.response.body === "string" ||
+          //     match.response.body instanceof String
+          //     ? JSON.parse(match.response.body.toString())
+          //     : match.response.body
+          //   : undefined,
+        }
       };
     }),
     metadata: {

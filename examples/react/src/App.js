@@ -122,11 +122,13 @@ class App extends React.Component {
                     <input id="input-product-search" className="form-input" type="text"
                         value={this.state.searchText} onChange={this.onSearchTextChange} />
                 </div>
+                <div>
                 {
                     this.state.loading ?
                         <div className="loading loading-lg centered" /> :
                         <ProductTable products={this.state.visibleProducts} />
                 }
+                </div>
             </Layout>
         );
     }
