@@ -41,7 +41,10 @@ const sampleMatch: MswMatch[] = [{
   "response": {
     "status": 200, "statusText": "OK", "headers": new Headers({ "x-powered-by": "msw", "content-type": "application/json" }),
     "body": JSON.stringify([{ id: "09", type: "CREDIT_CARD", name: "Gem Visa" }])
-  }
+  },
+  "body":JSON.stringify([{ id: "09", type: "CREDIT_CARD", name: "Gem Visa" }]),
+  "headers":
+    { "accept": "application/json, text/plain, */*", "authorization": "Bearer 2022-03-01T19:36:18.277Z", "user-agent": "axios/0.21.1", "host": "localhost:8081", "content-type": "application/json", "x-powered-by": "msw" } 
 }]
 describe("writes an msw req/res to a pact", () => {
   it("should ", async () => {
@@ -49,7 +52,8 @@ describe("writes an msw req/res to a pact", () => {
       convertMswMatchToPact({
         matches: sampleMatch as any,
         consumer: 'interaction.consumer.name',
-        provider: 'interaction.provider.name'
+        provider: 'interaction.provider.name',
+        isWorker: false
       })
     ).toMatchObject(generatedPact);
   });
