@@ -103,15 +103,15 @@ export const setupPactMswAdapter = ({
     // https://mswjs.io/docs/extensions/life-cycle-events#responsemocked
     // Note that the res instance differs between the browser and Node.js. 
     // Take this difference into account when operating with it.
-      let workerResponseText: any
-      let serverResponseText: any
-      let workerResponseHeaders: any
-      let serverResponseHeaders: any
+      let workerResponseText: string|undefined
+      let serverResponseText: string|undefined
+      let workerResponseHeaders: Headers = response.headers
+      let serverResponseHeaders: Headers = response.headers
       if (!isWorker) {
         console.log('Using mswServer, response is Type IsomorphicResponse');
         let serverResponse = response as IsomorphicResponse;
         serverResponseText =  serverResponse.body;
-        serverResponseHeaders = serverResponse.headers['_headers'];
+        serverResponseHeaders = serverResponse.headers['_headers'] as Headers;
         console.log('serverResponse', serverResponse);
         console.log('serverResponseText', serverResponseText);
         console.log('serverResponseHeaders', serverResponseHeaders);
@@ -119,7 +119,7 @@ export const setupPactMswAdapter = ({
         console.log('Using mswServer, response is Type Response');
         let workerResponse = response as Response;
         workerResponseText = await workerResponse.text();
-        workerResponseHeaders = workerResponse.headers;
+        workerResponseHeaders = workerResponse.headers as Headers;
         console.log('workerResponse', workerResponse);
         console.log('workerResponseText', workerResponseText);
         console.log('workerResponseHeaders', workerResponseHeaders);
@@ -371,19 +371,9 @@ export interface PactFileMetaData {
 export interface MswMatch {
   request: MockedRequest;
   response: IsomorphicResponse | Response;
-  body: string;
-  headers: any;
+  body: string|undefined;
+  headers: Headers;
 }
-
-export interface MswTransformedResponse extends IsomorphicResponse {
-  matchBody: string | undefined
-  matchHeaders: {
-    [name: string] : string
-  }
-}
-
-
-
 
 export interface ExpiredRequest {
   reqId: string;

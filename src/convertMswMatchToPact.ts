@@ -1,6 +1,5 @@
 import { PactFile, MswMatch } from "./pactMswAdapter";
 import { omit } from "lodash";
-import { IsomorphicResponse } from "@mswjs/interceptors";
 export const convertMswMatchToPact =  ({
   consumer,
   provider,
@@ -31,7 +30,6 @@ export const convertMswMatchToPact =  ({
         },
         response: {
           status: match.response.status,
-          // headers: isWorker? Object.fromEntries(match.headers.entries()) : match.headers,
           headers: isWorker
             ? headers?.excludeHeaders
               ? omit(
@@ -42,13 +40,15 @@ export const convertMswMatchToPact =  ({
             : headers?.excludeHeaders
             ? omit(match.headers, headers.excludeHeaders)
             : match.headers,
-          body: match.body ? JSON.parse(match.body) : undefined
-          // body: match.response.body
-          //   ? typeof match.response.body === "string" ||
-          //     match.response.body instanceof String
-          //     ? JSON.parse(match.response.body.toString())
-          //     : match.response.body
-          //   : undefined,
+          // body: match.body ? JSON.parse(match.body) : undefined
+          body: match.body
+          // @ts-ignore
+            ? !isWorker ? match.headers['content-type']?.includes("json")
+              ? JSON.parse(match.body.toString())
+              : match.body : match.headers.get('content-type')?.includes("json")
+              ? JSON.parse(match.body.toString())
+              : match.body
+            : undefined,
         }
       };
     }),

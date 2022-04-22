@@ -44,7 +44,7 @@ const sampleMatch: MswMatch[] = [{
   },
   "body":JSON.stringify([{ id: "09", type: "CREDIT_CARD", name: "Gem Visa" }]),
   "headers":
-    { "accept": "application/json, text/plain, */*", "authorization": "Bearer 2022-03-01T19:36:18.277Z", "user-agent": "axios/0.21.1", "host": "localhost:8081", "content-type": "application/json", "x-powered-by": "msw" } 
+  { "accept": "application/json, text/plain, */*", "authorization": "Bearer 2022-03-01T19:36:18.277Z", "user-agent": "axios/0.21.1", "host": "localhost:8081", "content-type": "application/json", "x-powered-by": "msw" } as unknown as Headers
 }]
 describe("writes an msw req/res to a pact", () => {
   it("should ", async () => {
