@@ -103,11 +103,22 @@ export const setupPactMswAdapter = ({
     // https://mswjs.io/docs/extensions/life-cycle-events#responsemocked
     // Note that the res instance differs between the browser and Node.js. 
     // Take this difference into account when operating with it.
-    const newResponse =  {...response}
-    if (isWorker){
-      newResponse.body = await response.text()
-      newResponse.bodyUsed = true
-    }
+    // let newResponse:IsomorphicResponse|Response;
+    // if (isWorker){
+    //   const workerReponse = {...response}  as Response
+    //   newResponse = workerReponse.
+
+    // }else{
+    //   const serverReponse = {...response} as IsomorphicResponse
+    //   newResponse =  serverReponse
+
+    // }
+    const newResponse =  response
+
+    // if (isWorker){
+    //   newResponse.foo = await response.text()
+    //   newResponse.bodyUsed = true
+    // }
     logGroup(JSON.stringify(newResponse), { endGroup: true });
 
     const reqIdx = pendingRequests.findIndex(req => req.id === reqId);
@@ -204,7 +215,7 @@ export const setupPactMswAdapter = ({
 
       let pactFiles: PactFile[]
         try {
-          pactFiles = await transformMswToPact(matches, activeRequestIds, options, emitter);
+          pactFiles = await transformMswToPact(matches, activeRequestIds, options, emitter, isWorker);
 
         } catch (error) {
           logGroup(['An error occurred parsing the JSON file',error]);
@@ -250,7 +261,8 @@ const transformMswToPact = async (
   matches: MswMatch[],
   activeRequestIds: string[],
   options: PactMswAdapterOptionsInternal,
-  emitter: EventEmitter
+  emitter: EventEmitter,
+  isWorker: boolean
 ): Promise<PactFile[]> => {
   try {
     // TODO: Lock new requests, error on clear/new-test if locked
@@ -286,7 +298,7 @@ const transformMswToPact = async (
     for (const [provider, providerMatches] of Object.entries(matchesByProvider)) {
       const pactFile =
         convertMswMatchToPact(
-          { consumer: options.consumer, provider, matches: providerMatches, headers: { excludeHeaders: options.excludeHeaders } })
+          { consumer: options.consumer, provider, matches: providerMatches, headers: { excludeHeaders: options.excludeHeaders }, isWorker })
       if (pactFile) {
         pactFiles.push(pactFile);
       }
@@ -349,6 +361,8 @@ export interface MswMatch {
   request: MockedRequest;
   response: Response | IsomorphicResponse;
 }
+
+
 
 export interface ExpiredRequest {
   reqId: string;

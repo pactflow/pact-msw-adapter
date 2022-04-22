@@ -1,22 +1,46 @@
 import { PactFile, MswMatch } from "./pactMswAdapter";
 import { omit } from "lodash";
-import { HeadersObject, Headers } from "headers-polyfill";
+import { IsomorphicResponse } from "@mswjs/interceptors";
 export const convertMswMatchToPact = ({
   consumer,
   provider,
   matches,
   headers,
+  isWorker
 }: {
   consumer: string;
   provider: string;
   matches: MswMatch[];
   headers?: { excludeHeaders: string[] | undefined };
+  isWorker?: boolean;
 }): PactFile => {
   const pactFile: PactFile = {
     consumer: { name: consumer },
     provider: { name: provider },
     interactions: matches.map((match) => {
-      console.log(match);
+      let responseHeaders;
+      let isServer = false;
+      let matcher: any;
+      if(!isWorker){
+        console.log("isWorker? - this should be false",isWorker);
+        let serverResponse = match.response as IsomorphicResponse;
+        responseHeaders = serverResponse.headers["_headers"];
+        if (!responseHeaders) throw new Error()
+        matcher = serverResponse;
+        isServer = true;
+
+      }else {
+        console.log("isWorker? - this should be true",isWorker);
+        let workerResponse = match.response as Response;
+        // matcher  = workerResponse
+        matcher.body = workerResponse.text();
+        matcher = {
+          ...workerResponse,
+          ...matcher,
+        };
+        console.log(workerResponse);
+      }
+
       return {
         description: match.request.id,
         providerState: "",
@@ -31,16 +55,12 @@ export const convertMswMatchToPact = ({
         response: {
           status: match.response.status,
           headers: headers?.excludeHeaders
-            ? omit(
-                (match.response.headers as Headers)["_headers"],
-                headers.excludeHeaders
-              )
-            : (match.response.headers as Headers)["_headers"],
+            ? omit(responseHeaders, headers.excludeHeaders)
+            : responseHeaders,
           body: match.response.body
-            ? match.response.headers.get("content-type")?.includes("json") &&
-              (typeof match.response.body === "string" ||
-                match.response.body instanceof String)
-              ? JSON.parse(match.response.body as string)
+            ? typeof match.response.body === "string" ||
+              match.response.body instanceof String
+              ? JSON.parse(match.response.body.toString())
               : match.response.body
             : undefined,
         },

@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "dependencies": {
     "axios": "^0.19.1",
-    "prop-types": "latest",
+    "prop-types": "15.8.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-router": "latest",
+    "react-router": "5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
     "spectre.css": "^0.5.8"
@@ -18,7 +18,8 @@
     "test:cypress": "cypress run --browser chrome",
     "test:cypress:open": "cypress open",
     "eject": "react-scripts eject",
-    "start:test:cy:run": "start-server-and-test http://localhost:3000 test:cypress"
+    "start:test:cy:run": "start-server-and-test http://localhost:3000 test:cypress",
+    "start:test:cy:open": "start-server-and-test http://localhost:3000 test:cypress:open"
   },
   "eslintConfig": {
     "extends": "react-app"
