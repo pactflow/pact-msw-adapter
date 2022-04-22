@@ -30,25 +30,37 @@ export const convertMswMatchToPact =  ({
         },
         response: {
           status: match.response.status,
-          headers: isWorker
-            ? headers?.excludeHeaders
-              ? omit(
-                  Object.fromEntries(match.headers.entries()),
-                  headers.excludeHeaders
-                )
-              : Object.fromEntries(match.headers.entries())
-            : headers?.excludeHeaders
-            ? omit(match.headers, headers.excludeHeaders)
-            : match.headers,
+          headers: headers?.excludeHeaders
+            ? omit(
+                Object.fromEntries(match.headers.entries()),
+                headers.excludeHeaders
+              )
+            : Object.fromEntries(match.headers.entries()),
+          // headers: isWorker
+          //   ? headers?.excludeHeaders
+          //     ? omit(
+          //         Object.fromEntries(match.headers.entries()),
+          //         headers.excludeHeaders
+          //       )
+          //     : Object.fromEntries(match.headers.entries())
+          //   : headers?.excludeHeaders
+          //   ? omit(match.headers, headers.excludeHeaders)
+          //   : match.headers,
           // body: match.body ? JSON.parse(match.body) : undefined
           body: match.body
-          // @ts-ignore
-            ? !isWorker ? match.headers['content-type']?.includes("json")
-              ? JSON.parse(match.body.toString())
-              : match.body : match.headers.get('content-type')?.includes("json")
-              ? JSON.parse(match.body.toString())
+            ? match.headers.get('content-type')?.includes('json')
+              ? JSON.parse(match.body)
               : match.body
-            : undefined,
+            : // body: match.body
+              //   ? !isWorker
+              //     ? // @ts-ignore
+              //       match.headers.get('content-type')?.includes('json')
+              //       ? JSON.parse(match.body)
+              //       : match.body
+              //     : match.headers.get('content-type')?.includes('json')
+              //     ? JSON.parse(match.body)
+              //     : match.body
+              undefined
         }
       };
     }),
