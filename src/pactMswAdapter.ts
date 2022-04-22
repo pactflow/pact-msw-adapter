@@ -99,27 +99,33 @@ export const setupPactMswAdapter = ({
     }, options.timeout);
   });
 
-  mswMocker.events.on('response:mocked', async (response: any, reqId: string) => {
+  mswMocker.events.on('response:mocked', async (response: Response | IsomorphicResponse, reqId: string) => {
     // https://mswjs.io/docs/extensions/life-cycle-events#responsemocked
     // Note that the res instance differs between the browser and Node.js. 
     // Take this difference into account when operating with it.
-    // let newResponse:IsomorphicResponse|Response;
-    // if (isWorker){
-    //   const workerReponse = {...response}  as Response
-    //   newResponse = workerReponse.
-
-    // }else{
-    //   const serverReponse = {...response} as IsomorphicResponse
-    //   newResponse =  serverReponse
-
-    // }
-    const newResponse =  response
-
-    // if (isWorker){
-    //   newResponse.foo = await response.text()
-    //   newResponse.bodyUsed = true
-    // }
-    logGroup(JSON.stringify(newResponse), { endGroup: true });
+      let workerResponseText: any
+      let serverResponseText: any
+      let workerResponseHeaders: any
+      let serverResponseHeaders: any
+      if (!isWorker) {
+        console.log('Using mswServer, response is Type IsomorphicResponse');
+        let serverResponse = response as IsomorphicResponse;
+        serverResponseText =  serverResponse.body;
+        serverResponseHeaders = serverResponse.headers['_headers'];
+        console.log('serverResponse', serverResponse);
+        console.log('serverResponseText', serverResponseText);
+        console.log('serverResponseHeaders', serverResponseHeaders);
+      } else {
+        console.log('Using mswServer, response is Type Response');
+        let workerResponse = response as Response;
+        workerResponseText = await workerResponse.text();
+        workerResponseHeaders = workerResponse.headers;
+        console.log('workerResponse', workerResponse);
+        console.log('workerResponseText', workerResponseText);
+        console.log('workerResponseHeaders', workerResponseHeaders);
+      }
+    
+    logGroup(JSON.stringify(response), { endGroup: true });
 
     const reqIdx = pendingRequests.findIndex(req => req.id === reqId);
     if (reqIdx < 0) return; // Filtered and (expired and cleared) requests
@@ -154,11 +160,16 @@ export const setupPactMswAdapter = ({
     }
 
     if (options.debug) {
-      logGroup(['Mocked response', newResponse], { endGroup: true });
+      logGroup(['Mocked response', response], { endGroup: true });
     }
 
     activeRequestIds.splice(activeReqIdx, 1);
-    const match = { request, response: newResponse };
+    const match: MswMatch = {
+      request,
+      response: response,
+      body: isWorker ? workerResponseText : serverResponseText,
+      headers: isWorker ? workerResponseHeaders : serverResponseHeaders
+    };
     emitter.emit('pact-msw-adapter:match', match);
     matches.push(match);
   });
@@ -359,8 +370,18 @@ export interface PactFileMetaData {
 
 export interface MswMatch {
   request: MockedRequest;
-  response: Response | IsomorphicResponse;
+  response: IsomorphicResponse | Response;
+  body: string;
+  headers: any;
 }
+
+export interface MswTransformedResponse extends IsomorphicResponse {
+  matchBody: string | undefined
+  matchHeaders: {
+    [name: string] : string
+  }
+}
+
 
 
 
