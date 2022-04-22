@@ -60,7 +60,7 @@ jobs:
         shell: bash
       - run: yarn run example:test:unit
         shell: bash
-      - run: yarn run example:test:cy
+      - run: yarn run example:test:cy:run
         shell: bash
 
   build-and-test-windows:
@@ -87,5 +87,5 @@ jobs:
         shell: bash
       - run: yarn run example:test:unit
         shell: bash
-      - run: yarn run example:test:cy
+      - run: yarn run example:test:cy:run
         shell: bash
