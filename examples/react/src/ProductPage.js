@@ -61,7 +61,7 @@ class ProductPage extends React.Component {
 }
 
 ProductPage.propTypes = {
-    match: PropTypes.array.isRequired,
+    match: PropTypes.object.isRequired,
     history: PropTypes.shape({
         push: PropTypes.func.isRequired
     }).isRequired
