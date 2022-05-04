@@ -43,6 +43,15 @@ export class API {
         })
             .then(r => r.data);
     }
+
+    async postProduct(id, productData) {
+        return await axios.post(this.withPath("/product/" + id), productData, {
+            headers: {
+                "Authorization": this.generateAuthToken(),
+            }
+        })
+            .then(r => r.data);
+    }
 }
 
 export default new API(process.env.REACT_APP_API_BASE_URL);
