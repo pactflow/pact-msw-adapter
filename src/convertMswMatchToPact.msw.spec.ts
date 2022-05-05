@@ -1,6 +1,6 @@
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
 import { MswMatch, PactFile } from "./pactMswAdapter";
-import { Headers } from 'headers-polyfill';
+import { Headers } from 'headers-utils';
 
 const generatedPact:PactFile = {
   consumer: { name: "interaction.consumer.name" },
