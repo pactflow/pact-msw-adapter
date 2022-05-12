@@ -24,6 +24,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "watch": "tsc --watch",
     "build:clean": "rimraf dist && tsc",
     "test": "jest --verbose",
     "test:msw": "jest  --verbose '\\w.msw.spec.ts'",
