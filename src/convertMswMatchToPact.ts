@@ -24,7 +24,7 @@ export const convertMswMatchToPact =  ({
           headers: headers?.excludeHeaders
             ? omit(match.request.headers['_headers'], headers.excludeHeaders)
             : match.request.headers['_headers'],
-          body: match.request.bodyUsed ? match.request.body : undefined
+          body: match.request.body || undefined
         },
         response: {
           status: match.response.status,

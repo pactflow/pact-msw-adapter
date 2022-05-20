@@ -50,7 +50,7 @@
     "babel-jest": "27.5.1",
     "eslint": "8.10.0",
     "jest": "27.5.1",
-    "msw": "0.38.1",
+    "msw": "0.36.8",
     "nock": "13.2.4",
     "regenerator-runtime": "0.13.9",
     "rimraf": "3.0.2",

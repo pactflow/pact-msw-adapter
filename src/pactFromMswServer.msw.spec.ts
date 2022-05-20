@@ -7,7 +7,11 @@ const server = setupServer();
 const pactMswAdapter = setupPactMswAdapter({
   server,
   options: {
-    consumer: "testConsumer", providers: { ['testProvider']: ['products'],['testProvider2']: ['/product/10'] },
+    consumer: "testConsumer",
+    providers: {
+      ['testProvider']: ['products'],
+      ['testProvider2']: ['/product/10'],
+    },
     debug: true,
     includeUrl: ['products', '/product'],
     excludeUrl: ['/product/11'],
@@ -53,6 +57,21 @@ describe("API - With MSW mock generating a pact", () => {
     expect(respProducts).toEqual(products);
   });
 
+  test("post product ID 10", async () => {
+    const productData = {
+      "type": "CREDIT_CARD",
+      "name": "28 Degrees",
+    };
+     server.use(
+       rest.post(API.url + "/product/10", (req, res, ctx) => {
+         return res(ctx.status(200), ctx.json(productData));
+       })
+     );
+
+    const respProduct = await API.postProduct("10", productData);
+    expect(respProduct).toEqual(productData);
+  });
+
   test("get product ID 10", async () => {
     const product = {
       id: "10",
@@ -71,7 +90,7 @@ describe("API - With MSW mock generating a pact", () => {
 
   test("unhandled route", async () => {
     await expect(API.getProduct("11")).rejects.toThrow(
-      "connect ECONNREFUSED 127.0.0.1:8081"
+      /^connect ECONNREFUSED (127.0.0.1|::1):8081$/
     );
   });
 
@@ -89,7 +108,6 @@ describe("API - With MSW mock generating a pact", () => {
       "accept": "application/json, text/plain, */*",
       "authorization": expect.any(String) ,
       "user-agent": expect.any(String),
-      "host": "localhost:8081",
     })
     expect(pactResults[0].interactions[0].response.status).toEqual(200)
 
@@ -103,11 +121,15 @@ describe("API - With MSW mock generating a pact", () => {
         "name": "Gem Visa"
       }
     ])
+    expect(pactResults[1].interactions[0].request.body).toEqual({
+      "type": "CREDIT_CARD",
+      "name": "28 Degrees"
+    })
+    expect(pactResults[1].interactions[1].request.body).toBeUndefined()
     expect(pactResults[0].metadata).toEqual({
       "pactSpecification": {
         "version": "2.0.0"
       }
     })
-
   })
 });
