@@ -17,6 +17,7 @@ const generatedPact:PactFile = {
           accept: "application/json, text/plain, */*",
           authorization: "Bearer 2022-03-01T19:36:18.277Z",
         },
+        query: 'sort=asc'
       },
       response: {
         status: 200,
@@ -32,7 +33,7 @@ const sampleMatch: MswMatch[] = [
   {
     request: {
       id: 'de5eefb0-c451-4ae2-9695-e02626f00ca7',
-      url: new URL('http://localhost:8081/products'),
+      url: new URL('http://localhost:8081/products?sort=asc'),
       method: 'GET',
       body: undefined,
       headers: new Headers({
