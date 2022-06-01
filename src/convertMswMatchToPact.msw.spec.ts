@@ -2,12 +2,30 @@ import { convertMswMatchToPact } from "./convertMswMatchToPact";
 import { MswMatch, PactFile } from "./pactMswAdapter";
 import { Headers } from 'headers-utils';
 
-const generatedPact:PactFile = {
+const generatedPact: PactFile = {
   consumer: { name: "interaction.consumer.name" },
   provider: { name: "interaction.provider.name" },
   interactions: [
     {
       description: "de5eefb0-c451-4ae2-9695-e02626f00ca7",
+      providerState: "",
+      request: {
+        method: "GET",
+        path: "/products",
+        body: undefined,
+        headers: {
+          accept: "application/json, text/plain, */*",
+          authorization: "Bearer 2022-03-01T19:36:18.277Z",
+        }
+      },
+      response: {
+        status: 200,
+        body: [{ id: "09", type: "CREDIT_CARD", name: "Gem Visa" }],
+        headers: { "x-powered-by": "msw", "content-type": "application/json" },
+      },
+    },
+    {
+      description: "073d6de0-e1ac-11ec-8fea-0242ac120002",
       providerState: "",
       request: {
         method: "GET",
@@ -33,6 +51,44 @@ const sampleMatch: MswMatch[] = [
   {
     request: {
       id: 'de5eefb0-c451-4ae2-9695-e02626f00ca7',
+      url: new URL('http://localhost:8081/products'),
+      method: 'GET',
+      body: undefined,
+      headers: new Headers({
+        accept: 'application/json, text/plain, */*',
+        authorization: 'Bearer 2022-03-01T19:36:18.277Z',
+        'user-agent': 'axios/0.21.1',
+        host: 'localhost:8081',
+        'content-type': 'application/json'
+      }),
+      cookies: {},
+      redirect: 'manual',
+      referrer: '',
+      keepalive: false,
+      cache: 'default',
+      mode: 'cors',
+      referrerPolicy: 'no-referrer',
+      integrity: '',
+      destination: 'document',
+      bodyUsed: false,
+      credentials: 'same-origin'
+    },
+    response: {
+      status: 200,
+      statusText: 'OK',
+      headers: new Headers({
+        'x-powered-by': 'msw',
+        'content-type': 'application/json'
+      }),
+      body: JSON.stringify([
+        { id: '09', type: 'CREDIT_CARD', name: 'Gem Visa' }
+      ])
+    },
+    body: JSON.stringify([{ id: '09', type: 'CREDIT_CARD', name: 'Gem Visa' }])
+  },
+  {
+    request: {
+      id: '073d6de0-e1ac-11ec-8fea-0242ac120002',
       url: new URL('http://localhost:8081/products?sort=asc'),
       method: 'GET',
       body: undefined,
@@ -69,6 +125,7 @@ const sampleMatch: MswMatch[] = [
     body: JSON.stringify([{ id: '09', type: 'CREDIT_CARD', name: 'Gem Visa' }])
   }
 ];
+
 describe("writes an msw req/res to a pact", () => {
   it("should convert an msw server match to a pact", async () => {
     expect(
@@ -80,4 +137,3 @@ describe("writes an msw req/res to a pact", () => {
     ).toMatchObject(generatedPact);
   });
 });
-
