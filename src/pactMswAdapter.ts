@@ -376,7 +376,7 @@ export interface PactInteraction {
     path: string;
     headers: any;
     body: DefaultRequestBody;
-    query: any;
+    query?: string;
   };
   response: {
     status: number;
