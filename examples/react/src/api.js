@@ -35,8 +35,9 @@ export class API {
             .then(r => r.data);
     }
 
-    async getProduct(id) {
+    async getProduct(id, params) {
         return axios.get(this.withPath("/product/" + id), {
+            params,
             headers: {
                 "Authorization": this.generateAuthToken()
             }

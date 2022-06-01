@@ -88,6 +88,29 @@ describe("API - With MSW mock generating a pact", () => {
     expect(respProduct).toEqual(product);
   });
 
+  test("get product ID 10 with visibility hidden", async () => {
+    const product = {
+      id: "10",
+      type: "CREDIT_CARD",
+      name: "28 Degrees"
+    };
+    const hiddenVisibilityProduct = {
+      ...product,
+      visibility: "hidden"
+    };
+    server.use(
+      rest.get(API.url + "/product/10", (req, res, ctx) => {
+        const visibility = req.url.searchParams.get('visibility');
+        const response = visibility === 'hidden' ? hiddenVisibilityProduct : product;
+
+        return res(ctx.status(200), ctx.json(response));
+      })
+    );
+
+    const respProduct = await API.getProduct("10", {visibility: "hidden"});
+    expect(respProduct).toEqual(hiddenVisibilityProduct);
+  });
+
   test("unhandled route", async () => {
     await expect(API.getProduct("11")).rejects.toThrow(
       /^connect ECONNREFUSED (127.0.0.1|::1):8081$/
