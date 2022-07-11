@@ -21,8 +21,8 @@ export const convertMswMatchToPact = ({
         method: match.request.method,
         path: match.request.url.pathname,
         headers: headers?.excludeHeaders
-          ? omit(match.request.headers['_headers'], headers.excludeHeaders)
-          : match.request.headers['_headers'],
+          ? omit(Object.fromEntries(match.request.headers.entries()), headers.excludeHeaders)
+          : Object.fromEntries(match.request.headers.entries()),
         body: match.request.body || undefined,
         query: match.request.url.search ? match.request.url.search.split('?')[1] : undefined
       },
