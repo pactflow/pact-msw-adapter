@@ -1,6 +1,7 @@
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
 import { MswMatch, PactFile } from "./pactMswAdapter";
-import { Headers } from 'headers-utils';
+import { Headers } from "headers-utils";
+const pjson = require("../package.json");
 
 const generatedPact: PactFile = {
   consumer: { name: "interaction.consumer.name" },
@@ -16,7 +17,7 @@ const generatedPact: PactFile = {
         headers: {
           accept: "application/json, text/plain, */*",
           authorization: "Bearer 2022-03-01T19:36:18.277Z",
-        }
+        },
       },
       response: {
         status: 200,
@@ -35,7 +36,7 @@ const generatedPact: PactFile = {
           accept: "application/json, text/plain, */*",
           authorization: "Bearer 2022-03-01T19:36:18.277Z",
         },
-        query: 'sort=asc'
+        query: "sort=asc",
       },
       response: {
         status: 200,
@@ -44,86 +45,89 @@ const generatedPact: PactFile = {
       },
     },
   ],
-  metadata: { pactSpecification: { version: "2.0.0" } },
+  metadata: {
+    pactSpecification: { version: "2.0.0" },
+    client: { name: "pact-msw-adapter", version: pjson.version },
+  },
 };
 
 const sampleMatch: MswMatch[] = [
   {
     request: {
-      id: 'de5eefb0-c451-4ae2-9695-e02626f00ca7',
-      url: new URL('http://localhost:8081/products'),
-      method: 'GET',
+      id: "de5eefb0-c451-4ae2-9695-e02626f00ca7",
+      url: new URL("http://localhost:8081/products"),
+      method: "GET",
       body: undefined,
       headers: new Headers({
-        accept: 'application/json, text/plain, */*',
-        authorization: 'Bearer 2022-03-01T19:36:18.277Z',
-        'user-agent': 'axios/0.21.1',
-        host: 'localhost:8081',
-        'content-type': 'application/json'
+        accept: "application/json, text/plain, */*",
+        authorization: "Bearer 2022-03-01T19:36:18.277Z",
+        "user-agent": "axios/0.21.1",
+        host: "localhost:8081",
+        "content-type": "application/json",
       }),
       cookies: {},
-      redirect: 'manual',
-      referrer: '',
+      redirect: "manual",
+      referrer: "",
       keepalive: false,
-      cache: 'default',
-      mode: 'cors',
-      referrerPolicy: 'no-referrer',
-      integrity: '',
-      destination: 'document',
+      cache: "default",
+      mode: "cors",
+      referrerPolicy: "no-referrer",
+      integrity: "",
+      destination: "document",
       bodyUsed: false,
-      credentials: 'same-origin'
+      credentials: "same-origin",
     },
     response: {
       status: 200,
-      statusText: 'OK',
+      statusText: "OK",
       headers: new Headers({
-        'x-powered-by': 'msw',
-        'content-type': 'application/json'
+        "x-powered-by": "msw",
+        "content-type": "application/json",
       }),
       body: JSON.stringify([
-        { id: '09', type: 'CREDIT_CARD', name: 'Gem Visa' }
-      ])
+        { id: "09", type: "CREDIT_CARD", name: "Gem Visa" },
+      ]),
     },
-    body: JSON.stringify([{ id: '09', type: 'CREDIT_CARD', name: 'Gem Visa' }])
+    body: JSON.stringify([{ id: "09", type: "CREDIT_CARD", name: "Gem Visa" }]),
   },
   {
     request: {
-      id: '073d6de0-e1ac-11ec-8fea-0242ac120002',
-      url: new URL('http://localhost:8081/products?sort=asc'),
-      method: 'GET',
+      id: "073d6de0-e1ac-11ec-8fea-0242ac120002",
+      url: new URL("http://localhost:8081/products?sort=asc"),
+      method: "GET",
       body: undefined,
       headers: new Headers({
-        accept: 'application/json, text/plain, */*',
-        authorization: 'Bearer 2022-03-01T19:36:18.277Z',
-        'user-agent': 'axios/0.21.1',
-        host: 'localhost:8081',
-        'content-type': 'application/json'
+        accept: "application/json, text/plain, */*",
+        authorization: "Bearer 2022-03-01T19:36:18.277Z",
+        "user-agent": "axios/0.21.1",
+        host: "localhost:8081",
+        "content-type": "application/json",
       }),
       cookies: {},
-      redirect: 'manual',
-      referrer: '',
+      redirect: "manual",
+      referrer: "",
       keepalive: false,
-      cache: 'default',
-      mode: 'cors',
-      referrerPolicy: 'no-referrer',
-      integrity: '',
-      destination: 'document',
+      cache: "default",
+      mode: "cors",
+      referrerPolicy: "no-referrer",
+      integrity: "",
+      destination: "document",
       bodyUsed: false,
-      credentials: 'same-origin'
+      credentials: "same-origin",
     },
     response: {
       status: 200,
-      statusText: 'OK',
+      statusText: "OK",
       headers: new Headers({
-        'x-powered-by': 'msw',
-        'content-type': 'application/json'
+        "x-powered-by": "msw",
+        "content-type": "application/json",
       }),
       body: JSON.stringify([
-        { id: '09', type: 'CREDIT_CARD', name: 'Gem Visa' }
-      ])
+        { id: "09", type: "CREDIT_CARD", name: "Gem Visa" },
+      ]),
     },
-    body: JSON.stringify([{ id: '09', type: 'CREDIT_CARD', name: 'Gem Visa' }])
-  }
+    body: JSON.stringify([{ id: "09", type: "CREDIT_CARD", name: "Gem Visa" }]),
+  },
 ];
 
 describe("writes an msw req/res to a pact", () => {
@@ -131,8 +135,8 @@ describe("writes an msw req/res to a pact", () => {
     expect(
       convertMswMatchToPact({
         matches: sampleMatch as any,
-        consumer: 'interaction.consumer.name',
-        provider: 'interaction.provider.name',
+        consumer: "interaction.consumer.name",
+        provider: "interaction.provider.name",
       })
     ).toMatchObject(generatedPact);
   });

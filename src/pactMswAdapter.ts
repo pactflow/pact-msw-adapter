@@ -1,9 +1,16 @@
-import { DefaultRequestBody, MockedRequest, SetupWorkerApi } from 'msw';
-import { addTimeout, checkUrlFilters, log, logGroup, warning, writeData2File } from './utils/utils';
-import { convertMswMatchToPact } from './convertMswMatchToPact';
-import { EventEmitter } from 'events';
-import { SetupServerApi } from 'msw/lib/types/node/glossary';
-import { IsomorphicResponse } from '@mswjs/interceptors'
+import { DefaultRequestBody, MockedRequest, SetupWorkerApi } from "msw";
+import {
+  addTimeout,
+  checkUrlFilters,
+  log,
+  logGroup,
+  warning,
+  writeData2File,
+} from "./utils/utils";
+import { convertMswMatchToPact } from "./convertMswMatchToPact";
+import { EventEmitter } from "events";
+import { SetupServerApi } from "msw/lib/types/node/glossary";
+import { IsomorphicResponse } from "@mswjs/interceptors";
 export interface PactMswAdapterOptions {
   timeout?: number;
   debug?: boolean;
@@ -35,21 +42,21 @@ export interface PactMswAdapter {
 export const setupPactMswAdapter = ({
   options: externalOptions,
   worker,
-  server
+  server,
 }: {
   options: PactMswAdapterOptions;
   worker?: SetupWorkerApi;
   server?: SetupServerApi;
 }): PactMswAdapter => {
   if (!worker && !server) {
-    throw new Error('Either a worker or server must be provided');
+    throw new Error("Either a worker or server must be provided");
   }
 
   const isWorker = worker ? !!worker : false;
   const mswMocker = worker ? worker : server;
 
   if (!mswMocker) {
-    throw new Error('Could not setup either the worker or server');
+    throw new Error("Could not setup either the worker or server");
   }
   const emitter = new EventEmitter();
 
@@ -57,12 +64,12 @@ export const setupPactMswAdapter = ({
     ...externalOptions,
     timeout: externalOptions.timeout || 200,
     debug: externalOptions.debug || false,
-    pactOutDir: externalOptions.pactOutDir || './msw_generated_pacts/'
+    pactOutDir: externalOptions.pactOutDir || "./msw_generated_pacts/",
   };
 
-  logGroup(`Adapter enabled${options.debug ? ' on debug mode' : ''}`);
+  logGroup(`Adapter enabled${options.debug ? " on debug mode" : ""}`);
   if (options.debug) {
-    logGroup(['options:', options], { endGroup: true });
+    logGroup(["options:", options], { endGroup: true });
   } else {
     console.groupEnd();
   }
@@ -78,11 +85,11 @@ export const setupPactMswAdapter = ({
   const activeRequestIds: string[] = []; // Pending requests which are still valid
   const matches: MswMatch[] = []; // Completed request-response pairs
 
-  mswMocker.events.on('request:match', (req) => {
+  mswMocker.events.on("request:match", (req) => {
     const url = req.url.toString();
     if (!checkUrlFilters(url, options)) return;
     if (options.debug) {
-      logGroup(['Matching request', req], { endGroup: true });
+      logGroup(["Matching request", req], { endGroup: true });
     }
 
     const startTime = Date.now();
@@ -92,26 +99,26 @@ export const setupPactMswAdapter = ({
 
     setTimeout(() => {
       const activeIdx = activeRequestIds.indexOf(req.id);
-      emitter.emit('pact-msw-adapter:expired', req);
+      emitter.emit("pact-msw-adapter:expired", req);
       if (activeIdx >= 0) {
         // Could be removed if completed or the test ended
         activeRequestIds.splice(activeIdx, 1);
         expiredRequests.push({
           reqId: req.id,
-          startTime
+          startTime,
         });
       }
     }, options.timeout);
   });
 
   mswMocker.events.on(
-    'response:mocked',
+    "response:mocked",
     async (response: Response | IsomorphicResponse, reqId: string) => {
       // https://mswjs.io/docs/extensions/life-cycle-events#responsemocked
       // Note that the res instance differs between the browser and Node.js.
       // Take this difference into account when operating with it.
       const responseBody: string | undefined = isWorker
-        ? await(response as Response).text()
+        ? await (response as Response).text()
         : (response as IsomorphicResponse).body;
 
       logGroup(JSON.stringify(response), { endGroup: true });
@@ -133,23 +140,23 @@ export const setupPactMswAdapter = ({
         if (oldReqId) {
           orphanResponses.push(request.url.toString());
           log(`Orphan response: ${request.url}`, {
-            mode: 'warning',
-            group: expiredReq !== undefined
+            mode: "warning",
+            group: expiredReq !== undefined,
           });
         }
 
         if (expiredReq) {
           if (!oldReqId) {
             log(`Expired request to ${request.url.pathname}`, {
-              mode: 'warning',
-              group: true
+              mode: "warning",
+              group: true,
             });
           }
 
           expiredReq.duration = endTime - expiredReq.startTime;
-          console.log('url:', request.url);
-          console.log('timeout:', options.timeout);
-          console.log('duration:', expiredReq.duration);
+          console.log("url:", request.url);
+          console.log("timeout:", options.timeout);
+          console.log("duration:", expiredReq.duration);
           console.groupEnd();
         }
 
@@ -157,21 +164,21 @@ export const setupPactMswAdapter = ({
       }
 
       if (options.debug) {
-        logGroup(['Mocked response', response], { endGroup: true });
+        logGroup(["Mocked response", response], { endGroup: true });
       }
 
       activeRequestIds.splice(activeReqIdx, 1);
       const match: MswMatch = {
         request,
         response,
-        body: responseBody
+        body: responseBody,
       };
-      emitter.emit('pact-msw-adapter:match', match);
+      emitter.emit("pact-msw-adapter:match", match);
       matches.push(match);
     }
   );
 
-  mswMocker.events.on('request:unhandled', (req) => {
+  mswMocker.events.on("request:unhandled", (req) => {
     const url = req.url.toString();
     if (!checkUrlFilters(url, options)) return;
 
@@ -184,14 +191,14 @@ export const setupPactMswAdapter = ({
     newTest: () => {
       oldRequestIds.push(...activeRequestIds);
       activeRequestIds.length = 0;
-      emitter.emit('pact-msw-adapter:new-test');
+      emitter.emit("pact-msw-adapter:new-test");
     },
     verifyTest: () => {
-      let errors = '';
+      let errors = "";
 
       if (unhandledRequests.length) {
         errors += `Requests with missing msw handlers:\n ${unhandledRequests.join(
-          '\n'
+          "\n"
         )}\n`;
         unhandledRequests.length = 0;
       }
@@ -200,21 +207,21 @@ export const setupPactMswAdapter = ({
         errors += `Expired requests:\n${expiredRequests
           .map((expired) => ({
             expired,
-            req: pendingRequests.find((req) => req.id === expired.reqId)
+            req: pendingRequests.find((req) => req.id === expired.reqId),
           }))
           .filter(({ expired, req }) => expired && req)
           .map(
             ({ expired, req }) =>
               `${req!.url.pathname}${
-                expired.duration ? `took ${expired.duration}ms and` : ''
+                expired.duration ? `took ${expired.duration}ms and` : ""
               } timed out after ${options.timeout}ms`
           )
-          .join('\n')}\n`;
+          .join("\n")}\n`;
         expiredRequests.length = 0;
       }
 
       if (orphanResponses.length) {
-        errors += `Orphan responses:\n${orphanResponses.join('\n')}\n`;
+        errors += `Orphan responses:\n${orphanResponses.join("\n")}\n`;
         orphanResponses.length = 0;
       }
 
@@ -229,8 +236,8 @@ export const setupPactMswAdapter = ({
       // Note: There are scenarios such as feature flagging where you want more than one file per consumer/provider pair
       logGroup(
         [
-          'Found the following number of matches to write to a file:- ' +
-            matches.length
+          "Found the following number of matches to write to a file:- " +
+            matches.length,
         ],
         { endGroup: true }
       );
@@ -242,18 +249,18 @@ export const setupPactMswAdapter = ({
           matches,
           activeRequestIds,
           options,
-          emitter,
+          emitter
         );
       } catch (error) {
-        logGroup(['An error occurred parsing the JSON file', error]);
-        throw new Error('error generating pact files');
+        logGroup(["An error occurred parsing the JSON file", error]);
+        throw new Error("error generating pact files");
       }
 
       if (!pactFiles) {
         logGroup(
           [
-            'writeToFile() was called but no pact files were generated, did you forget to await the writeToFile() method?',
-            matches.length
+            "writeToFile() was called but no pact files were generated, did you forget to await the writeToFile() method?",
+            matches.length,
           ],
           { endGroup: true }
         );
@@ -262,13 +269,13 @@ export const setupPactMswAdapter = ({
       pactFiles.forEach((pactFile) => {
         const filePath =
           options.pactOutDir +
-          '/' +
+          "/" +
           [
             pactFile.consumer.name,
             pactFile.provider.name,
-            Date.now().toString()
-          ].join('-') +
-          '.json';
+            Date.now().toString(),
+          ].join("-") +
+          ".json";
         writer(filePath, pactFile);
       });
     },
@@ -282,9 +289,9 @@ export const setupPactMswAdapter = ({
       oldRequestIds.length = 0;
       activeRequestIds.length = 0;
       matches.length = 0;
-      emitter.emit('pact-msw-adapter:clear');
+      emitter.emit("pact-msw-adapter:clear");
       return;
-    }
+    },
   };
 };
 
@@ -305,10 +312,10 @@ const transformMswToPact = async (
       }
 
       const events = [
-        'pact-msw-adapter:expired ',
-        'pact-msw-adapter:match',
-        'pact-msw-adapter:new-test',
-        'pact-msw-adapter:clear'
+        "pact-msw-adapter:expired ",
+        "pact-msw-adapter:match",
+        "pact-msw-adapter:new-test",
+        "pact-msw-adapter:clear",
       ];
       const listener = () => {
         if (activeRequestIds.length === 0) {
@@ -320,7 +327,7 @@ const transformMswToPact = async (
     });
     await addTimeout(
       requestsCompleted,
-      'requests completed listener',
+      "requests completed listener",
       options.timeout * 2
     );
 
@@ -332,7 +339,7 @@ const transformMswToPact = async (
       const provider =
         providers.find(([_, paths]) =>
           paths.some((path) => url.includes(path))
-        )?.[0] || 'unknown';
+        )?.[0] || "unknown";
       if (!matchesByProvider[provider]) matchesByProvider[provider] = [];
       matchesByProvider[provider].push(match);
     });
@@ -344,7 +351,7 @@ const transformMswToPact = async (
         consumer: options.consumer,
         provider,
         matches: providerMatches,
-        headers: { excludeHeaders: options.excludeHeaders }
+        headers: { excludeHeaders: options.excludeHeaders },
       });
       if (pactFile) {
         pactFiles.push(pactFile);
@@ -356,11 +363,11 @@ const transformMswToPact = async (
       throw err;
     }
 
-    if (err && typeof err === 'string') err = new Error(err);
+    if (err && typeof err === "string") err = new Error(err);
 
     console.groupCollapsed(
-      '%c[pact-msw-adapter] Unexpected error.',
-      'color:coral;font-weight:bold;'
+      "%c[pact-msw-adapter] Unexpected error.",
+      "color:coral;font-weight:bold;"
     );
     console.log(err);
     console.groupEnd();
@@ -395,8 +402,8 @@ export interface PactParticipants {
 }
 
 export interface PactFile {
-  consumer: PactParticipants['consumer'];
-  provider: PactParticipants['provider'];
+  consumer: PactParticipants["consumer"];
+  provider: PactParticipants["provider"];
   interactions: PactInteraction[];
   metadata: PactFileMetaData;
 }
@@ -405,12 +412,16 @@ export interface PactFileMetaData {
   pactSpecification: {
     version: string;
   };
+  client: {
+    name: string;
+    version: string;
+  };
 }
 
 export interface MswMatch {
   request: MockedRequest;
   response: IsomorphicResponse | Response;
-  body: string|undefined;
+  body: string | undefined;
 }
 
 export interface ExpiredRequest {
