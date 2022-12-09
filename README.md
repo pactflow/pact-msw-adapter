@@ -205,3 +205,13 @@ Made possible by these awesome people! You are welcome to contribute too!
 ![Repo Contributors](https://contrib.rocks/image?repo=pactflow/pact-msw-adapter)
 
 Special thanks to [Juan Cruz](https://github.com/IJuanI) for being an early adopter and improving the experience!
+
+
+## Who is using pact-msw-adapter?
+
+### SUI
+
+![image](https://user-images.githubusercontent.com/19932401/206742449-e9fe57ac-7f17-40af-84ab-3035443d6b85.png)
+- [SUI](https://github.com/SUI-Components)
+  - Source [https://github.com/SUI-Components/sui/tree/master/packages/sui-test-contract](https://github.com/SUI-Components/sui/tree/master/packages/sui-test-contract)
+  - NPM [@s-ui/test-contract](https://www.npmjs.com/package/@s-ui/test-contract)
