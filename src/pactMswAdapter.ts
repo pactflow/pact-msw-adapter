@@ -270,11 +270,7 @@ export const setupPactMswAdapter = ({
         const filePath =
           options.pactOutDir +
           "/" +
-          [
-            pactFile.consumer.name,
-            pactFile.provider.name,
-            Date.now().toString(),
-          ].join("-") +
+          [pactFile.consumer.name, pactFile.provider.name].join("-") +
           ".json";
         writer(filePath, pactFile);
       });
