@@ -44,7 +44,7 @@
     "@pact-foundation/pact": "9.17.2",
     "@types/axios": "0.14.0",
     "@types/jest": "27.4.1",
-    "@typescript-eslint/eslint-plugin": "5.14.0",
+    "@typescript-eslint/eslint-plugin": "5.54.1",
     "@typescript-eslint/parser": "5.14.0",
     "axios": "0.26.0",
     "babel-jest": "27.5.1",
