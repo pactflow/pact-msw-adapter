@@ -12,9 +12,9 @@
     "spectre.css": "^0.5.8"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "cross-env CI=true react-scripts test --verbose",
+    "start": "cross-env GENERATE_SOURCEMAP=false react-scripts start",
+    "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
+    "test": "cross-env GENERATE_SOURCEMAP=false CI=true react-scripts test --verbose",
     "test:cypress": "cypress run --browser chrome",
     "test:cypress:open": "cypress open",
     "eject": "react-scripts eject",
@@ -48,7 +48,7 @@
     "cross-env": "^7.0.3",
     "cypress": "^9.5.1",
     "cypress-log-to-output": "^1.1.2",
-    "eslint": "^8.36.0",
+    "eslint": "^6.8.0",
     "eslint-config-react-app": "^5.2.1",
     "eslint-plugin-flowtype": "^8.0.3",
     "eslint-plugin-import": "^2.27.5",
