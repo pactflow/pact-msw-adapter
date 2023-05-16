@@ -16,7 +16,7 @@ export interface PactMswAdapterOptions {
   debug?: boolean;
   pactOutDir?: string;
   consumer: string;
-  providers: { [name: string]: string[] };
+  providers: { [name: string]: string[] } | ((match: MockedRequest) => string | null);
   includeUrl?: string[];
   excludeUrl?: string[];
   excludeHeaders?: string[];
@@ -26,7 +26,7 @@ export interface PactMswAdapterOptionsInternal {
   debug: boolean;
   pactOutDir: string;
   consumer: string;
-  providers: { [name: string]: string[] };
+  providers: { [name: string]: string[] } | ((match: MockedRequest) => string | null);
   includeUrl?: string[];
   excludeUrl?: string[];
   excludeHeaders?: string[];
@@ -86,8 +86,7 @@ export const setupPactMswAdapter = ({
   const matches: MswMatch[] = []; // Completed request-response pairs
 
   mswMocker.events.on("request:match", (req) => {
-    const url = req.url.toString();
-    if (!checkUrlFilters(url, options)) return;
+    if (!checkUrlFilters(req, options)) return;
     if (options.debug) {
       logGroup(["Matching request", req], { endGroup: true });
     }
@@ -180,7 +179,7 @@ export const setupPactMswAdapter = ({
 
   mswMocker.events.on("request:unhandled", (req) => {
     const url = req.url.toString();
-    if (!checkUrlFilters(url, options)) return;
+    if (!checkUrlFilters(req, options)) return;
 
     unhandledRequests.push(url);
     warning(`Unhandled request: ${url}`);
@@ -328,14 +327,19 @@ const transformMswToPact = async (
     );
 
     const pactFiles: PactFile[] = [];
-    const providers = Object.entries(options.providers);
+
+    const matchProvider = (request: MockedRequest) => {
+      if (typeof options.providers === "function") return options.providers(request);
+      const url = request.url.toString();
+      return Object.entries(options.providers)
+        .find(([_, paths]) =>
+          paths.some((path) => url.includes(path))
+        )?.[0];
+    }
+
     const matchesByProvider: { [key: string]: MswMatch[] } = {};
     matches.forEach((match) => {
-      const url = match.request.url.toString();
-      const provider =
-        providers.find(([_, paths]) =>
-          paths.some((path) => url.includes(path))
-        )?.[0] || "unknown";
+      const provider = matchProvider(match.request) ?? "unknown";
       if (!matchesByProvider[provider]) matchesByProvider[provider] = [];
       matchesByProvider[provider].push(match);
     });
