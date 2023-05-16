@@ -58,6 +58,7 @@ Let's start by listing it's methods:
 | excludeUrl | `false` | `string[]` | | exclusive filters for network calls |
 | excludeHeaders | `false` | `string[]` | | exclude generated headers from being written to request/response objects in pact file |
 | debug | `false` | `boolean` | `false` | prints verbose information about pact-msw-adapter events |
+| logger | `false` | `console` | `console` | logger used to print messages to console |
 
 ## Route filtering
 
