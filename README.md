@@ -1,8 +1,26 @@
 # pact-msw-adapter
 
-Generate pact contracts from the recorded mock service worker interactions.
+> Generate pact contracts from the recorded mock service worker interactions.
 
-Check out this issue for the initial proposal on msw's repo https://github.com/mswjs/msw/issues/572
+[![GitHub release](https://img.shields.io/github/release/pactflow/pact-msw-adapter)](https://github.com/pactflow/pact-msw-adapter)
+[![Npm package license](https://badgen.net/npm/license/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+[![Npm package version](https://badgen.net/npm/v/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+[![Minimum node.js version](https://badgen.net/npm/node/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+
+[![Npm package total downloads](https://badgen.net/npm/dt/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+[![Npm package yearly downloads](https://badgen.net/npm/dy/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+[![Npm package monthly downloads](https://badgen.net/npm/dm/@pactflow/pact-msw-adapter)](https://npmjs.ccom/package/@pactflow/pact-msw-adapter)
+[![Npm package daily downloads](https://badgen.net/npm/dd/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+[![Npm package dependents](https://badgen.net/npm/dependents/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/pact-foundation/pact-msw-adapter/graphs/commit-activity)
+[![Build and test](https://github.com/pactflow/pact-msw-adapter/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/pactflow/pact-msw-adapter/actions/workflows/build-and-test.yml)
+[![Publish and release](https://github.com/pactflow/pact-msw-adapter/actions/workflows/publish.yml/badge.svg)](https://github.com/pactflow/pact-msw-adapter/actions/workflows/publish.yml)
+[![Linux](https://svgshare.com/i/Zhy.svg)](https://svgshare.com/i/Zhy.svg)
+[![macOS](https://svgshare.com/i/ZjP.svg)](https://svgshare.com/i/ZjP.svg)
+[![Windows](https://svgshare.com/i/ZhY.svg)](https://svgshare.com/i/ZhY.svg)
+
+Check out the [quick start guide](https://docs.pactflow.io/docs/bi-directional-contract-testing/tools/msw).
 
 ##  Getting started
 
@@ -200,6 +218,9 @@ Without further do, it looks like the following:
 Here, `matchingRules` represent the assertions of the expectation, while `body`, `query` and `path` contains it's example values.
 
 ## Contributors
+
+Background: 
+ - Check out this issue for the initial proposal on msw's repo https://github.com/mswjs/msw/issues/572
 
 Made possible by these awesome people! You are welcome to contribute too!
 
