@@ -63,7 +63,7 @@ const createWriter = (options: PactMswAdapterOptionsInternal) => (filePath: stri
   }
 };
 
-const hasProvider = (request: MockedRequest, options: PactMswAdapterOptions) => {
+const hasProvider = (request: MockedRequest, options: PactMswAdapterOptionsInternal) => {
   if (typeof options.providers === 'function') {
     return options.providers(request) !== null;
   }
