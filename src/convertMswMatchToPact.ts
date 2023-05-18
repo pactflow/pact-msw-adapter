@@ -1,6 +1,24 @@
 import { PactFile, MswMatch } from "./pactMswAdapter";
-import { omit } from "lodash";
 const pjson = require("../package.json");
+
+const omit = (
+  o: { [x: string]: unknown[] | undefined | string },
+  ...paths: (string | string[])[]
+) =>
+  Object.fromEntries(
+    Object.entries(o).filter(([k]) => {
+ {
+        if (Object.keys(o)[0] === paths[0][0]) {
+          o = {
+            ...o,
+            [paths[0][0]]: undefined
+          };
+        }
+      }
+      return o[k];
+    })
+  );
+ 
 export const convertMswMatchToPact = ({
   consumer,
   provider,
