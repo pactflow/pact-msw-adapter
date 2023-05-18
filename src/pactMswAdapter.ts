@@ -1,11 +1,11 @@
 import { DefaultRequestBody, MockedRequest, SetupWorkerApi } from "msw";
 import {
+  Logger,
   addTimeout,
   checkUrlFilters,
+  createWriter,
   log,
   logGroup,
-  warning,
-  writeData2File,
 } from "./utils/utils";
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
 import { EventEmitter } from "events";
@@ -20,6 +20,7 @@ export interface PactMswAdapterOptions {
   includeUrl?: string[];
   excludeUrl?: string[];
   excludeHeaders?: string[];
+  logger?: Logger;
 }
 export interface PactMswAdapterOptionsInternal {
   timeout: number;
@@ -30,6 +31,7 @@ export interface PactMswAdapterOptionsInternal {
   includeUrl?: string[];
   excludeUrl?: string[];
   excludeHeaders?: string[];
+  logger: Logger;
 }
 
 export interface PactMswAdapter {
@@ -61,17 +63,18 @@ export const setupPactMswAdapter = ({
   const emitter = new EventEmitter();
 
   const options: PactMswAdapterOptionsInternal = {
+    logger: console,
     ...externalOptions,
     timeout: externalOptions.timeout || 200,
     debug: externalOptions.debug || false,
     pactOutDir: externalOptions.pactOutDir || "./msw_generated_pacts/",
   };
 
-  logGroup(`Adapter enabled${options.debug ? " on debug mode" : ""}`);
+  logGroup(`Adapter enabled${options.debug ? " on debug mode" : ""}`, { logger: options.logger });
   if (options.debug) {
-    logGroup(["options:", options], { endGroup: true });
+    logGroup(["options:", options], { endGroup: true, mode: "debug", logger: options.logger });
   } else {
-    console.groupEnd();
+    options.logger.groupEnd();
   }
 
   // This can include expired requests
@@ -88,7 +91,7 @@ export const setupPactMswAdapter = ({
   mswMocker.events.on("request:match", (req) => {
     if (!checkUrlFilters(req, options)) return;
     if (options.debug) {
-      logGroup(["Matching request", req], { endGroup: true });
+      logGroup(["Matching request", req], { endGroup: true, mode: "debug", logger: options.logger });
     }
 
     const startTime = Date.now();
@@ -120,7 +123,7 @@ export const setupPactMswAdapter = ({
         ? await (response as Response).text()
         : (response as IsomorphicResponse).body;
 
-      logGroup(JSON.stringify(response), { endGroup: true });
+      logGroup(JSON.stringify(response), { endGroup: true, logger: options.logger });
 
       const reqIdx = pendingRequests.findIndex((req) => req.id === reqId);
       if (reqIdx < 0) return; // Filtered and (expired and cleared) requests
@@ -139,31 +142,33 @@ export const setupPactMswAdapter = ({
         if (oldReqId) {
           orphanResponses.push(request.url.toString());
           log(`Orphan response: ${request.url}`, {
-            mode: "warning",
+            mode: "warn",
             group: expiredReq !== undefined,
+            logger: options.logger,
           });
         }
 
         if (expiredReq) {
           if (!oldReqId) {
             log(`Expired request to ${request.url.pathname}`, {
-              mode: "warning",
+              mode: "warn",
               group: true,
+              logger: options.logger,
             });
           }
 
           expiredReq.duration = endTime - expiredReq.startTime;
-          console.log("url:", request.url);
-          console.log("timeout:", options.timeout);
-          console.log("duration:", expiredReq.duration);
-          console.groupEnd();
+          options.logger.info("url:", request.url);
+          options.logger.info("timeout:", options.timeout);
+          options.logger.info("duration:", expiredReq.duration);
+          options.logger.groupEnd();
         }
 
         return;
       }
 
       if (options.debug) {
-        logGroup(["Mocked response", response], { endGroup: true });
+        logGroup(["Mocked response", response], { endGroup: true, mode: "debug", logger: options.logger });
       }
 
       activeRequestIds.splice(activeReqIdx, 1);
@@ -182,7 +187,7 @@ export const setupPactMswAdapter = ({
     if (!checkUrlFilters(req, options)) return;
 
     unhandledRequests.push(url);
-    warning(`Unhandled request: ${url}`);
+    log(`Unhandled request: ${url}`, { mode: "warn", logger: options.logger });
   });
 
   return {
@@ -229,7 +234,7 @@ export const setupPactMswAdapter = ({
       }
     },
     writeToFile: async (
-      writer: (path: string, data: object) => void = writeData2File
+      writer: (path: string, data: object) => void = createWriter(options)
     ) => {
       // TODO - dedupe pactResults so we only have one file per consumer/provider pair
       // Note: There are scenarios such as feature flagging where you want more than one file per consumer/provider pair
@@ -238,9 +243,9 @@ export const setupPactMswAdapter = ({
           "Found the following number of matches to write to a file:- " +
             matches.length,
         ],
-        { endGroup: true }
+        { endGroup: true, logger: options.logger }
       );
-      logGroup(JSON.stringify(matches), { endGroup: true });
+      logGroup(JSON.stringify(matches), { endGroup: true, logger: options.logger });
 
       let pactFiles: PactFile[];
       try {
@@ -251,7 +256,7 @@ export const setupPactMswAdapter = ({
           emitter
         );
       } catch (error) {
-        logGroup(["An error occurred parsing the JSON file", error]);
+        logGroup(["An error occurred parsing the JSON file", error], { logger: options.logger });
         throw new Error("error generating pact files");
       }
 
@@ -261,7 +266,7 @@ export const setupPactMswAdapter = ({
             "writeToFile() was called but no pact files were generated, did you forget to await the writeToFile() method?",
             matches.length,
           ],
-          { endGroup: true }
+          { endGroup: true, logger: options.logger }
         );
       }
 
@@ -365,12 +370,12 @@ const transformMswToPact = async (
 
     if (err && typeof err === "string") err = new Error(err);
 
-    console.groupCollapsed(
+    options.logger.groupCollapsed(
       "%c[pact-msw-adapter] Unexpected error.",
       "color:coral;font-weight:bold;"
     );
-    console.log(err);
-    console.groupEnd();
+    options.logger.info(err);
+    options.logger.groupEnd();
     throw err;
   }
 };

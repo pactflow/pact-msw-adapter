@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/pactflow/pact-msw-adapter/compare/v1.3.1...v1.4.0) (2023-05-17)
+
+
+### Features
+
+* Add option to set logger ([6d45541](https://github.com/pactflow/pact-msw-adapter/commit/6d4554158d4ef2671e88e556604319379659b5a2))
+
 ### [1.3.1](https://github.com/pactflow/pact-msw-adapter/compare/v1.3.0...v1.3.1) (2023-02-08)
 
 

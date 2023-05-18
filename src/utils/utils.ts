@@ -1,37 +1,40 @@
 import { MockedRequest } from "msw";
-import { PactMswAdapterOptions } from "../pactMswAdapter";
+import { PactMswAdapterOptionsInternal } from "../pactMswAdapter";
 var path = require("path");
 let fs: any; // dynamic import
 
 const logPrefix = '[pact-msw-adapter]';
 const logColors = {
-  log: 'forestgreen',
-  warning: 'gold',
+  debug: 'gray',
+  info: 'forestgreen',
+  warn: 'gold',
   error: 'coral'
 };
 
-const log = (message: any, options?: { group?: boolean, mode?: 'log' | 'warning' | 'error' }) => {
+type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+export type Logger = Pick<typeof console, LogLevel | 'groupEnd' | 'groupCollapsed'>
+
+const log = (message: any, options: { group?: boolean, mode?: LogLevel, logger: Logger }) => {
   const group = options?.group || false;
-  const mode = options?.mode || 'log';
+  const mode = options?.mode || 'info';
   const color = logColors[mode];
 
-  const logFunction = group ? console.groupCollapsed : console.log;
+  const logFunction = group ? options.logger.groupCollapsed : options.logger[mode];
   logFunction(`%c${logPrefix} %c${message}`, `color:${color}`, 'color:inherit');
 }
 
-const warning = (message: any) => log(message, { mode: 'warning' });
-const logGroup = (message: any | any[], options?: { endGroup?: boolean }) => {
+const logGroup = (message: any | any[], options: { endGroup?: boolean; mode?: LogLevel; logger: Logger }) => {
   const isArray = message instanceof Array;
   if (isArray) {
     const [label, ...content] = message;
-    log(label, { group: true });
-    content.forEach((c: any) => console.log(c));
+    log(label, { group: true, mode: options.mode, logger: options.logger });
+    content.forEach((c: any) => options.logger[options?.mode || 'info'](c));
   } else {
-    log(message, { group: true });
+    log(message, { group: true, mode: options.mode, logger: options.logger });
   }
 
   if (options?.endGroup) {
-    console.groupEnd();
+    options.logger.groupEnd();
   }
 }
 
@@ -43,17 +46,17 @@ const ensureDirExists = (filePath: string) => {
   fs.mkdirSync?.(dirname);
 };
 
-const writeData2File = (filePath: string, data: Object) => {
+const createWriter = (options: PactMswAdapterOptionsInternal) => (filePath: string, data: Object) => {
   if (!fs) {
     try {
       fs = require('fs');
     } catch (e) {}
   }
   if (!fs?.existsSync) {
-    log('You need a node environment to save files.', { mode: 'warning', group: true });
-    console.log('filePath:', filePath);
-    console.log('contents:', data);
-    console.groupEnd();
+    log('You need a node environment to save files.', { mode: 'warn', group: true, logger: options.logger });
+    options.logger.info('filePath:', filePath);
+    options.logger.info('contents:', data);
+    options.logger.groupEnd();
   } else {
     ensureDirExists(filePath);
     fs.writeFileSync?.(filePath, JSON.stringify(data));
@@ -68,14 +71,14 @@ const hasProvider = (request: MockedRequest, options: PactMswAdapterOptions) => 
     ?.some(validPaths => validPaths.some(path => request.url.toString().includes(path)));
 };
 
-const checkUrlFilters = (request: MockedRequest, options: PactMswAdapterOptions) => {
+const checkUrlFilters = (request: MockedRequest, options: PactMswAdapterOptionsInternal) => {
   const urlString = request.url.toString();
   const providerFilter = hasProvider(request, options);
   const includeFilter = !options.includeUrl || options.includeUrl.some(inc => urlString.includes(inc));
   const excludeFilter = !options.excludeUrl || !options.excludeUrl.some(exc => urlString.includes(exc));
   const matchIsAllowed = includeFilter && excludeFilter && providerFilter
   if (options.debug) {
-    logGroup(['Checking request against url filters', { urlString, providerFilter, includeFilter, excludeFilter, matchIsAllowed }]);
+    logGroup(['Checking request against url filters', { urlString, providerFilter, includeFilter, excludeFilter, matchIsAllowed }], { logger: options.logger });
   }
 
   return matchIsAllowed;
@@ -91,4 +94,4 @@ const addTimeout = async<T>(promise: Promise<T>, label: string, timeout: number)
   return Promise.race([promise, asyncTimeout]);
 }
 
-export { log, warning, logGroup, writeData2File, checkUrlFilters, addTimeout };
+export { log, logGroup, createWriter, checkUrlFilters, addTimeout };
