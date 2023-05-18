@@ -115,7 +115,7 @@ describe("API - With MSW mock generating a pact", () => {
 
   test("unhandled route", async () => {
     await expect(API.getProduct("11")).rejects.toThrow(
-      /^connect ECONNREFUSED (127.0.0.1|::1):8081$/
+      /^Error: connect ECONNREFUSED (127.0.0.1|::1):8081.*$/
     );
   });
 
