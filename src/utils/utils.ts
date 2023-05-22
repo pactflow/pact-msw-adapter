@@ -1,3 +1,4 @@
+import { MockedRequest } from "msw";
 import { PactMswAdapterOptionsInternal } from "../pactMswAdapter";
 var path = require("path");
 let fs: any; // dynamic import
@@ -62,9 +63,17 @@ const createWriter = (options: PactMswAdapterOptionsInternal) => (filePath: stri
   }
 };
 
-const checkUrlFilters = (urlString: string, options: PactMswAdapterOptionsInternal) => {
-  const providerFilter = Object.values(options.providers)
-    ?.some(validPaths => validPaths.some(path => urlString.includes(path)));
+const hasProvider = (request: MockedRequest, options: PactMswAdapterOptionsInternal) => {
+  if (typeof options.providers === 'function') {
+    return options.providers(request) !== null;
+  }
+  return Object.values(options.providers)
+    ?.some(validPaths => validPaths.some(path => request.url.toString().includes(path)));
+};
+
+const checkUrlFilters = (request: MockedRequest, options: PactMswAdapterOptionsInternal) => {
+  const urlString = request.url.toString();
+  const providerFilter = hasProvider(request, options);
   const includeFilter = !options.includeUrl || options.includeUrl.some(inc => urlString.includes(inc));
   const excludeFilter = !options.excludeUrl || !options.excludeUrl.some(exc => urlString.includes(exc));
   const matchIsAllowed = includeFilter && excludeFilter && providerFilter

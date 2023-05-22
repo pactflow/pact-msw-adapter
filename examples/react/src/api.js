@@ -53,6 +53,16 @@ export class API {
         })
             .then(r => r.data);
     }
+
+    async getUser(params) {
+        return axios.get(this.withPath("/user"), {
+            params,
+            headers: {
+                "Authorization": this.generateAuthToken()
+            }
+        })
+            .then(r => r.data);
+    }
 }
 
 export default new API(process.env.REACT_APP_API_BASE_URL);
