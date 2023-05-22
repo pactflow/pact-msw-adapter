@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/pactflow/pact-msw-adapter/compare/v1.4.0...v1.5.0) (2023-05-22)
+
+
+### Features
+
+* allow dynamic provider matching ([58de667](https://github.com/pactflow/pact-msw-adapter/commit/58de667ef172c8a3e827f57fd36abf88c34766cf))
+
 ## [1.4.0](https://github.com/pactflow/pact-msw-adapter/compare/v1.3.1...v1.4.0) (2023-05-17)
 
 
