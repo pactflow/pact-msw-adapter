@@ -20,7 +20,7 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "msw": ">=0.36.9"
+    "msw": ">=0.35.0"
   },
   "engines": {
     "node": ">=16"
