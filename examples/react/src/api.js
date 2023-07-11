@@ -36,14 +36,23 @@ export class API {
     }
 
     async getProduct(id, params) {
-        return axios.get(this.withPath("/product/" + id), {
-            params,
-            headers: {
-                "Authorization": this.generateAuthToken()
-            }
-        })
-            .then(r => r.data);
-    }
+        try {
+          return await axios
+            .get(this.withPath('/product/' + id), {
+              params,
+              headers: {
+                Authorization: this.generateAuthToken()
+              }
+            })
+            .then((r) => r.data);
+        } catch (error) {
+          if (error.errors && error.errors.length > 0) {
+            return Promise.reject(new Error(error.errors));
+          } else {
+            return Promise.reject(new Error(error));
+          }
+        }
+      }
 
     async postProduct(id, productData) {
         return await axios.post(this.withPath("/product/" + id), productData, {

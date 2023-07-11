@@ -7,67 +7,12 @@ on:
 
 jobs:
 
-  build-and-test-osx:
-    runs-on: macos-latest
+  build-and-test:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [14.x, 16.x, 18.x]
-      fail-fast: false
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: yarn install
-        shell: bash
-      - run: yarn run dist:ci
-        shell: bash
-      - run: yarn link
-        shell: bash
-      - run: yarn run example:link
-        shell: bash
-      - run: yarn run example:install
-        shell: bash
-      - run: yarn run example:test:unit
-        shell: bash
-      - run: yarn run example:test:cy:run
-        shell: bash
-
-  build-and-test-ubuntu:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.x, 16.x, 18.x]
-      fail-fast: false
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: yarn install
-        shell: bash
-      - run: yarn run dist:ci
-        shell: bash
-      - run: yarn link
-        shell: bash
-      - run: yarn run example:link
-        shell: bash
-      - run: yarn run example:install
-        shell: bash
-      - run: yarn run example:test:unit
-        shell: bash
-      - run: yarn run example:test:cy:run
-        shell: bash
-
-  build-and-test-windows:
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        node-version: [14.x, 16.x, 18.x]
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        node-version: [16.x, 18.x, 19.x, 20.x]
       fail-fast: false
 
     steps:
