@@ -43,7 +43,7 @@
     "example:install:link": "yarn link && npm run example:install && npm run example:link"
   },
   "devDependencies": {
-    "@babel/preset-env": "7.16.11",
+    "@babel/preset-env": "7.22.10",
     "@pact-foundation/pact": "9.17.2",
     "@types/axios": "0.14.0",
     "@types/jest": "27.4.1",
