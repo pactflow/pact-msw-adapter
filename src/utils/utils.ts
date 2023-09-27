@@ -85,13 +85,14 @@ const checkUrlFilters = (request: MockedRequest, options: PactMswAdapterOptionsI
 };
 
 const addTimeout = async<T>(promise: Promise<T>, label: string, timeout: number) => {
+  let timeoutId: NodeJS.Timeout
   const asyncTimeout = new Promise<void>((_, reject) => {
-    setTimeout(() => {
+    timeoutId = setTimeout(() => {
       reject(new Error(`[pact-msw-adapter] ${label} timed out after ${timeout}ms`));
     }, timeout);
   });
 
-  return Promise.race([promise, asyncTimeout]);
+  return Promise.race([promise, asyncTimeout]).then(() => clearTimeout(timeoutId));
 }
 
 export { log, logGroup, createWriter, checkUrlFilters, addTimeout };
