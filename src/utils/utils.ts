@@ -88,7 +88,7 @@ const addTimeout = async<T>(promise: Promise<T>, label: string, timeout: number)
   const asyncTimeout = new Promise<void>((_, reject) => {
     setTimeout(() => {
       reject(new Error(`[pact-msw-adapter] ${label} timed out after ${timeout}ms`));
-    }, timeout);
+    }, timeout).unref();
   });
 
   return Promise.race([promise, asyncTimeout]);
