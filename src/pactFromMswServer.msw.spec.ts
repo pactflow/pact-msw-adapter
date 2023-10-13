@@ -40,7 +40,7 @@ describe("API - With MSW mock generating a pact", () => {
     server.close();
   });
 
-  test("get all products", async () => {
+  test.only("get all products", async () => {
     const products = [
       {
         id: "09",
@@ -50,9 +50,16 @@ describe("API - With MSW mock generating a pact", () => {
     ];
     server.use(
       rest.get(API.url + "/products", (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json(products));
+        const response = res(ctx.status(200), ctx.json(products));
+        console.log('printing request');
+        console.log(req);
+        console.log('printing response');
+        console.log(response)
+        return response;
       })
     );
+    console.log('printing handlers');
+    server.printHandlers();
 
     const respProducts = await API.getAllProducts();
     expect(respProducts).toEqual(products);
