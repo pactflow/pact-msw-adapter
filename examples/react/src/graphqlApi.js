@@ -14,10 +14,10 @@ const typeDefs = gql`
     author: String
   }
 
-  # The "Query" type is special: it lists all of the available queries that
+  # The "GetBooksQuery" type is special: it lists all of the available queries that
   # clients can execute, along with the return type for each. In this
   # case, the "books" query returns an array of zero or more Books (defined above).
-  type Query {
+  type GetBooksQuery {
     books: [Book]
   }
 `;
@@ -36,7 +36,7 @@ const books = [
   // Resolvers define the technique for fetching the types defined in the
 // schema. This resolver retrieves books from the "books" array above.
 const resolvers = {
-    Query: {
+    GetBooksQuery: {
       books: () => books,
     },
   };
