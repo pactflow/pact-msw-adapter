@@ -23,13 +23,6 @@ export function GetBooksQuery() {
             }
         }
       `,
-      variables: {
-        foo: 'bar',
-      },
     })
     .then((result) => result.data);
 }
-
-GetBooksQuery().then(books => {
-  console.log(books);
-})

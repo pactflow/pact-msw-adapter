@@ -1,8 +1,7 @@
 import { GetBooksQuery } from '../examples/react/src/graphqlClient';
 import { graphql } from "msw";
 import { setupServer } from "msw/node";
-import { PactFile, setupPactMswAdapter } from "./pactMswAdapter";
-const pjson = require("../package.json");
+import { setupPactMswAdapter } from "./pactMswAdapter";
 
 const server = setupServer();
 const pactMswAdapter = setupPactMswAdapter({
@@ -10,10 +9,9 @@ const pactMswAdapter = setupPactMswAdapter({
   options: {
     consumer: "testConsumer",
     providers: {
-      ["testGraphqlProvider"]: ["graphql"],
+      ["graphql"]: ["graphql"],
     },
-    debug: true,
-    includeUrl: ["graphql", "/product"],
+    debug: false,
   },
 });
 
@@ -38,16 +36,19 @@ describe("API - With MSW mock generating a pact", () => {
     });
 
   it("should get all books", async () => {
-      const books = [
-          {
-            title: 'Blood Meridian',
-            author: 'Cormac McCarthy',
-          },
-          {
-            title: 'The Golden Compass',
-            author: 'Philip Pullman',
-          },
-        ];
+      const books = 
+        { books: [
+            {
+              title: 'Blood Meridian',
+              author: 'Cormac McCarthy',
+              __typename: 'Book',
+            },
+            {
+              title: 'The Golden Compass',
+              author: 'Philip Pullman',
+              __typename: 'Book',
+            },
+          ]};
       server.use(
         graphql.query('GetBooks', (req, res, ctx) => {
           const response = res(ctx.data(books));
@@ -62,6 +63,7 @@ describe("API - With MSW mock generating a pact", () => {
       server.printHandlers();
 
       const respBooks = await GetBooksQuery();
+      console.log(respBooks);
       expect(respBooks).toEqual(books);
   });
 });
