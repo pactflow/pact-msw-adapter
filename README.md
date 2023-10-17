@@ -219,19 +219,6 @@ Without further do, it looks like the following:
 
 Here, `matchingRules` represent the assertions of the expectation, while `body`, `query` and `path` contains it's example values.
 
-## Graphql
-
-Start the graphql API in one terminal:
-
-```bash
-yarn start:gql
-```
-
-Then run the graphql client in another terminal:
-```bash
-yarn run:gqlClient 
-```
-
 ## Contributors
 
 Background: 

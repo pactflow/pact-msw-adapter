@@ -66,3 +66,23 @@ yarn run example:test:cy:run
 ```sh
 yarn run example:test:unit
 ```
+
+
+## Graphql
+
+Test 
+
+```
+node_modules/.bin/jest src/pactFromMswServerGql.msw.spec.ts
+```
+
+Start the graphql API in one terminal:
+
+```bash
+yarn start:gql
+```
+
+Then run the graphql client in another terminal:
+```bash
+yarn run:gqlClient 
+```

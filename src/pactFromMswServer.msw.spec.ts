@@ -40,7 +40,7 @@ describe("API - With MSW mock generating a pact", () => {
     server.close();
   });
 
-  test.only("get all products", async () => {
+  test("get all products", async () => {
     const products = [
       {
         id: "09",
