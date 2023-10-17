@@ -1,4 +1,4 @@
-import { GetBooksQuery } from '../examples/react/src/graphqlClient';
+import { GetBooksQuery } from './fixtures/graphqlClient';
 import { graphql } from "msw";
 import { setupServer } from "msw/node";
 import { setupPactMswAdapter, PactFile } from "./pactMswAdapter";
