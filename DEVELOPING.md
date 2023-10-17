@@ -70,11 +70,6 @@ yarn run example:test:unit
 
 ## Graphql
 
-Test 
-
-```
-node_modules/.bin/jest src/pactFromMswServerGql.msw.spec.ts
-```
 
 Start the graphql API in one terminal:
 
@@ -85,4 +80,18 @@ yarn start:gql
 Then run the graphql client in another terminal:
 ```bash
 yarn run:gqlClient 
+```
+
+
+Generate a consumer pact, by running a jest test, with msw-pact, testing the gql consumer
+
+```
+test:gql:consumer
+```
+
+Run the provider verification for the gql consumer
+
+
+```
+test:gql:verifier
 ```
