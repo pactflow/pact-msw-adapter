@@ -41,7 +41,7 @@ describe("API - With MSW mock generating a pact", () => {
       server.close();
     });
 
-  it.only("should get all books", async () => {
+  it("should get all books", async () => {
       const books = 
         { books: [
             {
@@ -99,37 +99,20 @@ describe("API - With MSW mock generating a pact", () => {
       pactResults.push(data as PactFile);
       console.log(data);
     }); // writes the pacts to a file
-    expect(pactResults.length).toEqual(2);
+    expect(pactResults.length).toEqual(1);
 
-    expect(pactResults.length).toEqual(2);
     expect(pactResults[0].consumer.name).toEqual("testConsumer");
-    expect(pactResults[0].provider.name).toEqual("testProvider");
-    expect(pactResults[1].consumer.name).toEqual("testConsumer");
-    expect(pactResults[1].provider.name).toEqual("testProvider2");
-    expect(pactResults[0].interactions[0].request.method).toEqual("GET");
-    expect(pactResults[0].interactions[0].request.path).toEqual("/products");
-    expect(pactResults[0].interactions[0].request.headers).toEqual({
-      accept: "application/json, text/plain, */*",
-      authorization: expect.any(String),
-      "user-agent": expect.any(String),
-    });
+    expect(pactResults[0].provider.name).toEqual("graphql");
+    expect(pactResults[0].interactions[0].request.method).toEqual("POST");
+    expect(pactResults[0].interactions[0].request.path).toEqual("/graphql");
     expect(pactResults[0].interactions[0].response.status).toEqual(200);
 
     expect(pactResults[0].interactions[0].response.headers).toEqual({
       "content-type": "application/json",
+      "x-powered-by": "msw",
     });
-    expect(pactResults[0].interactions[0].response.body).toEqual([
-      {
-        id: "09",
-        type: "CREDIT_CARD",
-        name: "Gem Visa",
-      },
-    ]);
-    expect(pactResults[1].interactions[0].request.body).toEqual({
-      type: "CREDIT_CARD",
-      name: "28 Degrees",
-    });
-    expect(pactResults[1].interactions[1].request.body).toBeUndefined();
+    console.log(pactResults[0].interactions[0].response.body);
+    expect(pactResults[0].interactions[0].response.body).toEqual({ "data": books });
     expect(pactResults[0].metadata).toEqual({
       pactSpecification: {
         version: "2.0.0",
