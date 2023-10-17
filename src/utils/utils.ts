@@ -64,6 +64,9 @@ const createWriter = (options: PactMswAdapterOptionsInternal) => (filePath: stri
 };
 
 const hasProvider = (request: MockedRequest, options: PactMswAdapterOptionsInternal) => {
+  console.log('hasProvider');
+  console.log(request);
+  console.log(options);
   if (typeof options.providers === 'function') {
     return options.providers(request) !== null;
   }
@@ -77,6 +80,10 @@ const checkUrlFilters = (request: MockedRequest, options: PactMswAdapterOptionsI
   const includeFilter = !options.includeUrl || options.includeUrl.some(inc => urlString.includes(inc));
   const excludeFilter = !options.excludeUrl || !options.excludeUrl.some(exc => urlString.includes(exc));
   const matchIsAllowed = includeFilter && excludeFilter && providerFilter
+  console.log('checkUrlFilters');
+  console.log(includeFilter);
+  console.log(excludeFilter);
+  console.log(providerFilter);
   if (options.debug) {
     logGroup(['Checking request against url filters', { urlString, providerFilter, includeFilter, excludeFilter, matchIsAllowed }], { logger: options.logger });
   }

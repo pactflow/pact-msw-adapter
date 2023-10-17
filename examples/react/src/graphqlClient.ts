@@ -1,12 +1,10 @@
-import ApolloClient from 'apollo-boost';
-import { InMemoryCache } from 'apollo-cache-inmemory';
+import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 import gql from 'graphql-tag';
-import fetch from 'node-fetch';
+import fetch from 'cross-fetch';
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
-  fetch,
-  uri: 'http://127.0.0.1:4000',
+  link: new HttpLink({ uri: 'http://127.0.0.1:4000/graphql', fetch }),
   headers: {
     foo: 'bar',
   },
@@ -16,7 +14,7 @@ export function GetBooksQuery() {
   return client
     .query({
       query: gql`
-        query GetBooks {
+        query GetBooksQuery {
             books {
                 title
                 author
@@ -24,5 +22,11 @@ export function GetBooksQuery() {
         }
       `,
     })
+    //@ts-ignore
     .then((result) => result.data);
 }
+
+// For testing
+// GetBooksQuery().then(results => {
+//   console.log(results);
+// })

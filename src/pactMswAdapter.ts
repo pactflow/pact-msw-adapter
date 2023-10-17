@@ -99,6 +99,8 @@ export const setupPactMswAdapter = ({
     const startTime = Date.now();
 
     pendingRequests.push(req);
+    console.log('pending requests');
+    console.log(pendingRequests);
     activeRequestIds.push(req.id);
 
     setTimeout(() => {

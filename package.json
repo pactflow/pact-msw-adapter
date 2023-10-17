@@ -34,7 +34,7 @@
     "dist:ci": "npm run build:clean && npm test",
     "release": "standard-version",
     "release:trigger": "./scripts/trigger-release.sh",
-    "start:gql": "node examples/react/src/graphqlApi.js",
+    "start:gql": "ts-node examples/react/src/graphqlApi.ts",
     "run:gqlClient": "ts-node examples/react/src/graphqlClient.ts",
     "example:test:cy:run": "cd examples/react && npm run start:test:cy:run",
     "example:test:cy:open": "cd examples/react && npm run start:test:cy:open",
@@ -65,12 +65,13 @@
     "typescript": "4.9.5"
   },
   "dependencies": {
-    "apollo-boost": "0.4.8",
-    "apollo-cache-inmemory": "^1.6.6",
+    "@apollo/client": "^3.8.6",
+    "@apollo/server": "^4.9.4",
     "apollo-link-http": "^1.5.17",
-    "apollo-server": "^3.12.1",
+    "cross-fetch": "^4.0.0",
     "graphql": "^16.8.1",
     "graphql-tag": "^2.12.6",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "react": "^18.2.0"
   }
 }

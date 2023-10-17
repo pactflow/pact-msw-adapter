@@ -1,12 +1,16 @@
 // Using the example graphql api here: https://www.apollographql.com/blog/graphql/examples/building-a-graphql-api/
 
-const { ApolloServer, gql } = require('apollo-server');
+import { ApolloServer } from '@apollo/server';
+import gql from 'graphql-tag';
+const { startStandaloneServer } = require('@apollo/server/standalone');
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
 // your data.
 const typeDefs = gql`
   # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
+
+
 
   # This "Book" type defines the queryable fields: 'title' and 'author'.
   type Book {
@@ -17,7 +21,7 @@ const typeDefs = gql`
   # The "GetBooksQuery" type is special: it lists all of the available queries that
   # clients can execute, along with the return type for each. In this
   # case, the "GetBooksQuery" query returns an array of zero or more Books (defined above).
-  type GetBooksQuery {
+  type Query {
     books: [Book]
   }
 `;
@@ -36,7 +40,7 @@ const books = [
   // Resolvers define the technique for fetching the types defined in the
 // schema. This resolver retrieves books from the "books" array above.
 const resolvers = {
-    GetBooksQuery: {
+  Query: {
       books: () => books,
     },
   };
@@ -45,7 +49,12 @@ const resolvers = {
 // definition and your set of resolvers.
 const server = new ApolloServer({ typeDefs, resolvers });
 
-// The `listen` method launches a web server.
-server.listen().then(({url}) => {
-  console.log(`🚀  Server ready at ${url}`);
+startStandaloneServer(server, {
+  listen: { 
+    port: 4000, 
+    path: '/graphql',
+  },
+//@ts-ignore
+}).then((url) => {
+  console.log(`🚀  Server ready at ${url.url}`);
 });
