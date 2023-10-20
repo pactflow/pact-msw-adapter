@@ -36,7 +36,7 @@
     "release:trigger": "./scripts/trigger-release.sh",
     "test:gql:consumer": "jest src/pactFromMswServerGql.msw.spec.ts",
     "test:gql:provider": "jest src/fixtures/provider.msw.spec.ts",
-    "start:gql": "ts-node examples/react/src/graphqlApi.ts run",
+    "start:gql": "ts-node examples/react/src/graphqlApi.js run",
     "run:gqlClient": "ts-node examples/react/src/graphqlClient.ts",
     "example:test:cy:run": "cd examples/react && npm run start:test:cy:run",
     "example:test:cy:open": "cd examples/react && npm run start:test:cy:open",
