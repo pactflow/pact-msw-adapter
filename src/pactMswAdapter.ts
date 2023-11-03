@@ -1,5 +1,7 @@
-import { DefaultRequestBody, MockedRequest, SetupWorkerApi } from "msw";
+import { SetupWorker } from "msw/browser";
+import { SetupServer } from "msw/node";
 import {
+  JSONValue,
   Logger,
   addTimeout,
   checkUrlFilters,
@@ -9,14 +11,12 @@ import {
 } from "./utils/utils";
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
 import { EventEmitter } from "events";
-import { SetupServerApi } from "msw/lib/types/node/glossary";
-import { IsomorphicResponse } from "@mswjs/interceptors";
 export interface PactMswAdapterOptions {
   timeout?: number;
   debug?: boolean;
   pactOutDir?: string;
   consumer: string;
-  providers: { [name: string]: string[] } | ((match: MockedRequest) => string | null);
+  providers: { [name: string]: string[] } | ((event: PendingRequest) => string | null);
   includeUrl?: string[];
   excludeUrl?: string[];
   excludeHeaders?: string[];
@@ -27,7 +27,7 @@ export interface PactMswAdapterOptionsInternal {
   debug: boolean;
   pactOutDir: string;
   consumer: string;
-  providers: { [name: string]: string[] } | ((match: MockedRequest) => string | null);
+  providers: { [name: string]: string[] } | ((event: PendingRequest) => string | null);
   includeUrl?: string[];
   excludeUrl?: string[];
   excludeHeaders?: string[];
@@ -47,8 +47,8 @@ export const setupPactMswAdapter = ({
   server,
 }: {
   options: PactMswAdapterOptions;
-  worker?: SetupWorkerApi;
-  server?: SetupServerApi;
+  worker?: SetupWorker;
+  server?: SetupServer;
 }): PactMswAdapter => {
   if (!worker && !server) {
     throw new Error("Either a worker or server must be provided");
@@ -78,7 +78,7 @@ export const setupPactMswAdapter = ({
   }
 
   // This can include expired requests
-  const pendingRequests: MockedRequest[] = []; // Requests waiting for their responses
+  const pendingRequests: PendingRequest[] = []; // Requests waiting for their responses
 
   const unhandledRequests: string[] = []; // Requests that need to be handled
   const expiredRequests: ExpiredRequest[] = []; // Requests that have expired (timeout)
@@ -86,61 +86,52 @@ export const setupPactMswAdapter = ({
 
   const oldRequestIds: string[] = []; // Pending requests from previous tests
   const activeRequestIds: string[] = []; // Pending requests which are still valid
-  const matches: MswMatch[] = []; // Completed request-response pairs
+  const matches: MatchedRequest[] = []; // Completed request-response pairs
 
-  mswMocker.events.on("request:match", (req) => {
-    if (!checkUrlFilters(req, options)) return;
+  mswMocker.events.on("request:match", ({request, requestId}) => {
+    if (!checkUrlFilters({request, requestId}, options)) return;
     if (options.debug) {
-      logGroup(["Matching request", req], { endGroup: true, mode: "debug", logger: options.logger });
+      logGroup(["Matching request", request], { endGroup: true, mode: "debug", logger: options.logger });
     }
 
     const startTime = Date.now();
 
-    pendingRequests.push(req);
-    activeRequestIds.push(req.id);
+    pendingRequests.push({request, requestId});
+    activeRequestIds.push(requestId);
 
     setTimeout(() => {
-      const activeIdx = activeRequestIds.indexOf(req.id);
-      emitter.emit("pact-msw-adapter:expired", req);
+      const expired = { requestId, startTime, request }
+      const activeIdx = activeRequestIds.indexOf(requestId);
+      emitter.emit("pact-msw-adapter:expired", expired);
       if (activeIdx >= 0) {
         // Could be removed if completed or the test ended
         activeRequestIds.splice(activeIdx, 1);
-        expiredRequests.push({
-          reqId: req.id,
-          startTime,
-        });
+        expiredRequests.push(expired);
       }
     }, options.timeout);
   });
 
   mswMocker.events.on(
     "response:mocked",
-    async (response: Response | IsomorphicResponse, reqId: string) => {
-      // https://mswjs.io/docs/extensions/life-cycle-events#responsemocked
-      // Note that the res instance differs between the browser and Node.js.
-      // Take this difference into account when operating with it.
-      const responseBody: string | undefined = isWorker
-        ? await (response as Response).text()
-        : (response as IsomorphicResponse).body;
-
+    async ({ response, requestId }) => {
       logGroup(JSON.stringify(response), { endGroup: true, logger: options.logger });
 
-      const reqIdx = pendingRequests.findIndex((req) => req.id === reqId);
+      const reqIdx = pendingRequests.findIndex((pending) => pending.requestId === requestId);
       if (reqIdx < 0) return; // Filtered and (expired and cleared) requests
 
       const endTime = Date.now();
 
-      const request = pendingRequests.splice(reqIdx, 1)[0];
-      const activeReqIdx = activeRequestIds.indexOf(reqId);
+      const {request} = pendingRequests.splice(reqIdx, 1)[0];
+      const activeReqIdx = activeRequestIds.indexOf(requestId);
       if (activeReqIdx < 0) {
         // Expired requests and responses from previous tests
 
-        const oldReqId = oldRequestIds.find((id) => id === reqId);
+        const oldReqId = oldRequestIds.find((id) => id === requestId);
         const expiredReq = expiredRequests.find(
-          (expired) => expired.reqId === reqId
+          (expired) => expired.requestId === requestId
         );
         if (oldReqId) {
-          orphanResponses.push(request.url.toString());
+          orphanResponses.push(request.url);
           log(`Orphan response: ${request.url}`, {
             mode: "warn",
             group: expiredReq !== undefined,
@@ -150,7 +141,8 @@ export const setupPactMswAdapter = ({
 
         if (expiredReq) {
           if (!oldReqId) {
-            log(`Expired request to ${request.url.pathname}`, {
+            const pathname = new URL(request.url).pathname;
+            log(`Expired request to ${pathname}`, {
               mode: "warn",
               group: true,
               logger: options.logger,
@@ -172,22 +164,21 @@ export const setupPactMswAdapter = ({
       }
 
       activeRequestIds.splice(activeReqIdx, 1);
-      const match: MswMatch = {
+      const match: MatchedRequest = {
         request,
+        requestId,
         response,
-        body: responseBody,
       };
       emitter.emit("pact-msw-adapter:match", match);
       matches.push(match);
     }
   );
 
-  mswMocker.events.on("request:unhandled", (req) => {
-    const url = req.url.toString();
-    if (!checkUrlFilters(req, options)) return;
+  mswMocker.events.on("request:unhandled", ({ request, requestId }) => {
+    if (!checkUrlFilters({ request, requestId }, options)) return;
 
-    unhandledRequests.push(url);
-    log(`Unhandled request: ${url}`, { mode: "warn", logger: options.logger });
+    unhandledRequests.push(request.url);
+    log(`Unhandled request: ${request.url}`, { mode: "warn", logger: options.logger });
   });
 
   return {
@@ -211,15 +202,13 @@ export const setupPactMswAdapter = ({
         errors += `Expired requests:\n${expiredRequests
           .map((expired) => ({
             expired,
-            req: pendingRequests.find((req) => req.id === expired.reqId),
+            pending: pendingRequests.find((pending) => pending.requestId === expired.requestId),
           }))
-          .filter(({ expired, req }) => expired && req)
-          .map(
-            ({ expired, req }) =>
-              `${req!.url.pathname}${
-                expired.duration ? `took ${expired.duration}ms and` : ""
-              } timed out after ${options.timeout}ms`
-          )
+          .filter(({ expired, pending }) => expired && pending)
+          .map(({ expired, pending }) => {
+            const pathname = new URL(pending!.request.url).pathname;
+            return `${pathname}${expired.duration ? `took ${expired.duration}ms and` : ""} timed out after ${options.timeout}ms`;
+          })
           .join("\n")}\n`;
         expiredRequests.length = 0;
       }
@@ -297,7 +286,7 @@ export const setupPactMswAdapter = ({
 
 export { convertMswMatchToPact };
 const transformMswToPact = async (
-  matches: MswMatch[],
+  matches: MatchedRequest[],
   activeRequestIds: string[],
   options: PactMswAdapterOptionsInternal,
   emitter: EventEmitter
@@ -333,18 +322,17 @@ const transformMswToPact = async (
 
     const pactFiles: PactFile[] = [];
 
-    const matchProvider = (request: MockedRequest) => {
-      if (typeof options.providers === "function") return options.providers(request);
-      const url = request.url.toString();
+    const matchProvider = (match: MatchedRequest) => {
+      if (typeof options.providers === "function") return options.providers(match);
       return Object.entries(options.providers)
         .find(([_, paths]) =>
-          paths.some((path) => url.includes(path))
+          paths.some((path) => match.request.url.includes(path))
         )?.[0];
     }
 
-    const matchesByProvider: { [key: string]: MswMatch[] } = {};
+    const matchesByProvider: { [key: string]: MatchedRequest[] } = {};
     matches.forEach((match) => {
-      const provider = matchProvider(match.request) ?? "unknown";
+      const provider = matchProvider(match) ?? "unknown";
       if (!matchesByProvider[provider]) matchesByProvider[provider] = [];
       matchesByProvider[provider].push(match);
     });
@@ -352,7 +340,7 @@ const transformMswToPact = async (
     for (const [provider, providerMatches] of Object.entries(
       matchesByProvider
     )) {
-      const pactFile = convertMswMatchToPact({
+      const pactFile = await convertMswMatchToPact({
         consumer: options.consumer,
         provider,
         matches: providerMatches,
@@ -387,7 +375,7 @@ export interface PactInteraction {
     method: string;
     path: string;
     headers: any;
-    body: DefaultRequestBody;
+    body: JSONValue | FormData | undefined;
     query?: string;
   };
   response: {
@@ -423,14 +411,16 @@ export interface PactFileMetaData {
   };
 }
 
-export interface MswMatch {
-  request: MockedRequest;
-  response: IsomorphicResponse | Response;
-  body: string | undefined;
+export interface PendingRequest {
+  request: Request;
+  requestId: string;
 }
 
-export interface ExpiredRequest {
-  reqId: string;
+export interface MatchedRequest extends PendingRequest {
+  response: Response;
+}
+
+export interface ExpiredRequest extends PendingRequest {
   startTime: number;
   duration?: number;
 }

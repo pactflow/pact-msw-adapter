@@ -1,5 +1,5 @@
 import API from "../examples/react/src/api";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 import { PactFile, setupPactMswAdapter } from "./pactMswAdapter";
 
@@ -8,9 +8,9 @@ const pactMswAdapter = setupPactMswAdapter({
   server,
   options: {
     consumer: "testDynamicProvidersConsumer",
-    providers: (req) => {
+    providers: ({ request }) => {
       // first segment of the path is the provider name
-      return req.url.pathname.match(/\/([\w\d]+)\/?.*/)?.[1] ?? null
+      return new URL(request.url).pathname.match(/\/([\w\d]+)\/?.*/)?.[1] ?? null
     },
     debug: true,
     excludeHeaders: ["x-powered-by", "cookie"],
@@ -45,11 +45,11 @@ describe("API - With MSW mock generating a pact for dynamic providers", () => {
     ];
     const user = { name: "John Doe" };
     server.use(
-      rest.get(API.url + "/products", (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json(products));
+      http.get(API.url + "/products", () => {
+        return HttpResponse.json(products)
       }),
-      rest.get(API.url + "/user", (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json(user));
+      http.get(API.url + "/user", () => {
+        return HttpResponse.json(user)
       }),
     );
 
