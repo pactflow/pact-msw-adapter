@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.1](https://github.com/pactflow/pact-msw-adapter/compare/v2.0.0...v2.0.1) (2023-11-07)
+
+
+### Bug Fixes
+
+* unref asyncTimeout; fixes open handle issue in jest ([0ee1485](https://github.com/pactflow/pact-msw-adapter/commit/0ee1485403038ac80b2af3bf941c00090fbb42dc))
+
 ## [2.0.0](https://github.com/pactflow/pact-msw-adapter/compare/v1.5.0...v2.0.0) (2023-07-11)
 
 
