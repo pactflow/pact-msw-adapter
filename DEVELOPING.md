@@ -66,3 +66,32 @@ yarn run example:test:cy:run
 ```sh
 yarn run example:test:unit
 ```
+
+
+## Graphql
+
+
+Start the graphql API in one terminal:
+
+```bash
+yarn start:gql
+```
+
+Then run the graphql client in another terminal:
+```bash
+yarn run:gqlClient 
+```
+
+
+Generate a consumer pact, by running a jest test, with msw-pact, testing the gql consumer
+
+```
+test:gql:consumer
+```
+
+Run the provider verification for the gql consumer
+
+
+```
+test:gql:verifier
+```

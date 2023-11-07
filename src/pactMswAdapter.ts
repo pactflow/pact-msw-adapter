@@ -21,6 +21,7 @@ export interface PactMswAdapterOptions {
   excludeUrl?: string[];
   excludeHeaders?: string[];
   logger?: Logger;
+  graphql?: boolean;
 }
 export interface PactMswAdapterOptionsInternal {
   timeout: number;
@@ -89,6 +90,7 @@ export const setupPactMswAdapter = ({
   const matches: MswMatch[] = []; // Completed request-response pairs
 
   mswMocker.events.on("request:match", (req) => {
+    console.log('Request matched!');
     if (!checkUrlFilters(req, options)) return;
     if (options.debug) {
       logGroup(["Matching request", req], { endGroup: true, mode: "debug", logger: options.logger });
@@ -97,6 +99,8 @@ export const setupPactMswAdapter = ({
     const startTime = Date.now();
 
     pendingRequests.push(req);
+    console.log('pending requests');
+    console.log(pendingRequests);
     activeRequestIds.push(req.id);
 
     setTimeout(() => {
@@ -116,6 +120,7 @@ export const setupPactMswAdapter = ({
   mswMocker.events.on(
     "response:mocked",
     async (response: Response | IsomorphicResponse, reqId: string) => {
+      console.log('Response mocked!');
       // https://mswjs.io/docs/extensions/life-cycle-events#responsemocked
       // Note that the res instance differs between the browser and Node.js.
       // Take this difference into account when operating with it.
