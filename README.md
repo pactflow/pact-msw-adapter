@@ -22,6 +22,13 @@
 
 Check out the [quick start guide](https://docs.pactflow.io/docs/bi-directional-contract-testing/tools/msw).
 
+## Compatibility table
+
+| pact msw version | msw version | node version | migration guide                                       |
+|------------------|-------------|--------------|-------------------------------------------------------|
+| `^2`             | `<=1`       | `>=16 <=20`  |                                                       |
+| `^3`             | `^2`        | `>=18`       | [v2 to v3](#migrating-pact-msw-adapter-from-v2-to-v3) |
+
 ##  Getting started
 
 ```
@@ -42,7 +49,7 @@ import { setupPactMswAdapter } from "@pactflow/pact-msw-adapter";
 For browser based enviromnents
 
 ```js
-import { setupWorker } from "msw";
+import { setupWorker } from "msw/browser";
 import { setupPactMswAdapter } from "@pactflow/pact-msw-adapter";
 ```
 
@@ -66,12 +73,12 @@ Let's start by listing it's methods:
 
 | Parameter | Required? | Type | Default | Description |
 | - | - | - | - | - |
-| server  | false     | `SetupServerApi` |  | server provided by msw - a server or worker must be provided|
-| worker  | false     | `SetupWorkerApi` |  | worker provided by msw - a server or worker must be provided|
-| timeout | `false` | `number` | 200 | Time in ms for a network request to expire, `verifyTest` will fail after twice this amount of time. |
+| server  | `false` | `SetupServer` |  | server provided by msw - a server or worker must be provided|
+| worker  | `false` | `SetupWorker` |  | worker provided by msw - a server or worker must be provided|
+| timeout | `false` | `number` | `200` | Time in ms for a network request to expire, `verifyTest` will fail after twice this amount of time. |
 | consumer | `true` | `string` | | name of the consumer running the tests |
-| providers | `true` | `{ [string]: string[] } | (request: MockedRequest) => string | null` | | names and filters for each provider or function that returns name of provider for given request |
-| pactOutDir | `false` | `string` | ./msw_generated_pacts/ | path to write pact files into |
+| providers | `true` | `{ [string]: string[] } \| ({ request: Request; requestId: string }) => string \| null` | | names and filters for each provider or function that returns name of provider for given request |
+| pactOutDir | `false` | `string` | `./msw_generated_pacts/` | path to write pact files into |
 | includeUrl | `false` | `string[]` | | inclusive filters for network calls |
 | excludeUrl | `false` | `string[]` | | exclusive filters for network calls |
 | excludeHeaders | `false` | `string[]` | | exclude generated headers from being written to request/response objects in pact file |
@@ -218,6 +225,24 @@ Without further do, it looks like the following:
 ```
 
 Here, `matchingRules` represent the assertions of the expectation, while `body`, `query` and `path` contains it's example values.
+
+## Migrating pact-msw-adapter from v2 to v3
+
+In [October 2023 msw released new version 2](https://mswjs.io/blog/introducing-msw-2.0) that bring significant changes to the msw interface. To reflect these changes we've released pact-msw-adapter@v3 that's compatible with msw@v2.
+
+To migrate you'll need to update `msw to >=2.0` and migrate your usage of the library ([migration guide here](https://mswjs.io/docs/migrations/1.x-to-2.x)).
+
+Breaking changes on pact-msw-adapter side:
+- minimal required version of Node is v18
+- some exported types were renamed and extended to match msw behaviour
+  - `MswMatch` is now `MatchedRequest` and is `{ request: Request; requestId: string; response: Response }`
+  - `ExpiredRequest` still called the same and is `{ request: Request; requestId: string; startTime: number; duration?: number }`
+  - added `PendingRequest` as `{ request: Request; requestId: string; }`
+- `PactMswAdapterOptions.providers` function variant is now consistent with msw and has signature `(event: PendingRequest) => string | null`
+- `PactMswAdapter.emitter` events are slightly updated to match msw behaviour
+  - `pact-msw-adapter:expired` handler must have signature `(event: ExpiredRequest) => void`
+  - `pact-msw-adapter:match` handler must have signature `(event: MatchedRequest) => void`
+- `convertMswMatchToPact` is now async function
 
 ## Contributors
 

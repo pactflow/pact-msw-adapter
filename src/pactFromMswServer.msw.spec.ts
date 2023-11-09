@@ -1,5 +1,5 @@
 import API from "../examples/react/src/api";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 import { PactFile, setupPactMswAdapter } from "./pactMswAdapter";
 const pjson = require("../package.json");
@@ -16,7 +16,7 @@ const pactMswAdapter = setupPactMswAdapter({
     debug: true,
     includeUrl: ["products", "/product"],
     excludeUrl: ["/product/11"],
-    excludeHeaders: ["x-powered-by", "cookie"],
+    excludeHeaders: ["x-powered-by", "cookie", "accept-encoding", "host"],
   },
 });
 
@@ -49,8 +49,8 @@ describe("API - With MSW mock generating a pact", () => {
       },
     ];
     server.use(
-      rest.get(API.url + "/products", (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json(products));
+      http.get(API.url + "/products", () => {
+        return HttpResponse.json(products)
       })
     );
 
@@ -64,8 +64,8 @@ describe("API - With MSW mock generating a pact", () => {
       name: "28 Degrees",
     };
     server.use(
-      rest.post(API.url + "/product/10", (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json(productData));
+      http.post(API.url + "/product/10", () => {
+        return HttpResponse.json(productData)
       })
     );
 
@@ -80,8 +80,8 @@ describe("API - With MSW mock generating a pact", () => {
       name: "28 Degrees",
     };
     server.use(
-      rest.get(API.url + "/product/10", (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json(product));
+      http.get(API.url + "/product/10", () => {
+        return HttpResponse.json(product)
       })
     );
 
@@ -100,12 +100,12 @@ describe("API - With MSW mock generating a pact", () => {
       visibility: "hidden",
     };
     server.use(
-      rest.get(API.url + "/product/10", (req, res, ctx) => {
-        const visibility = req.url.searchParams.get("visibility");
+      http.get(API.url + "/product/10", ({ request }) => {
+        const visibility = new URL(request.url).searchParams.get("visibility");
         const response =
           visibility === "hidden" ? hiddenVisibilityProduct : product;
 
-        return res(ctx.status(200), ctx.json(response));
+        return HttpResponse.json(response)
       })
     );
 

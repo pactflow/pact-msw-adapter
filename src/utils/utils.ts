@@ -1,5 +1,4 @@
-import { MockedRequest } from "msw";
-import { PactMswAdapterOptionsInternal } from "../pactMswAdapter";
+import { PactMswAdapterOptionsInternal, PendingRequest } from "../pactMswAdapter";
 var path = require("path");
 let fs: any; // dynamic import
 
@@ -63,17 +62,17 @@ const createWriter = (options: PactMswAdapterOptionsInternal) => (filePath: stri
   }
 };
 
-const hasProvider = (request: MockedRequest, options: PactMswAdapterOptionsInternal) => {
+const hasProvider = (pending: PendingRequest, options: PactMswAdapterOptionsInternal) => {
   if (typeof options.providers === 'function') {
-    return options.providers(request) !== null;
+    return options.providers(pending) !== null;
   }
   return Object.values(options.providers)
-    ?.some(validPaths => validPaths.some(path => request.url.toString().includes(path)));
+    ?.some(validPaths => validPaths.some(path => pending.request.url.includes(path)));
 };
 
-const checkUrlFilters = (request: MockedRequest, options: PactMswAdapterOptionsInternal) => {
-  const urlString = request.url.toString();
-  const providerFilter = hasProvider(request, options);
+const checkUrlFilters = (pending: PendingRequest, options: PactMswAdapterOptionsInternal) => {
+  const urlString = pending.request.url.toString();
+  const providerFilter = hasProvider(pending, options);
   const includeFilter = !options.includeUrl || options.includeUrl.some(inc => urlString.includes(inc));
   const excludeFilter = !options.excludeUrl || !options.excludeUrl.some(exc => urlString.includes(exc));
   const matchIsAllowed = includeFilter && excludeFilter && providerFilter
@@ -93,5 +92,7 @@ const addTimeout = async<T>(promise: Promise<T>, label: string, timeout: number)
 
   return Promise.race([promise, asyncTimeout]);
 }
+
+export type JSONValue = string | number | boolean | null | { [key: string]: JSONValue } | JSONValue[];
 
 export { log, logGroup, createWriter, checkUrlFilters, addTimeout };
