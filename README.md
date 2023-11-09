@@ -22,6 +22,13 @@
 
 Check out the [quick start guide](https://docs.pactflow.io/docs/bi-directional-contract-testing/tools/msw).
 
+## Compatibility table
+
+| pact msw version | msw version | node version | migration guide                                       |
+|------------------|-------------|--------------|-------------------------------------------------------|
+| `^2`             | `<=1`       | `>=16 <=20`  |                                                       |
+| `^3`             | `^2`        | `>=18`       | [v2 to v3](#migrating-pact-msw-adapter-from-v2-to-v3) |
+
 ##  Getting started
 
 ```
@@ -42,7 +49,7 @@ import { setupPactMswAdapter } from "@pactflow/pact-msw-adapter";
 For browser based enviromnents
 
 ```js
-import { setupWorker } from "msw";
+import { setupWorker } from "msw/browser";
 import { setupPactMswAdapter } from "@pactflow/pact-msw-adapter";
 ```
 
