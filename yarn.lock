@@ -1313,15 +1313,15 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@mswjs/cookies@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@mswjs/cookies/-/cookies-1.0.0.tgz#dc0ae33eafb615a73f4dad77285d324f6d689323"
-  integrity sha512-TdXoBdI+h/EDTsVLCX/34s4+9U0sWi92qFnIGUEikpMCSKLhBeujovyYVSoORNbYgsBH5ga7/tfxyWcEZAxiYA==
+"@mswjs/cookies@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@mswjs/cookies/-/cookies-1.1.0.tgz#1528eb43630caf83a1d75d5332b30e75e9bb1b5b"
+  integrity sha512-0ZcCVQxifZmhwNBoQIrystCb+2sWBY2Zw8lpfJBPCHGCA/HWqehITeCRVIv4VMy8MPlaHo2w2pTHFV2pFfqKPw==
 
-"@mswjs/interceptors@^0.25.1":
-  version "0.25.7"
-  resolved "https://registry.yarnpkg.com/@mswjs/interceptors/-/interceptors-0.25.7.tgz#eec6d0f7e1eae75dbdcc735035944c18441624d1"
-  integrity sha512-U7iFYs/qU/5jfz1VDpoYz3xqX9nzhsBXw7q923dv6GiGTy+m2ZLhD33L80R/shHOW/YWjeH6k16GbIHGw+bAng==
+"@mswjs/interceptors@^0.25.10":
+  version "0.25.11"
+  resolved "https://registry.yarnpkg.com/@mswjs/interceptors/-/interceptors-0.25.11.tgz#65014cd0951cc4c6916f52d80bdfefe439a62b21"
+  integrity sha512-27aonWAjdeoZN4j4j6QvePOSOacQUucFRUESAU8FUXsmmagDjmyOi4/NHizxzY/NHSk/HAyqF/IMhl+9puhqNw==
   dependencies:
     "@open-draft/deferred-promise" "^2.2.0"
     "@open-draft/logger" "^0.3.0"
@@ -3131,14 +3131,6 @@ form-data@^4.0.0:
     combined-stream "^1.0.8"
     mime-types "^2.1.12"
 
-formdata-node@4.4.1:
-  version "4.4.1"
-  resolved "https://registry.yarnpkg.com/formdata-node/-/formdata-node-4.4.1.tgz#23f6a5cb9cb55315912cbec4ff7b0f59bbd191e2"
-  integrity sha512-0iirZp3uVDjVGt9p49aTaqjk84TrglENEDuqfdlZQ1roC9CWlPk6Avf8EEnZNcAqPonwkG35x4n3ww/1THYAeQ==
-  dependencies:
-    node-domexception "1.0.0"
-    web-streams-polyfill "4.0.0-beta.3"
-
 forwarded@0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/forwarded/-/forwarded-0.2.0.tgz#2269936428aad4c15c7ebe9779a84bf0b2a81811"
@@ -4471,23 +4463,22 @@ ms@2.1.3, ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
-msw@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/msw/-/msw-2.0.2.tgz#fd9f55c2363f2a1d6ded401daa5ef9bbef510119"
-  integrity sha512-loyQnNUDY1x05R/t2naVdtNhP+tfyf+ckEwtvRUuoK9JnDeoh3/ZN3Fu2ZtvO/iJ3IwwuLizWwWaxBxS3sDQUw==
+msw@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/msw/-/msw-2.0.4.tgz#04ac0dcb95dc1170c1ae6689d363184c5716198b"
+  integrity sha512-mYDt0cFUYHofXwLSRl5bbPQ7Tl0GmbH+GWE0HdxwzTHMUh5YCWs1n5FvHmVrNIJSylB9ZIKEjq1BK9MfKgEpgg==
   dependencies:
     "@bundled-es-modules/cookie" "^2.0.0"
     "@bundled-es-modules/js-levenshtein" "^2.0.1"
     "@bundled-es-modules/statuses" "^1.0.1"
-    "@mswjs/cookies" "^1.0.0"
-    "@mswjs/interceptors" "^0.25.1"
+    "@mswjs/cookies" "^1.1.0"
+    "@mswjs/interceptors" "^0.25.10"
     "@open-draft/until" "^2.1.0"
     "@types/cookie" "^0.4.1"
     "@types/js-levenshtein" "^1.1.1"
     "@types/statuses" "^2.0.1"
     chalk "^4.1.2"
     chokidar "^3.4.2"
-    formdata-node "4.4.1"
     graphql "^16.8.1"
     headers-polyfill "^4.0.1"
     inquirer "^8.2.0"
@@ -4542,11 +4533,6 @@ nock@^13.3.7:
     debug "^4.1.0"
     json-stringify-safe "^5.0.1"
     propagate "^2.0.0"
-
-node-domexception@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/node-domexception/-/node-domexception-1.0.0.tgz#6888db46a1f71c0b76b3f7555016b63fe64766e5"
-  integrity sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==
 
 node-fetch@^2.6.7:
   version "2.6.7"
@@ -5930,11 +5916,6 @@ wcwidth@^1.0.1:
   integrity sha1-8LDc+RW8X/FSivrbLA4XtTLaL+g=
   dependencies:
     defaults "^1.0.3"
-
-web-streams-polyfill@4.0.0-beta.3:
-  version "4.0.0-beta.3"
-  resolved "https://registry.yarnpkg.com/web-streams-polyfill/-/web-streams-polyfill-4.0.0-beta.3.tgz#2898486b74f5156095e473efe989dcf185047a38"
-  integrity sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug==
 
 webidl-conversions@^3.0.0:
   version "3.0.1"
