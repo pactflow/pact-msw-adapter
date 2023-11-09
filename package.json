@@ -1,6 +1,6 @@
 {
   "name": "@pactflow/pact-msw-adapter",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "main": "./dist/pactMswAdapter.js",
   "keywords": [
     "pact",
