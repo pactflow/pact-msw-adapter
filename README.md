@@ -16,9 +16,6 @@
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/pact-foundation/pact-msw-adapter/graphs/commit-activity)
 [![Build and test](https://github.com/pactflow/pact-msw-adapter/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/pactflow/pact-msw-adapter/actions/workflows/build-and-test.yml)
 [![Publish and release](https://github.com/pactflow/pact-msw-adapter/actions/workflows/publish.yml/badge.svg)](https://github.com/pactflow/pact-msw-adapter/actions/workflows/publish.yml)
-[![Linux](https://svgshare.com/i/Zhy.svg)](https://svgshare.com/i/Zhy.svg)
-[![macOS](https://svgshare.com/i/ZjP.svg)](https://svgshare.com/i/ZjP.svg)
-[![Windows](https://svgshare.com/i/ZhY.svg)](https://svgshare.com/i/ZhY.svg)
 
 Check out the [quick start guide](https://docs.pactflow.io/docs/bi-directional-contract-testing/tools/msw).
 
