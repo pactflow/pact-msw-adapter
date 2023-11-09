@@ -1,13 +1,13 @@
 // src/mocks/handlers.js
-import { rest } from 'msw'
+import { HttpResponse, http } from 'msw'
 import { mock } from './mockData'
 import API from "../api";
 
 export const handlers = [
-    rest.get(API.url + "/products", (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json(mock.products), ctx.set('ignore-me', 'please'));
-      }),
-      rest.get(API.url + "/product/09", (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json(mock.product), ctx.set('ignore-me', 'please'));
-      })
+  http.get(API.url + "/products", () => {
+    return HttpResponse.json(mock.products, { headers: { 'ignore-me': 'please' } })
+  }),
+  http.get(API.url + "/product/09", () => {
+    return HttpResponse.json(mock.product, { headers: { 'ignore-me': 'please' } })
+  })
 ]

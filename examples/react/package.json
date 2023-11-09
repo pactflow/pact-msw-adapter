@@ -14,7 +14,7 @@
   "scripts": {
     "start": "cross-env GENERATE_SOURCEMAP=false react-scripts start",
     "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
-    "test": "cross-env GENERATE_SOURCEMAP=false CI=true react-scripts test --verbose",
+    "test": "cross-env GENERATE_SOURCEMAP=false CI=true react-scripts test --verbose -- --config ./jest.config.js",
     "test:cypress": "cypress run --browser chrome",
     "test:cypress:open": "cypress open",
     "eject": "react-scripts eject",
@@ -45,6 +45,7 @@
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
     "babel-eslint": "^10.0.3",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "cross-env": "^7.0.3",
     "cypress": "^9.5.1",
     "cypress-log-to-output": "^1.1.2",
@@ -55,7 +56,9 @@
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "start-server-and-test": "^1.14.0"
+    "js-levenshtein": "^1.1.6",
+    "start-server-and-test": "^1.14.0",
+    "undici": "^5.27.2"
   },
   "msw": {
     "workerDirectory": "public"
