@@ -73,12 +73,12 @@ Let's start by listing it's methods:
 
 | Parameter | Required? | Type | Default | Description |
 | - | - | - | - | - |
-| server  | false     | `SetupServer` |  | server provided by msw - a server or worker must be provided|
-| worker  | false     | `SetupWorker` |  | worker provided by msw - a server or worker must be provided|
-| timeout | `false` | `number` | 200 | Time in ms for a network request to expire, `verifyTest` will fail after twice this amount of time. |
+| server  | `false` | `SetupServer` |  | server provided by msw - a server or worker must be provided|
+| worker  | `false` | `SetupWorker` |  | worker provided by msw - a server or worker must be provided|
+| timeout | `false` | `number` | `200` | Time in ms for a network request to expire, `verifyTest` will fail after twice this amount of time. |
 | consumer | `true` | `string` | | name of the consumer running the tests |
 | providers | `true` | `{ [string]: string[] } \| ({ request: Request; requestId: string }) => string \| null` | | names and filters for each provider or function that returns name of provider for given request |
-| pactOutDir | `false` | `string` | ./msw_generated_pacts/ | path to write pact files into |
+| pactOutDir | `false` | `string` | `./msw_generated_pacts/` | path to write pact files into |
 | includeUrl | `false` | `string[]` | | inclusive filters for network calls |
 | excludeUrl | `false` | `string[]` | | exclusive filters for network calls |
 | excludeHeaders | `false` | `string[]` | | exclude generated headers from being written to request/response objects in pact file |
