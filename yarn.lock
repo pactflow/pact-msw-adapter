@@ -1318,7 +1318,7 @@
   resolved "https://registry.yarnpkg.com/@mswjs/cookies/-/cookies-1.1.0.tgz#1528eb43630caf83a1d75d5332b30e75e9bb1b5b"
   integrity sha512-0ZcCVQxifZmhwNBoQIrystCb+2sWBY2Zw8lpfJBPCHGCA/HWqehITeCRVIv4VMy8MPlaHo2w2pTHFV2pFfqKPw==
 
-"@mswjs/interceptors@^0.25.10":
+"@mswjs/interceptors@^0.25.11":
   version "0.25.11"
   resolved "https://registry.yarnpkg.com/@mswjs/interceptors/-/interceptors-0.25.11.tgz#65014cd0951cc4c6916f52d80bdfefe439a62b21"
   integrity sha512-27aonWAjdeoZN4j4j6QvePOSOacQUucFRUESAU8FUXsmmagDjmyOi4/NHizxzY/NHSk/HAyqF/IMhl+9puhqNw==
@@ -4463,16 +4463,16 @@ ms@2.1.3, ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
-msw@^2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/msw/-/msw-2.0.4.tgz#04ac0dcb95dc1170c1ae6689d363184c5716198b"
-  integrity sha512-mYDt0cFUYHofXwLSRl5bbPQ7Tl0GmbH+GWE0HdxwzTHMUh5YCWs1n5FvHmVrNIJSylB9ZIKEjq1BK9MfKgEpgg==
+msw@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/msw/-/msw-2.0.6.tgz#635ddfc0908c481f10a5b0c696c3732bc693d615"
+  integrity sha512-74nN9ADQxHsVx8YGOq5yeDE4bye1mVMAYXojKl0qWraRunTK8UjAVk3wSmOOvVVIDJsyySyjDZ4oYvRuzuMO2g==
   dependencies:
     "@bundled-es-modules/cookie" "^2.0.0"
     "@bundled-es-modules/js-levenshtein" "^2.0.1"
     "@bundled-es-modules/statuses" "^1.0.1"
     "@mswjs/cookies" "^1.1.0"
-    "@mswjs/interceptors" "^0.25.10"
+    "@mswjs/interceptors" "^0.25.11"
     "@open-draft/until" "^2.1.0"
     "@types/cookie" "^0.4.1"
     "@types/js-levenshtein" "^1.1.1"
