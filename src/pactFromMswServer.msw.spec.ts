@@ -139,6 +139,7 @@ describe("API - With MSW mock generating a pact", () => {
     expect(pactResults[0].interactions[0].response.status).toEqual(200);
 
     expect(pactResults[0].interactions[0].response.headers).toEqual({
+      "content-length": "52",
       "content-type": "application/json",
     });
     expect(pactResults[0].interactions[0].response.body).toEqual([
