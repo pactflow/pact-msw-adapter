@@ -58,7 +58,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "js-levenshtein": "^1.1.6",
     "start-server-and-test": "^1.14.0",
-    "undici": "^5.27.2"
+    "undici": "^5.28.3"
   },
   "msw": {
     "workerDirectory": "public"
