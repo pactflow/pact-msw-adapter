@@ -1369,10 +1369,10 @@
   resolved "https://registry.yarnpkg.com/@open-draft/until/-/until-2.1.0.tgz#0acf32f470af2ceaf47f095cdecd40d68666efda"
   integrity sha512-U69T3ItWHvLwGg5eJ0n3I62nWuE6ilHlmz7zM0npLBRvPRd7e6NYmg54vvRtP5mZG7kZqZCFVdsTWo7BPtBujg==
 
-"@pact-foundation/pact-core@^14.0.1":
-  version "14.0.5"
-  resolved "https://registry.yarnpkg.com/@pact-foundation/pact-core/-/pact-core-14.0.5.tgz#50129746bb27e0824ff34effa2badeb26676e13c"
-  integrity sha512-VIA2VsKxNzsQShnj2Y0Op2bmW7m+spoGQElfOZ9CI0JL5lq54G3pS9JREZuRcMdKD1oowCqMaOvdvyFXopKS6A==
+"@pact-foundation/pact-core@^14.3.0":
+  version "14.3.0"
+  resolved "https://registry.yarnpkg.com/@pact-foundation/pact-core/-/pact-core-14.3.0.tgz#e45c07353b9308b16a5acb9caa8f26562c9c53cb"
+  integrity sha512-OwBUA0rBuwHx8sbQ5olY+mzxd03HUpqza/6zGmyQutSb/bc79OAmve7EDYVSfPDYPKOCiGomj61gGAJF8kt1kQ==
   dependencies:
     chalk "4.1.2"
     check-types "7.3.0"
@@ -1387,12 +1387,12 @@
     underscore "1.12.1"
     unixify "1.0.0"
 
-"@pact-foundation/pact@^12.1.2":
-  version "12.1.2"
-  resolved "https://registry.yarnpkg.com/@pact-foundation/pact/-/pact-12.1.2.tgz#5c7a3236d841e37c98ccaff5f941c705dc6fa76b"
-  integrity sha512-UNrRWX2GW3uMxR51/Pn2MPQs6tQdMYKl9AO0wKVYKoPREZmVeHSdB3yMDPzekT+XeXtUlR5WdLYzD278CaN31Q==
+"@pact-foundation/pact@^12.3.0":
+  version "12.3.0"
+  resolved "https://registry.yarnpkg.com/@pact-foundation/pact/-/pact-12.3.0.tgz#11214c158bd0671c3bdc1a2f2bddd9ed3459641e"
+  integrity sha512-qc2leEpvQ+41gTD9/3JQ3hUk8OyP2pfh57ITd2RkWYkYE8DZ+yXaUp43G6Oj1mBkTe12tZzvPipfYaO1K446qQ==
   dependencies:
-    "@pact-foundation/pact-core" "^14.0.1"
+    "@pact-foundation/pact-core" "^14.3.0"
     "@types/express" "^4.17.11"
     axios "^1.6.1"
     body-parser "^1.20.0"
@@ -1407,7 +1407,6 @@
     lodash.isnil "4.0.0"
     lodash.isundefined "3.0.1"
     lodash.omit "^4.5.0"
-    lodash.omitby "4.6.0"
     pkginfo "^0.4.1"
     ramda "^0.28.0"
     randexp "^0.5.3"
@@ -4261,11 +4260,6 @@ lodash.omit@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.omit/-/lodash.omit-4.5.0.tgz#6eb19ae5a1ee1dd9df0b969e66ce0b7fa30b5e60"
   integrity sha1-brGa5aHuHdnfC5aeZs4Lf6MLXmA=
-
-lodash.omitby@4.6.0:
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/lodash.omitby/-/lodash.omitby-4.6.0.tgz#5c15ff4754ad555016b53c041311e8f079204791"
-  integrity sha1-XBX/R1StVVAWtTwEExHo8HkgR5E=
 
 lodash@^4.17.15, lodash@^4.17.21:
   version "4.17.21"
