@@ -121,6 +121,46 @@ The `path` argument contains a relative path to save the file into, already prep
 
 The `data` field consists of a javascript object containing a pact file (check the [anatomy of a pact file](#anatomy-of-a-pact-file)).
 
+## Log output
+
+You can create your own instance of a `Logger`, the default is a [`console`](https://developer.mozilla.org/en-US/docs/Web/API/console)
+
+If one wishes to suppress the output from pact-msw-adapter, you could use the following `emptyConsole` function.
+
+```js
+  const emptyConsole = () => {
+    const emptyFunction = () => {};
+    const emptyConsole = {
+      log: emptyFunction,
+      debug: emptyFunction,
+      info: emptyFunction,
+      warn: emptyFunction,
+      error: emptyFunction,
+      group: emptyFunction,
+      groupCollapsed: emptyFunction,
+      groupEnd: emptyFunction,
+    };
+    return emptyConsole;
+  }
+```
+
+Pass the custom console to the `options.logger` key in `setupPactMswAdapter`
+
+```js
+import { PactFile, setupPactMswAdapter } from "./pactMswAdapter";
+
+const server = setupServer();
+const pactMswAdapter = setupPactMswAdapter({
+    server,
+    options: {
+      ...options,
+      logger: emptyConsole()
+  },
+});
+```
+
+_Note:_ - This will not control or affect msw's native logging.
+
 ## Pact files generation
 
 `pact-msw-adapter` will dump all the recorded requests into pact files when `writeToFile` is called.
