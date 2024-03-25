@@ -1369,10 +1369,10 @@
   resolved "https://registry.yarnpkg.com/@open-draft/until/-/until-2.1.0.tgz#0acf32f470af2ceaf47f095cdecd40d68666efda"
   integrity sha512-U69T3ItWHvLwGg5eJ0n3I62nWuE6ilHlmz7zM0npLBRvPRd7e6NYmg54vvRtP5mZG7kZqZCFVdsTWo7BPtBujg==
 
-"@pact-foundation/pact-core@^14.0.1":
-  version "14.0.5"
-  resolved "https://registry.yarnpkg.com/@pact-foundation/pact-core/-/pact-core-14.0.5.tgz#50129746bb27e0824ff34effa2badeb26676e13c"
-  integrity sha512-VIA2VsKxNzsQShnj2Y0Op2bmW7m+spoGQElfOZ9CI0JL5lq54G3pS9JREZuRcMdKD1oowCqMaOvdvyFXopKS6A==
+"@pact-foundation/pact-core@^14.3.3":
+  version "14.3.3"
+  resolved "https://registry.yarnpkg.com/@pact-foundation/pact-core/-/pact-core-14.3.3.tgz#2e4ab9b8dc6b2a001c73a4e286665481fa60631b"
+  integrity sha512-uoPD56ocPn1gRshXs3crCat/o3LJgJRzGuLKU10fgNwILrjaDgTfYZwzjbspv3X1wp+ZgNeKbQ3SFlPIadRmfg==
   dependencies:
     chalk "4.1.2"
     check-types "7.3.0"
@@ -1387,12 +1387,12 @@
     underscore "1.12.1"
     unixify "1.0.0"
 
-"@pact-foundation/pact@^12.1.2":
-  version "12.1.2"
-  resolved "https://registry.yarnpkg.com/@pact-foundation/pact/-/pact-12.1.2.tgz#5c7a3236d841e37c98ccaff5f941c705dc6fa76b"
-  integrity sha512-UNrRWX2GW3uMxR51/Pn2MPQs6tQdMYKl9AO0wKVYKoPREZmVeHSdB3yMDPzekT+XeXtUlR5WdLYzD278CaN31Q==
+"@pact-foundation/pact@^12.4.0":
+  version "12.4.0"
+  resolved "https://registry.yarnpkg.com/@pact-foundation/pact/-/pact-12.4.0.tgz#6be4cfd307150f0bd9ef9eb5a9a5f160fd2346ef"
+  integrity sha512-dbM2g94s6paLKOYjBl3/Vl+qHAsK1y8+dUD1EuddJoPJHrNqf+Y762g7y1smIy31qkvaiLjaTo7cIl9HwQXODQ==
   dependencies:
-    "@pact-foundation/pact-core" "^14.0.1"
+    "@pact-foundation/pact-core" "^14.3.3"
     "@types/express" "^4.17.11"
     axios "^1.6.1"
     body-parser "^1.20.0"
@@ -1401,13 +1401,13 @@
     graphql "^14.0.0"
     graphql-tag "^2.9.1"
     http-proxy "^1.18.1"
+    https-proxy-agent "^7.0.4"
     js-base64 "^3.6.1"
     lodash "^4.17.21"
     lodash.isfunction "3.0.8"
     lodash.isnil "4.0.0"
     lodash.isundefined "3.0.1"
     lodash.omit "^4.5.0"
-    lodash.omitby "4.6.0"
     pkginfo "^0.4.1"
     ramda "^0.28.0"
     randexp "^0.5.3"
@@ -1780,6 +1780,13 @@ add-stream@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/add-stream/-/add-stream-1.0.0.tgz#6a7990437ca736d5e1288db92bd3266d5f5cb2aa"
   integrity sha1-anmQQ3ynNtXhKI25K9MmbV9csqo=
+
+agent-base@^7.0.2:
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/agent-base/-/agent-base-7.1.0.tgz#536802b76bc0b34aa50195eb2442276d613e3434"
+  integrity sha512-o/zjMZRhJxny7OyEF+Op8X+efiELC7k7yOjMzgfzVqOzXqkBkWI79YoTdOtsuWd5BWhAGAuOY/Xa6xpiaWXiNg==
+  dependencies:
+    debug "^4.3.4"
 
 ajv@^6.12.4:
   version "6.12.6"
@@ -2575,19 +2582,19 @@ debug@2.6.9:
   dependencies:
     ms "2.0.0"
 
+debug@4, debug@^4.1.0, debug@^4.1.1, debug@^4.3.2, debug@^4.3.4:
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.4.tgz#1319f6579357f2338d3337d2cdd4914bb5dcc865"
+  integrity sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==
+  dependencies:
+    ms "2.1.2"
+
 debug@^3.2.6:
   version "3.2.7"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.2.7.tgz#72580b7e9145fb39b6676f9c5e5fb100b934179a"
   integrity sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==
   dependencies:
     ms "^2.1.1"
-
-debug@^4.1.0, debug@^4.1.1, debug@^4.3.2, debug@^4.3.4:
-  version "4.3.4"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.4.tgz#1319f6579357f2338d3337d2cdd4914bb5dcc865"
-  integrity sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==
-  dependencies:
-    ms "2.1.2"
 
 decamelize-keys@^1.1.0:
   version "1.1.0"
@@ -3447,6 +3454,14 @@ http-proxy@^1.18.1:
     follow-redirects "^1.0.0"
     requires-port "^1.0.0"
 
+https-proxy-agent@^7.0.4:
+  version "7.0.4"
+  resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-7.0.4.tgz#8e97b841a029ad8ddc8731f26595bad868cb4168"
+  integrity sha512-wlwpilI7YdjSkWaQ/7omYBMTliDcmCN8OLihO6I9B86g06lMyAoqgoDpV0XqoaPOKj+0DIdAvnsWfyAAhmimcg==
+  dependencies:
+    agent-base "^7.0.2"
+    debug "4"
+
 human-signals@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-2.1.0.tgz#dc91fcba42e4d06e4abaed33b3e7a3c02f514ea0"
@@ -4261,11 +4276,6 @@ lodash.omit@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.omit/-/lodash.omit-4.5.0.tgz#6eb19ae5a1ee1dd9df0b969e66ce0b7fa30b5e60"
   integrity sha1-brGa5aHuHdnfC5aeZs4Lf6MLXmA=
-
-lodash.omitby@4.6.0:
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/lodash.omitby/-/lodash.omitby-4.6.0.tgz#5c15ff4754ad555016b53c041311e8f079204791"
-  integrity sha1-XBX/R1StVVAWtTwEExHo8HkgR5E=
 
 lodash@^4.17.15, lodash@^4.17.21:
   version "4.17.21"
