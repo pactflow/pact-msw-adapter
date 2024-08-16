@@ -16,7 +16,9 @@ export interface PactMswAdapterOptions {
   debug?: boolean;
   pactOutDir?: string;
   consumer: string;
-  providers: { [name: string]: string[] } | ((event: PendingRequest) => string | null);
+  providers:
+    | { [name: string]: string[] }
+    | ((event: PendingRequest) => string | null);
   includeUrl?: string[];
   excludeUrl?: string[];
   excludeHeaders?: string[];
@@ -27,7 +29,9 @@ export interface PactMswAdapterOptionsInternal {
   debug: boolean;
   pactOutDir: string;
   consumer: string;
-  providers: { [name: string]: string[] } | ((event: PendingRequest) => string | null);
+  providers:
+    | { [name: string]: string[] }
+    | ((event: PendingRequest) => string | null);
   includeUrl?: string[];
   excludeUrl?: string[];
   excludeHeaders?: string[];
@@ -344,7 +348,9 @@ const transformMswToPact = async (
         consumer: options.consumer,
         provider,
         matches: providerMatches,
-        headers: { excludeHeaders: options.excludeHeaders },
+        headers: {
+          excludeHeaders: options.excludeHeaders,
+        },
       });
       if (pactFile) {
         pactFiles.push(pactFile);
@@ -382,6 +388,7 @@ export interface PactInteraction {
     status: number;
     headers: any;
     body: any;
+    matchingRules?: object;
   };
 }
 
