@@ -22,62 +22,62 @@ export const readBody = async (input: Request | Response) => {
   return clone.text();
 };
 
-const serialiseResponseObject = (key: string, value: unknown): object => {
-  if (MatchersV3.isMatcher(value)) {
-    return {
-      [key]: value.value,
-    };
-  }
+// const serialiseResponseObject = (key: string, value: unknown): object => {
+//   if (MatchersV3.isMatcher(value)) {
+//     return {
+//       [key]: value.value,
+//     };
+//   }
 
-  if (value === null) {
-    return { [key]: "" };
-  }
+//   if (value === null) {
+//     return { [key]: "" };
+//   }
 
-  if (Array.isArray(value)) {
-    const serialisedArray = value.map((item) => serialiseResponse(item));
-    return { [key]: serialisedArray };
-  }
+//   if (Array.isArray(value)) {
+//     const serialisedArray = value.map((item) => serialiseResponse(item));
+//     return { [key]: serialisedArray };
+//   }
 
-  if (typeof value === "object" && value !== null) {
-    const fields = Object.entries(value);
-    const serialisedFields = fields.reduce((acc, [fieldKey, fieldValue]) => {
-      return {
-        ...acc,
-        ...serialiseResponseObject(fieldKey, fieldValue),
-      };
-    }, {});
-    return { [key]: serialisedFields };
-  }
+//   if (typeof value === "object" && value !== null) {
+//     const fields = Object.entries(value);
+//     const serialisedFields = fields.reduce((acc, [fieldKey, fieldValue]) => {
+//       return {
+//         ...acc,
+//         ...serialiseResponseObject(fieldKey, fieldValue),
+//       };
+//     }, {});
+//     return { [key]: serialisedFields };
+//   }
 
-  return { [key]: value };
-};
+//   return { [key]: value };
+// };
 
-const serialiseResponse = (field: unknown): object | undefined => {
-  if (MatchersV3.isMatcher(field)) {
-    return serialiseResponse(field.value);
-  }
+// const serialiseResponse = (field: unknown): object | undefined => {
+//   if (MatchersV3.isMatcher(field)) {
+//     return serialiseResponse(field.value);
+//   }
 
-  if (field === null) {
-    return undefined;
-  }
+//   if (field === null) {
+//     return undefined;
+//   }
 
-  if (Array.isArray(field)) {
-    return field.map((item) => serialiseResponse(item));
-  }
+//   if (Array.isArray(field)) {
+//     return field.map((item) => serialiseResponse(item));
+//   }
 
-  if (typeof field === "object") {
-    const fields = Object.entries(field);
-    const serialisedFields = fields.reduce((acc, [fieldKey, fieldValue]) => {
-      return {
-        ...acc,
-        ...serialiseResponseObject(fieldKey, fieldValue),
-      };
-    }, {});
-    return serialisedFields;
-  }
+//   if (typeof field === "object") {
+//     const fields = Object.entries(field);
+//     const serialisedFields = fields.reduce((acc, [fieldKey, fieldValue]) => {
+//       return {
+//         ...acc,
+//         ...serialiseResponseObject(fieldKey, fieldValue),
+//       };
+//     }, {});
+//     return serialisedFields;
+//   }
 
-  return field;
-};
+//   return field;
+// };
 
 const buildMatchingRules = (
   field: unknown,
@@ -85,18 +85,11 @@ const buildMatchingRules = (
 ): object | undefined => {
   let matchingRules: any = {};
 
-  if (MatchersV3.isMatcher(field)) {
-    matchingRules[path] = {
-      combine: "AND",
-      matchers: [
-        {
-          match: field["pact:matcher:type"],
-          // @ts-expect-error - TS doesn't know about the `regex` field
-          regex: field?.regex || undefined,
-        },
-      ],
-    };
-  } else if (field !== null && typeof field === "object") {
+  if (field === null) {
+    return undefined;
+  }
+
+  if (typeof field === "object") {
     // Traverse the object to find nested matchers
     Object.entries(field).forEach(([key, value]) => {
       const newPath = `${path}.${key}`;
@@ -105,11 +98,29 @@ const buildMatchingRules = (
     });
   }
 
-  return matchingRules;
-};
+  if (path === "$") {
+    return matchingRules;
+  }
 
-const hasMatchers = (field: unknown): boolean => {
-  return JSON.stringify(field).includes("pact:matcher:type");
+  // if (Array.isArray(field)) {
+  //   matchingRules[path] = {
+  //     combine: "AND",
+  //     matchers: [
+  //       {
+  //         match: "type",
+  //         min: 1,
+  //       },
+  //     ],
+  //   };
+  // }else{
+  if (typeof field !== "object") {
+    matchingRules[path] = {
+      match: "type",
+    };
+  }
+  // }
+
+  return matchingRules;
 };
 
 export const convertMswMatchToPact = async ({
@@ -121,15 +132,13 @@ export const convertMswMatchToPact = async ({
   consumer: string;
   provider: string;
   matches: MatchedRequest[];
-  headers?: { excludeHeaders: string[] | undefined };
+  headers?: { excludeHeaders: string[] | undefined; useFuzzyMatchers: boolean };
 }): Promise<PactFile> => {
   const pactFile: PactFile = {
     consumer: { name: consumer },
     provider: { name: provider },
     interactions: await Promise.all(
       matches.map(async (match) => {
-        const body = serialiseResponse(await readBody(match.response));
-
         return {
           description: match.requestId,
           providerState: "",
@@ -149,8 +158,8 @@ export const convertMswMatchToPact = async ({
               Object.fromEntries(match.response.headers.entries()),
               headers?.excludeHeaders ?? []
             ),
-            body,
-            matchingRules: hasMatchers(await readBody(match.response))
+            body: await readBody(match.response),
+            matchingRules: headers?.useFuzzyMatchers
               ? {
                   body: buildMatchingRules(await readBody(match.response)),
                 }
