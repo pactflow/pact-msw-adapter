@@ -115,7 +115,11 @@ const buildMatchingRules = (
   // }else{
   if (typeof field !== "object") {
     matchingRules[path] = {
-      match: "type",
+      matchers: [
+        {
+          match: "type",
+        },
+      ],
     };
   }
   // }
@@ -128,11 +132,13 @@ export const convertMswMatchToPact = async ({
   provider,
   matches,
   headers,
+  options,
 }: {
   consumer: string;
   provider: string;
   matches: MatchedRequest[];
-  headers?: { excludeHeaders: string[] | undefined; useFuzzyMatchers: boolean };
+  headers?: { excludeHeaders: string[] | undefined };
+  options?: { useFuzzyMatchers: boolean; pactVersion: string };
 }): Promise<PactFile> => {
   const pactFile: PactFile = {
     consumer: { name: consumer },
@@ -159,9 +165,11 @@ export const convertMswMatchToPact = async ({
               headers?.excludeHeaders ?? []
             ),
             body: await readBody(match.response),
-            matchingRules: headers?.useFuzzyMatchers
+            matchingRules: options?.useFuzzyMatchers
               ? {
                   body: buildMatchingRules(await readBody(match.response)),
+                  header: {},
+                  status: {},
                 }
               : undefined,
           },
@@ -170,7 +178,7 @@ export const convertMswMatchToPact = async ({
     ),
     metadata: {
       pactSpecification: {
-        version: "2.0.0",
+        version: options?.pactVersion || "2.0.0",
       },
       client: {
         name: "pact-msw-adapter",

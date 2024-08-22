@@ -24,6 +24,7 @@ export interface PactMswAdapterOptions {
   excludeHeaders?: string[];
   logger?: Logger;
   useFuzzyMatchers?: boolean;
+  pactVersion?: "2.0.0" | "3.0.0";
 }
 export interface PactMswAdapterOptionsInternal {
   timeout: number;
@@ -38,6 +39,7 @@ export interface PactMswAdapterOptionsInternal {
   excludeHeaders?: string[];
   logger: Logger;
   useFuzzyMatchers: boolean;
+  pactVersion: "2.0.0" | "3.0.0";
 }
 
 export interface PactMswAdapter {
@@ -75,6 +77,7 @@ export const setupPactMswAdapter = ({
     debug: externalOptions.debug || false,
     pactOutDir: externalOptions.pactOutDir || "./msw_generated_pacts/",
     useFuzzyMatchers: externalOptions.useFuzzyMatchers || false,
+    pactVersion: externalOptions.pactVersion || "2.0.0",
   };
 
   logGroup(`Adapter enabled${options.debug ? " on debug mode" : ""}`, { logger: options.logger });
@@ -353,7 +356,10 @@ const transformMswToPact = async (
         matches: providerMatches,
         headers: {
           excludeHeaders: options.excludeHeaders,
+        },
+        options: {
           useFuzzyMatchers: options.useFuzzyMatchers,
+          pactVersion: options.pactVersion,
         },
       });
       if (pactFile) {

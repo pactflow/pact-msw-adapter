@@ -75,15 +75,29 @@ describe("API - With MSW mock generating matchers", () => {
       expect(pactResults[0].interactions[0].response.matchingRules).toEqual({
         body: {
           "$.id": {
-            match: "type",
+            matchers: [
+              {
+                match: "type",
+              },
+            ],
           },
           "$.type": {
-            match: "type",
+            matchers: [
+              {
+                match: "type",
+              },
+            ],
           },
           "$.name": {
-            match: "type",
+            matchers: [
+              {
+                match: "type",
+              },
+            ],
           },
         },
+        header: {},
+        status: {},
       });
     });
 
@@ -118,28 +132,46 @@ describe("API - With MSW mock generating matchers", () => {
       });
 
       expect(pactResults[0].interactions[0].response.body).toEqual({
-        id: "10",
-        type: "CREDIT_CARD",
-        name: "Gem Visa",
         category: {
           type: "Food",
         },
+        id: "10",
+        type: "CREDIT_CARD",
+        name: "Gem Visa",
       });
       expect(pactResults[0].interactions[0].response.matchingRules).toEqual({
         body: {
           "$.id": {
-            match: "type",
+            matchers: [
+              {
+                match: "type",
+              },
+            ],
           },
           "$.type": {
-            match: "type",
+            matchers: [
+              {
+                match: "type",
+              },
+            ],
           },
           "$.name": {
-            match: "type",
+            matchers: [
+              {
+                match: "type",
+              },
+            ],
           },
           "$.category.type": {
-            match: "type",
+            matchers: [
+              {
+                match: "type",
+              },
+            ],
           },
         },
+        header: {},
+        status: {},
       });
     });
   });
