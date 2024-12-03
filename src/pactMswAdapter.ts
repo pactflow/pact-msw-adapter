@@ -102,12 +102,12 @@ export const setupPactMswAdapter = ({
     setTimeout(() => {
       const expired = { requestId, startTime, request }
       const activeIdx = activeRequestIds.indexOf(requestId);
-      emitter.emit("pact-msw-adapter:expired", expired);
       if (activeIdx >= 0) {
         // Could be removed if completed or the test ended
         activeRequestIds.splice(activeIdx, 1);
         expiredRequests.push(expired);
       }
+      emitter.emit("pact-msw-adapter:expired", expired);
     }, options.timeout);
   });
 
@@ -301,7 +301,7 @@ const transformMswToPact = async (
       }
 
       const events = [
-        "pact-msw-adapter:expired ",
+        "pact-msw-adapter:expired",
         "pact-msw-adapter:match",
         "pact-msw-adapter:new-test",
         "pact-msw-adapter:clear",
