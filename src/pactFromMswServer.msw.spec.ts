@@ -113,6 +113,15 @@ describe("API - With MSW mock generating a pact", () => {
     expect(respProduct).toEqual(hiddenVisibilityProduct);
   });
 
+  test("handle requests mocked with error", async () => {
+    server.use(
+      http.get(API.url + "/product/10", () => HttpResponse.error())
+    );
+    
+    // This request is going to be marked as expired after the test is finished and should be handled gracefully by the subsequent writeToFile()
+    await expect(()=> API.getProduct("10")).rejects.toEqual(new Error('TypeError: Network error'))
+  })
+
   test("unhandled route", async () => {
     await expect(API.getProduct("11")).rejects.toThrow(
       /^Error: connect ECONNREFUSED (127.0.0.1|::1):8081.*$/
