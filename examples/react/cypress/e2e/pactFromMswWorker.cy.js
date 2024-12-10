@@ -73,7 +73,7 @@ describe('Tests setupPactMswAdapter with msw works', async () => {
     pactMswAdapter.clear();
   });
 
-  it('should record a msw interaction and turn it into a back', () => {
+  it('should record a msw interaction and turn it into a pact', () => {
     // Filter to the product we want
     cy.get('#input-product-search').type('Gem Visa');
     cy.get('.btn').click();

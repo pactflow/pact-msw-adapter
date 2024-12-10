@@ -12,11 +12,15 @@ module.exports = {
         "^@bundled-es-modules/js-levenshtein$": "js-levenshtein",
         "^@bundled-es-modules/statuses$": "statuses",
         "^@bundled-es-modules/cookie$": "cookie",
+        "^@bundled-es-modules/tough-cookie$": "tough-cookie",
     },
     setupFiles: [
         ...config.setupFiles,
         '<rootDir>/jest/jest.polyfills.js'
     ],
+    "transformIgnorePatterns": [
+        "node_modules/(?!(axios)/)"
+      ]
 }
 
 
