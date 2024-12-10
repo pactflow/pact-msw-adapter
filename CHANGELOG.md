@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.1](https://github.com/pactflow/pact-msw-adapter/compare/v3.0.0...v3.0.1) (2024-12-10)
+
+
+### Bug Fixes
+
+* Fix the cleanup of expired request listeners ([264ac15](https://github.com/pactflow/pact-msw-adapter/commit/264ac1561a0b3ef3e4eb88e85406316723738e48))
+
 ## [3.0.0](https://github.com/pactflow/pact-msw-adapter/compare/v2.0.1...v3.0.0) (2023-11-09)
 
 
