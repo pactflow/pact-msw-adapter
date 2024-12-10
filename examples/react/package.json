@@ -57,7 +57,7 @@
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^4.6.2",
     "js-levenshtein": "^1.1.6",
-    "start-server-and-test": "^1.15.5",
+    "start-server-and-test": "^2.0.8",
     "undici": "^5.28.4"
   },
   "msw": {
