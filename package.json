@@ -53,7 +53,7 @@
     "eslint": "^8.57.1",
     "jest": "^29.7.0",
     "msw": "2.0.14",
-    "nock": "^13.5.6",
+    "nock": "^14.0.0",
     "regenerator-runtime": "^0.14.1",
     "rimraf": "^5.0.10",
     "standard-version": "^9.5.0",
