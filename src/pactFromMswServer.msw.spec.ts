@@ -166,12 +166,181 @@ describe("API - With MSW mock generating a pact", () => {
     expect(pactResults[1].interactions[1].request.body).toBeUndefined();
     expect(pactResults[0].metadata).toEqual({
       pactSpecification: {
-        version: "2.0.0",
+        version: "3.0.0",
       },
       client: {
         name: "pact-msw-adapter",
         version: pjson.version,
       },
     });
+  });
+});
+
+describe("API - Provider States", () => {
+  const providerStateServer = setupServer();
+  const providerStateAdapter = setupPactMswAdapter({
+    server: providerStateServer,
+    options: {
+      consumer: "testConsumer",
+      providers: {
+        ["testProvider"]: ["products"],
+      },
+      debug: false,
+      excludeHeaders: ["x-powered-by", "cookie", "accept-encoding", "host"],
+    },
+  });
+
+  beforeAll(async () => {
+    providerStateServer.listen();
+  });
+
+  beforeEach(async () => {
+    providerStateAdapter.newTest();
+  });
+
+  afterEach(async () => {
+    providerStateAdapter.verifyTest();
+    providerStateAdapter.clear(); // Clear matches after each test to isolate results
+    providerStateServer.resetHandlers();
+  });
+
+  afterAll(async () => {
+    providerStateServer.close();
+  });
+
+  test("setProviderState adds single state to interaction", async () => {
+    const products = [{ id: "01", type: "SAVINGS", name: "Test Account" }];
+    providerStateServer.use(
+      http.get(API.url + "/products", () => {
+        return HttpResponse.json(products);
+      })
+    );
+
+    providerStateAdapter.setProviderState("products exist");
+    await API.getAllProducts();
+
+    let pactResults: PactFile[] = [];
+    await providerStateAdapter.writeToFile((path, data) => {
+      pactResults.push(data as PactFile);
+    });
+
+    expect(pactResults[0].interactions[0].providerStates).toEqual([
+      { name: "products exist" },
+    ]);
+  });
+
+  test("setProviderState with params adds state with parameters", async () => {
+    const product = { id: "42", type: "LOAN", name: "Personal Loan" };
+    providerStateServer.use(
+      http.get(API.url + "/products", () => {
+        return HttpResponse.json([product]);
+      })
+    );
+
+    providerStateAdapter.setProviderState("product exists", { id: 42, active: true });
+    await API.getAllProducts();
+
+    let pactResults: PactFile[] = [];
+    await providerStateAdapter.writeToFile((path, data) => {
+      pactResults.push(data as PactFile);
+    });
+
+    expect(pactResults[0].interactions[0].providerStates).toEqual([
+      { name: "product exists", params: { id: 42, active: true } },
+    ]);
+  });
+
+  test("setProviderStates adds multiple states to interaction", async () => {
+    const products = [{ id: "01", type: "ADMIN", name: "Admin Product" }];
+    providerStateServer.use(
+      http.get(API.url + "/products", () => {
+        return HttpResponse.json(products);
+      })
+    );
+
+    providerStateAdapter.setProviderStates([
+      { name: "user is authenticated" },
+      { name: "user is admin", params: { role: "admin" } },
+    ]);
+    await API.getAllProducts();
+
+    let pactResults: PactFile[] = [];
+    await providerStateAdapter.writeToFile((path, data) => {
+      pactResults.push(data as PactFile);
+    });
+
+    expect(pactResults[0].interactions[0].providerStates).toEqual([
+      { name: "user is authenticated" },
+      { name: "user is admin", params: { role: "admin" } },
+    ]);
+  });
+
+  test("clearProviderStates removes all states", async () => {
+    const products = [{ id: "01", type: "BASIC", name: "Basic Product" }];
+    providerStateServer.use(
+      http.get(API.url + "/products", () => {
+        return HttpResponse.json(products);
+      })
+    );
+
+    providerStateAdapter.setProviderState("some state");
+    providerStateAdapter.clearProviderStates();
+    await API.getAllProducts();
+
+    let pactResults: PactFile[] = [];
+    await providerStateAdapter.writeToFile((path, data) => {
+      pactResults.push(data as PactFile);
+    });
+
+    expect(pactResults[0].interactions[0].providerStates).toEqual([]);
+  });
+
+  test("newTest clears provider states", async () => {
+    providerStateAdapter.setProviderState("state from previous test");
+    providerStateAdapter.newTest(); // This should clear the state
+
+    const products = [{ id: "01", type: "NEW", name: "New Product" }];
+    providerStateServer.use(
+      http.get(API.url + "/products", () => {
+        return HttpResponse.json(products);
+      })
+    );
+
+    await API.getAllProducts();
+
+    let pactResults: PactFile[] = [];
+    await providerStateAdapter.writeToFile((path, data) => {
+      pactResults.push(data as PactFile);
+    });
+
+    expect(pactResults[0].interactions[0].providerStates).toEqual([]);
+  });
+
+  test("different requests can have different provider states", async () => {
+    providerStateServer.use(
+      http.get(API.url + "/products", () => {
+        return HttpResponse.json([{ id: "01" }]);
+      })
+    );
+
+    // First request with state A
+    providerStateAdapter.setProviderState("state A");
+    await API.getAllProducts();
+
+    // Second request with state B
+    providerStateAdapter.setProviderState("state B", { version: 2 });
+    await API.getAllProducts();
+
+    let pactResults: PactFile[] = [];
+    await providerStateAdapter.writeToFile((path, data) => {
+      pactResults.push(data as PactFile);
+    });
+
+    expect(pactResults[0].interactions[0].providerStates).toEqual([
+      { name: "state A" },
+    ]);
+    expect(pactResults[0].interactions[1].providerStates).toEqual([
+      { name: "state B", params: { version: 2 } },
+    ]);
   });
 });

@@ -9,7 +9,7 @@ const generatedPact: PactFile = {
   interactions: [
     {
       description: "de5eefb0-c451-4ae2-9695-e02626f00ca7",
-      providerState: "",
+      providerStates: [],
       request: {
         method: "GET",
         path: "/products",
@@ -27,7 +27,7 @@ const generatedPact: PactFile = {
     },
     {
       description: "073d6de0-e1ac-11ec-8fea-0242ac120002",
-      providerState: "",
+      providerStates: [],
       request: {
         method: "GET",
         path: "/products",
@@ -46,7 +46,7 @@ const generatedPact: PactFile = {
     },
   ],
   metadata: {
-    pactSpecification: { version: "2.0.0" },
+    pactSpecification: { version: "3.0.0" },
     client: { name: "pact-msw-adapter", version: pjson.version },
   },
 };
@@ -121,7 +121,7 @@ const sampleMatch: MatchedRequest[] = [
 ];
 
 describe("writes an msw req/res to a pact", () => {
-  it("should convert an msw server match to a pact", async () => {
+  it("should convert an msw server match to a pact (v3 default)", async () => {
     expect(
       await convertMswMatchToPact({
         matches: sampleMatch as any,
@@ -129,5 +129,67 @@ describe("writes an msw req/res to a pact", () => {
         provider: "interaction.provider.name",
       })
     ).toMatchObject(generatedPact);
+  });
+
+  it("should convert an msw server match to a pact with v2 format", async () => {
+    const result = await convertMswMatchToPact({
+      matches: sampleMatch as any,
+      consumer: "interaction.consumer.name",
+      provider: "interaction.provider.name",
+      pactSpecificationVersion: "2.0.0",
+    });
+
+    expect(result.metadata.pactSpecification.version).toBe("2.0.0");
+    expect(result.interactions[0]).toHaveProperty("providerState", "");
+    expect(result.interactions[0]).not.toHaveProperty("providerStates");
+  });
+
+  it("should include provider states in v3 format", async () => {
+    const matchWithState = [
+      {
+        ...sampleMatch[0],
+        providerStates: [
+          { name: "products exist" },
+          { name: "user is authenticated", params: { userId: 123 } },
+        ],
+      },
+    ];
+
+    const result = await convertMswMatchToPact({
+      matches: matchWithState as any,
+      consumer: "test.consumer",
+      provider: "test.provider",
+      pactSpecificationVersion: "3.0.0",
+    });
+
+    expect(result.interactions[0]).toHaveProperty("providerStates", [
+      { name: "products exist" },
+      { name: "user is authenticated", params: { userId: 123 } },
+    ]);
+  });
+
+  it("should use first provider state name for v2 format", async () => {
+    const matchWithState = [
+      {
+        ...sampleMatch[0],
+        providerStates: [
+          { name: "products exist" },
+          { name: "user is authenticated" },
+        ],
+      },
+    ];
+
+    const result = await convertMswMatchToPact({
+      matches: matchWithState as any,
+      consumer: "test.consumer",
+      provider: "test.provider",
+      pactSpecificationVersion: "2.0.0",
+    });
+
+    expect(result.interactions[0]).toHaveProperty(
+      "providerState",
+      "products exist"
+    );
+    expect(result.interactions[0]).not.toHaveProperty("providerStates");
   });
 });
