@@ -1,426 +1,518 @@
 import { SetupWorker } from "msw/browser";
 import { SetupServer } from "msw/node";
 import {
-  JSONValue,
-  Logger,
-  addTimeout,
-  checkUrlFilters,
-  createWriter,
-  log,
-  logGroup,
+	JSONValue,
+	Logger,
+	addTimeout,
+	checkUrlFilters,
+	createWriter,
+	log,
+	logGroup,
 } from "./utils/utils";
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
 import { EventEmitter } from "events";
+
+/**
+ * Provider state for Pact v3 specification.
+ * Allows defining preconditions that must exist on the provider before verification.
+ * @see https://github.com/pact-foundation/pact-specification/tree/version-3
+ */
+export interface ProviderState {
+	name: string;
+	params?: Record<string, unknown>;
+}
+export type PactSpecificationVersion = "2.0.0" | "3.0.0";
+
 export interface PactMswAdapterOptions {
-  timeout?: number;
-  debug?: boolean;
-  pactOutDir?: string;
-  consumer: string;
-  providers: { [name: string]: string[] } | ((event: PendingRequest) => string | null);
-  includeUrl?: string[];
-  excludeUrl?: string[];
-  excludeHeaders?: string[];
-  logger?: Logger;
+	timeout?: number;
+	debug?: boolean;
+	pactOutDir?: string;
+	consumer: string;
+	providers:
+		| { [name: string]: string[] }
+		| ((event: PendingRequest) => string | null);
+	includeUrl?: string[];
+	excludeUrl?: string[];
+	excludeHeaders?: string[];
+	logger?: Logger;
+	/**
+	 * Pact specification version to use.
+	 * - "2.0.0": Uses `providerState` (string) - for backwards compatibility
+	 * - "3.0.0": Uses `providerStates` (array) - supports multiple states with params
+	 * @default "3.0.0"
+	 */
+	pactSpecificationVersion?: PactSpecificationVersion;
 }
 export interface PactMswAdapterOptionsInternal {
-  timeout: number;
-  debug: boolean;
-  pactOutDir: string;
-  consumer: string;
-  providers: { [name: string]: string[] } | ((event: PendingRequest) => string | null);
-  includeUrl?: string[];
-  excludeUrl?: string[];
-  excludeHeaders?: string[];
-  logger: Logger;
+	timeout: number;
+	debug: boolean;
+	pactOutDir: string;
+	consumer: string;
+	providers:
+		| { [name: string]: string[] }
+		| ((event: PendingRequest) => string | null);
+	includeUrl?: string[];
+	excludeUrl?: string[];
+	excludeHeaders?: string[];
+	logger: Logger;
+	pactSpecificationVersion: PactSpecificationVersion;
 }
 
 export interface PactMswAdapter {
-  emitter: EventEmitter;
-  newTest: () => void;
-  verifyTest: () => void;
-  writeToFile: (writer?: (path: string, data: object) => void) => Promise<void>;
-  clear: () => void;
+	emitter: EventEmitter;
+	newTest: () => void;
+	verifyTest: () => void;
+	writeToFile: (writer?: (path: string, data: object) => void) => Promise<void>;
+	clear: () => void;
+	/**
+	 * Set a single provider state for subsequent requests.
+	 * @param name - The name/description of the provider state
+	 * @param params - Optional parameters for the state
+	 */
+	setProviderState: (name: string, params?: Record<string, unknown>) => void;
+	/**
+	 * Set multiple provider states for subsequent requests (Pact v3 feature).
+	 * @param states - Array of provider states
+	 */
+	setProviderStates: (states: ProviderState[]) => void;
+	/**
+	 * Clear all provider states.
+	 */
+	clearProviderStates: () => void;
 }
 export const setupPactMswAdapter = ({
-  options: externalOptions,
-  worker,
-  server,
+	options: externalOptions,
+	worker,
+	server,
 }: {
-  options: PactMswAdapterOptions;
-  worker?: SetupWorker;
-  server?: SetupServer;
+	options: PactMswAdapterOptions;
+	worker?: SetupWorker;
+	server?: SetupServer;
 }): PactMswAdapter => {
-  if (!worker && !server) {
-    throw new Error("Either a worker or server must be provided");
-  }
+	if (!worker && !server) {
+		throw new Error("Either a worker or server must be provided");
+	}
 
-  const isWorker = worker ? !!worker : false;
-  const mswMocker = worker ? worker : server;
+	const isWorker = worker ? !!worker : false;
+	const mswMocker = worker ? worker : server;
 
-  if (!mswMocker) {
-    throw new Error("Could not setup either the worker or server");
-  }
-  const emitter = new EventEmitter();
+	if (!mswMocker) {
+		throw new Error("Could not setup either the worker or server");
+	}
+	const emitter = new EventEmitter();
 
-  const options: PactMswAdapterOptionsInternal = {
-    logger: console,
-    ...externalOptions,
-    timeout: externalOptions.timeout || 200,
-    debug: externalOptions.debug || false,
-    pactOutDir: externalOptions.pactOutDir || "./msw_generated_pacts/",
-  };
+	const options: PactMswAdapterOptionsInternal = {
+		logger: console,
+		...externalOptions,
+		timeout: externalOptions.timeout || 200,
+		debug: externalOptions.debug || false,
+		pactOutDir: externalOptions.pactOutDir || "./msw_generated_pacts/",
+		pactSpecificationVersion:
+			externalOptions.pactSpecificationVersion || "3.0.0",
+	};
 
-  logGroup(`Adapter enabled${options.debug ? " on debug mode" : ""}`, { logger: options.logger });
-  if (options.debug) {
-    logGroup(["options:", options], { endGroup: true, mode: "debug", logger: options.logger });
-  } else {
-    options.logger.groupEnd();
-  }
+	logGroup(`Adapter enabled${options.debug ? " on debug mode" : ""}`, {
+		logger: options.logger,
+	});
+	if (options.debug) {
+		logGroup(["options:", options], {
+			endGroup: true,
+			mode: "debug",
+			logger: options.logger,
+		});
+	} else {
+		options.logger.groupEnd();
+	}
 
-  // This can include expired requests
-  const pendingRequests: PendingRequest[] = []; // Requests waiting for their responses
+	// This can include expired requests
+	const pendingRequests: PendingRequest[] = []; // Requests waiting for their responses
 
-  const unhandledRequests: string[] = []; // Requests that need to be handled
-  const expiredRequests: ExpiredRequest[] = []; // Requests that have expired (timeout)
-  const orphanResponses: string[] = []; // Responses from previous tests
+	const unhandledRequests: string[] = []; // Requests that need to be handled
+	const expiredRequests: ExpiredRequest[] = []; // Requests that have expired (timeout)
+	const orphanResponses: string[] = []; // Responses from previous tests
 
-  const oldRequestIds: string[] = []; // Pending requests from previous tests
-  const activeRequestIds: string[] = []; // Pending requests which are still valid
-  const matches: MatchedRequest[] = []; // Completed request-response pairs
+	const oldRequestIds: string[] = []; // Pending requests from previous tests
+	const activeRequestIds: string[] = []; // Pending requests which are still valid
+	const matches: MatchedRequest[] = []; // Completed request-response pairs
 
-  mswMocker.events.on("request:match", ({request, requestId}) => {
-    if (!checkUrlFilters({request, requestId}, options)) return;
-    if (options.debug) {
-      logGroup(["Matching request", request], { endGroup: true, mode: "debug", logger: options.logger });
-    }
+	// Provider states for Pact v3 - captured at request time
+	let currentProviderStates: ProviderState[] = [];
 
-    const startTime = Date.now();
+	mswMocker.events.on("request:match", ({ request, requestId }) => {
+		if (!checkUrlFilters({ request, requestId }, options)) return;
+		if (options.debug) {
+			logGroup(["Matching request", request], {
+				endGroup: true,
+				mode: "debug",
+				logger: options.logger,
+			});
+		}
 
-    pendingRequests.push({request, requestId});
-    activeRequestIds.push(requestId);
+		const startTime = Date.now();
 
-    setTimeout(() => {
-      const expired = { requestId, startTime, request }
-      const activeIdx = activeRequestIds.indexOf(requestId);
-      if (activeIdx >= 0) {
-        // Could be removed if completed or the test ended
-        activeRequestIds.splice(activeIdx, 1);
-        expiredRequests.push(expired);
-      }
-      emitter.emit("pact-msw-adapter:expired", expired);
-    }, options.timeout);
-  });
+		pendingRequests.push({ request, requestId });
+		activeRequestIds.push(requestId);
 
-  mswMocker.events.on(
-    "response:mocked",
-    async ({ response, requestId }) => {
-      logGroup(JSON.stringify(response), { endGroup: true, logger: options.logger });
+		setTimeout(() => {
+			const expired = { requestId, startTime, request };
+			const activeIdx = activeRequestIds.indexOf(requestId);
+			if (activeIdx >= 0) {
+				// Could be removed if completed or the test ended
+				activeRequestIds.splice(activeIdx, 1);
+				expiredRequests.push(expired);
+			}
+			emitter.emit("pact-msw-adapter:expired", expired);
+		}, options.timeout);
+	});
 
-      const reqIdx = pendingRequests.findIndex((pending) => pending.requestId === requestId);
-      if (reqIdx < 0) return; // Filtered and (expired and cleared) requests
+	mswMocker.events.on("response:mocked", async ({ response, requestId }) => {
+		logGroup(JSON.stringify(response), {
+			endGroup: true,
+			logger: options.logger,
+		});
 
-      const endTime = Date.now();
+		const reqIdx = pendingRequests.findIndex(
+			(pending) => pending.requestId === requestId,
+		);
+		if (reqIdx < 0) return; // Filtered and (expired and cleared) requests
 
-      const {request} = pendingRequests.splice(reqIdx, 1)[0];
-      const activeReqIdx = activeRequestIds.indexOf(requestId);
-      if (activeReqIdx < 0) {
-        // Expired requests and responses from previous tests
+		const endTime = Date.now();
 
-        const oldReqId = oldRequestIds.find((id) => id === requestId);
-        const expiredReq = expiredRequests.find(
-          (expired) => expired.requestId === requestId
-        );
-        if (oldReqId) {
-          orphanResponses.push(request.url);
-          log(`Orphan response: ${request.url}`, {
-            mode: "warn",
-            group: expiredReq !== undefined,
-            logger: options.logger,
-          });
-        }
+		const { request } = pendingRequests.splice(reqIdx, 1)[0];
+		const activeReqIdx = activeRequestIds.indexOf(requestId);
+		if (activeReqIdx < 0) {
+			// Expired requests and responses from previous tests
 
-        if (expiredReq) {
-          if (!oldReqId) {
-            const pathname = new URL(request.url).pathname;
-            log(`Expired request to ${pathname}`, {
-              mode: "warn",
-              group: true,
-              logger: options.logger,
-            });
-          }
+			const oldReqId = oldRequestIds.find((id) => id === requestId);
+			const expiredReq = expiredRequests.find(
+				(expired) => expired.requestId === requestId,
+			);
+			if (oldReqId) {
+				orphanResponses.push(request.url);
+				log(`Orphan response: ${request.url}`, {
+					mode: "warn",
+					group: expiredReq !== undefined,
+					logger: options.logger,
+				});
+			}
 
-          expiredReq.duration = endTime - expiredReq.startTime;
-          options.logger.info("url:", request.url);
-          options.logger.info("timeout:", options.timeout);
-          options.logger.info("duration:", expiredReq.duration);
-          options.logger.groupEnd();
-        }
+			if (expiredReq) {
+				if (!oldReqId) {
+					const pathname = new URL(request.url).pathname;
+					log(`Expired request to ${pathname}`, {
+						mode: "warn",
+						group: true,
+						logger: options.logger,
+					});
+				}
 
-        return;
-      }
+				expiredReq.duration = endTime - expiredReq.startTime;
+				options.logger.info("url:", request.url);
+				options.logger.info("timeout:", options.timeout);
+				options.logger.info("duration:", expiredReq.duration);
+				options.logger.groupEnd();
+			}
 
-      if (options.debug) {
-        logGroup(["Mocked response", response], { endGroup: true, mode: "debug", logger: options.logger });
-      }
+			return;
+		}
 
-      activeRequestIds.splice(activeReqIdx, 1);
-      const match: MatchedRequest = {
-        request,
-        requestId,
-        response,
-      };
-      emitter.emit("pact-msw-adapter:match", match);
-      matches.push(match);
-    }
-  );
+		if (options.debug) {
+			logGroup(["Mocked response", response], {
+				endGroup: true,
+				mode: "debug",
+				logger: options.logger,
+			});
+		}
 
-  mswMocker.events.on("request:unhandled", ({ request, requestId }) => {
-    if (!checkUrlFilters({ request, requestId }, options)) return;
+		activeRequestIds.splice(activeReqIdx, 1);
+		const match: MatchedRequest = {
+			request,
+			requestId,
+			response,
+			providerStates: [...currentProviderStates], // Snapshot state at capture time
+		};
+		emitter.emit("pact-msw-adapter:match", match);
+		matches.push(match);
+	});
 
-    unhandledRequests.push(request.url);
-    log(`Unhandled request: ${request.url}`, { mode: "warn", logger: options.logger });
-  });
+	mswMocker.events.on("request:unhandled", ({ request, requestId }) => {
+		if (!checkUrlFilters({ request, requestId }, options)) return;
 
-  return {
-    emitter,
-    newTest: () => {
-      oldRequestIds.push(...activeRequestIds);
-      activeRequestIds.length = 0;
-      emitter.emit("pact-msw-adapter:new-test");
-    },
-    verifyTest: () => {
-      let errors = "";
+		unhandledRequests.push(request.url);
+		log(`Unhandled request: ${request.url}`, {
+			mode: "warn",
+			logger: options.logger,
+		});
+	});
 
-      if (unhandledRequests.length) {
-        errors += `Requests with missing msw handlers:\n ${unhandledRequests.join(
-          "\n"
-        )}\n`;
-        unhandledRequests.length = 0;
-      }
+	return {
+		emitter,
+		newTest: () => {
+			oldRequestIds.push(...activeRequestIds);
+			activeRequestIds.length = 0;
+			currentProviderStates = []; // Clear provider states for new test
+			emitter.emit("pact-msw-adapter:new-test");
+		},
+		setProviderState: (name: string, params?: Record<string, unknown>) => {
+			currentProviderStates = [{ name, ...(params && { params }) }];
+		},
+		setProviderStates: (states: ProviderState[]) => {
+			currentProviderStates = [...states];
+		},
+		clearProviderStates: () => {
+			currentProviderStates = [];
+		},
+		verifyTest: () => {
+			let errors = "";
 
-      if (expiredRequests.length) {
-        errors += `Expired requests:\n${expiredRequests
-          .map((expired) => ({
-            expired,
-            pending: pendingRequests.find((pending) => pending.requestId === expired.requestId),
-          }))
-          .filter(({ expired, pending }) => expired && pending)
-          .map(({ expired, pending }) => {
-            const pathname = new URL(pending!.request.url).pathname;
-            return `${pathname}${expired.duration ? `took ${expired.duration}ms and` : ""} timed out after ${options.timeout}ms`;
-          })
-          .join("\n")}\n`;
-        expiredRequests.length = 0;
-      }
+			if (unhandledRequests.length) {
+				errors += `Requests with missing msw handlers:\n ${unhandledRequests.join(
+					"\n",
+				)}\n`;
+				unhandledRequests.length = 0;
+			}
 
-      if (orphanResponses.length) {
-        errors += `Orphan responses:\n${orphanResponses.join("\n")}\n`;
-        orphanResponses.length = 0;
-      }
+			if (expiredRequests.length) {
+				errors += `Expired requests:\n${expiredRequests
+					.map((expired) => ({
+						expired,
+						pending: pendingRequests.find(
+							(pending) => pending.requestId === expired.requestId,
+						),
+					}))
+					.filter(({ expired, pending }) => expired && pending)
+					.map(({ expired, pending }) => {
+						const pathname = new URL(pending!.request.url).pathname;
+						return `${pathname}${expired.duration ? `took ${expired.duration}ms and` : ""} timed out after ${options.timeout}ms`;
+					})
+					.join("\n")}\n`;
+				expiredRequests.length = 0;
+			}
 
-      if (errors.length > 0) {
-        throw new Error(`Found errors on msw requests.\n${errors}`);
-      }
-    },
-    writeToFile: async (
-      writer: (path: string, data: object) => void = createWriter(options)
-    ) => {
-      // TODO - dedupe pactResults so we only have one file per consumer/provider pair
-      // Note: There are scenarios such as feature flagging where you want more than one file per consumer/provider pair
-      logGroup(
-        [
-          "Found the following number of matches to write to a file:- " +
-            matches.length,
-        ],
-        { endGroup: true, logger: options.logger }
-      );
-      logGroup(JSON.stringify(matches), { endGroup: true, logger: options.logger });
+			if (orphanResponses.length) {
+				errors += `Orphan responses:\n${orphanResponses.join("\n")}\n`;
+				orphanResponses.length = 0;
+			}
 
-      let pactFiles: PactFile[];
-      try {
-        pactFiles = await transformMswToPact(
-          matches,
-          activeRequestIds,
-          options,
-          emitter
-        );
-      } catch (error) {
-        logGroup(["An error occurred parsing the JSON file", error], { logger: options.logger });
-        throw new Error("error generating pact files");
-      }
+			if (errors.length > 0) {
+				throw new Error(`Found errors on msw requests.\n${errors}`);
+			}
+		},
+		writeToFile: async (
+			writer: (path: string, data: object) => void = createWriter(options),
+		) => {
+			// TODO - dedupe pactResults so we only have one file per consumer/provider pair
+			// Note: There are scenarios such as feature flagging where you want more than one file per consumer/provider pair
+			logGroup(
+				[
+					"Found the following number of matches to write to a file:- " +
+						matches.length,
+				],
+				{ endGroup: true, logger: options.logger },
+			);
+			logGroup(JSON.stringify(matches), {
+				endGroup: true,
+				logger: options.logger,
+			});
 
-      if (!pactFiles) {
-        logGroup(
-          [
-            "writeToFile() was called but no pact files were generated, did you forget to await the writeToFile() method?",
-            matches.length,
-          ],
-          { endGroup: true, logger: options.logger }
-        );
-      }
+			let pactFiles: PactFile[];
+			try {
+				pactFiles = await transformMswToPact(
+					matches,
+					activeRequestIds,
+					options,
+					emitter,
+				);
+			} catch (error) {
+				logGroup(["An error occurred parsing the JSON file", error], {
+					logger: options.logger,
+				});
+				throw new Error("error generating pact files");
+			}
 
-      pactFiles.forEach((pactFile) => {
-        const filePath =
-          options.pactOutDir +
-          "/" +
-          [pactFile.consumer.name, pactFile.provider.name].join("-") +
-          ".json";
-        writer(filePath, pactFile);
-      });
-    },
-    clear: () => {
-      pendingRequests.length = 0;
+			if (!pactFiles) {
+				logGroup(
+					[
+						"writeToFile() was called but no pact files were generated, did you forget to await the writeToFile() method?",
+						matches.length,
+					],
+					{ endGroup: true, logger: options.logger },
+				);
+			}
 
-      unhandledRequests.length = 0;
-      expiredRequests.length = 0;
-      orphanResponses.length = 0;
+			pactFiles.forEach((pactFile) => {
+				const filePath =
+					options.pactOutDir +
+					"/" +
+					[pactFile.consumer.name, pactFile.provider.name].join("-") +
+					".json";
+				writer(filePath, pactFile);
+			});
+		},
+		clear: () => {
+			pendingRequests.length = 0;
 
-      oldRequestIds.length = 0;
-      activeRequestIds.length = 0;
-      matches.length = 0;
-      emitter.emit("pact-msw-adapter:clear");
-      return;
-    },
-  };
+			unhandledRequests.length = 0;
+			expiredRequests.length = 0;
+			orphanResponses.length = 0;
+
+			oldRequestIds.length = 0;
+			activeRequestIds.length = 0;
+			matches.length = 0;
+			currentProviderStates = []; // Clear provider states
+			emitter.emit("pact-msw-adapter:clear");
+			return;
+		},
+	};
 };
 
 export { convertMswMatchToPact };
 const transformMswToPact = async (
-  matches: MatchedRequest[],
-  activeRequestIds: string[],
-  options: PactMswAdapterOptionsInternal,
-  emitter: EventEmitter
+	matches: MatchedRequest[],
+	activeRequestIds: string[],
+	options: PactMswAdapterOptionsInternal,
+	emitter: EventEmitter,
 ): Promise<PactFile[]> => {
-  try {
-    // TODO: Lock new requests, error on clear/new-test if locked
+	try {
+		// TODO: Lock new requests, error on clear/new-test if locked
 
-    const requestsCompleted = new Promise<void>((resolve) => {
-      if (activeRequestIds.length === 0) {
-        resolve();
-        return;
-      }
+		const requestsCompleted = new Promise<void>((resolve) => {
+			if (activeRequestIds.length === 0) {
+				resolve();
+				return;
+			}
 
-      const events = [
-        "pact-msw-adapter:expired",
-        "pact-msw-adapter:match",
-        "pact-msw-adapter:new-test",
-        "pact-msw-adapter:clear",
-      ];
-      const listener = () => {
-        if (activeRequestIds.length === 0) {
-          events.forEach((ev) => emitter.off(ev, listener));
-          resolve();
-        }
-      };
-      events.forEach((ev) => emitter.on(ev, listener));
-    });
-    await addTimeout(
-      requestsCompleted,
-      "requests completed listener",
-      options.timeout * 2
-    );
+			const events = [
+				"pact-msw-adapter:expired",
+				"pact-msw-adapter:match",
+				"pact-msw-adapter:new-test",
+				"pact-msw-adapter:clear",
+			];
+			const listener = () => {
+				if (activeRequestIds.length === 0) {
+					events.forEach((ev) => emitter.off(ev, listener));
+					resolve();
+				}
+			};
+			events.forEach((ev) => emitter.on(ev, listener));
+		});
+		await addTimeout(
+			requestsCompleted,
+			"requests completed listener",
+			options.timeout * 2,
+		);
 
-    const pactFiles: PactFile[] = [];
+		const pactFiles: PactFile[] = [];
 
-    const matchProvider = (match: MatchedRequest) => {
-      if (typeof options.providers === "function") return options.providers(match);
-      return Object.entries(options.providers)
-        .find(([_, paths]) =>
-          paths.some((path) => match.request.url.includes(path))
-        )?.[0];
-    }
+		const matchProvider = (match: MatchedRequest) => {
+			if (typeof options.providers === "function")
+				return options.providers(match);
+			return Object.entries(options.providers).find(([_, paths]) =>
+				paths.some((path) => match.request.url.includes(path)),
+			)?.[0];
+		};
 
-    const matchesByProvider: { [key: string]: MatchedRequest[] } = {};
-    matches.forEach((match) => {
-      const provider = matchProvider(match) ?? "unknown";
-      if (!matchesByProvider[provider]) matchesByProvider[provider] = [];
-      matchesByProvider[provider].push(match);
-    });
+		const matchesByProvider: { [key: string]: MatchedRequest[] } = {};
+		matches.forEach((match) => {
+			const provider = matchProvider(match) ?? "unknown";
+			if (!matchesByProvider[provider]) matchesByProvider[provider] = [];
+			matchesByProvider[provider].push(match);
+		});
 
-    for (const [provider, providerMatches] of Object.entries(
-      matchesByProvider
-    )) {
-      const pactFile = await convertMswMatchToPact({
-        consumer: options.consumer,
-        provider,
-        matches: providerMatches,
-        headers: { excludeHeaders: options.excludeHeaders },
-      });
-      if (pactFile) {
-        pactFiles.push(pactFile);
-      }
-    }
-    return pactFiles;
-  } catch (err) {
-    if (err instanceof Error) {
-      throw err;
-    }
+		for (const [provider, providerMatches] of Object.entries(
+			matchesByProvider,
+		)) {
+			const pactFile = await convertMswMatchToPact({
+				consumer: options.consumer,
+				provider,
+				matches: providerMatches,
+				headers: { excludeHeaders: options.excludeHeaders },
+				pactSpecificationVersion: options.pactSpecificationVersion,
+			});
+			if (pactFile) {
+				pactFiles.push(pactFile);
+			}
+		}
+		return pactFiles;
+	} catch (err) {
+		if (err instanceof Error) {
+			throw err;
+		}
 
-    if (err && typeof err === "string") err = new Error(err);
+		if (err && typeof err === "string") err = new Error(err);
 
-    options.logger.groupCollapsed(
-      "%c[pact-msw-adapter] Unexpected error.",
-      "color:coral;font-weight:bold;"
-    );
-    options.logger.info(err);
-    options.logger.groupEnd();
-    throw err;
-  }
+		options.logger.groupCollapsed(
+			"%c[pact-msw-adapter] Unexpected error.",
+			"color:coral;font-weight:bold;",
+		);
+		options.logger.info(err);
+		options.logger.groupEnd();
+		throw err;
+	}
 };
 
+/**
+ * Pact interaction representing a single request-response pair.
+ * - For v2: uses `providerState` (string)
+ * - For v3: uses `providerStates` (array)
+ */
 export interface PactInteraction {
-  description: string;
-  providerState: string;
-  request: {
-    method: string;
-    path: string;
-    headers: any;
-    body: JSONValue | FormData | undefined;
-    query?: string;
-  };
-  response: {
-    status: number;
-    headers: any;
-    body: any;
-  };
+	description: string;
+	/** Provider state for Pact v2 specification */
+	providerState?: string;
+	/** Provider states for Pact v3 specification */
+	providerStates?: ProviderState[];
+	request: {
+		method: string;
+		path: string;
+		headers: any;
+		body: JSONValue | FormData | undefined;
+		query?: string;
+	};
+	response: {
+		status: number;
+		headers: any;
+		body: any;
+	};
 }
 
 export interface PactParticipants {
-  consumer: {
-    name: string;
-  };
-  provider: {
-    name: string;
-  };
+	consumer: {
+		name: string;
+	};
+	provider: {
+		name: string;
+	};
 }
 
 export interface PactFile {
-  consumer: PactParticipants["consumer"];
-  provider: PactParticipants["provider"];
-  interactions: PactInteraction[];
-  metadata: PactFileMetaData;
+	consumer: PactParticipants["consumer"];
+	provider: PactParticipants["provider"];
+	interactions: PactInteraction[];
+	metadata: PactFileMetaData;
 }
 
 export interface PactFileMetaData {
-  pactSpecification: {
-    version: string;
-  };
-  client: {
-    name: string;
-    version: string;
-  };
+	pactSpecification: {
+		version: string;
+	};
+	client: {
+		name: string;
+		version: string;
+	};
 }
 
 export interface PendingRequest {
-  request: Request;
-  requestId: string;
+	request: Request;
+	requestId: string;
 }
 
 export interface MatchedRequest extends PendingRequest {
-  response: Response;
+	response: Response;
+	providerStates?: ProviderState[];
 }
 
 export interface ExpiredRequest extends PendingRequest {
-  startTime: number;
-  duration?: number;
+	startTime: number;
+	duration?: number;
 }
