@@ -1,7 +1,16 @@
 {
   "name": "@pactflow/pact-msw-adapter",
   "version": "3.0.1",
-  "main": "./dist/pactMswAdapter.js",
+  "type": "module",
+  "main": "./dist/pact-msw-adapter.js",
+  "module": "./dist/pact-msw-adapter.js",
+  "types": "./dist/pactMswAdapter.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/pact-msw-adapter.js",
+      "types": "./dist/pactMswAdapter.d.ts"
+    }
+  },
   "keywords": [
     "pact",
     "msw",
@@ -23,7 +32,7 @@
     "msw": ">=2.0.0"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "vite build",
