@@ -1,25 +1,26 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "spectre.css/dist/spectre.min.css";
 import "spectre.css/dist/spectre-icons.min.css";
 import "spectre.css/dist/spectre-exp.min.css";
 import { useNavigate, useParams } from "react-router-dom";
-import API from "./api.js";
-import Heading from "./Heading.js";
-import Layout from "./Layout.js";
+import API from "./api.ts";
+import Heading from "./Heading.tsx";
+import Layout from "./Layout.tsx";
+import type { Product } from "./mocks/mockData.ts";
 
 function ProductPage() {
-	const { id } = useParams();
+	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 	const [loading, setLoading] = useState(true);
-	const [product, setProduct] = useState({ id });
+	const [product, setProduct] = useState<Partial<Product>>({ id });
 
 	useEffect(() => {
-		API.getProduct(id)
+		API.getProduct(id ?? "")
 			.then((r) => {
 				setLoading(false);
-				setProduct(r);
+				setProduct(r as Product);
 			})
-			.catch((e) => {
+			.catch((e: Error) => {
 				navigate("/error", { state: { error: e.toString() } });
 			});
 	}, [id, navigate]);
@@ -35,7 +36,7 @@ function ProductPage() {
 						alignItems: "center",
 						justifyContent: "center",
 					}}
-					class="loading loading-lg"
+					className="loading loading-lg"
 				/>
 			) : (
 				<div>

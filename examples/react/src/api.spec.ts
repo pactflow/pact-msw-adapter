@@ -1,5 +1,5 @@
-import API from "./api.js";
-import { mock } from "./mocks/mockData.js";
+import API from "./api.ts";
+import { mock } from "./mocks/mockData.ts";
 
 describe("API", () => {
 	test("get all products", async () => {

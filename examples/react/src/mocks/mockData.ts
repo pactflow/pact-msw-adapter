@@ -1,4 +1,10 @@
-const products = [
+export interface Product {
+	id: string;
+	type: string;
+	name: string;
+}
+
+const products: Product[] = [
 	{
 		id: "09",
 		type: "CREDIT_CARD",
@@ -6,7 +12,7 @@ const products = [
 	},
 ];
 
-const product = {
+const product: Product = {
 	id: "09",
 	type: "CREDIT_CARD",
 	name: "Gem Visa",

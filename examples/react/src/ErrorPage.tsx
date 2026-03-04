@@ -1,19 +1,18 @@
-import React from "react";
 import "spectre.css/dist/spectre.min.css";
 import "spectre.css/dist/spectre-icons.min.css";
 import "spectre.css/dist/spectre-exp.min.css";
 import { useLocation } from "react-router-dom";
-import Heading from "./Heading.js";
-import Layout from "./Layout.js";
+import Heading from "./Heading.tsx";
+import Layout from "./Layout.tsx";
 
 function ErrorPage() {
 	const location = useLocation();
 	return (
 		<Layout>
 			<Heading text="Sad times :(" href="/" />
-			<div class="columns">
+			<div className="columns">
 				<img
-					class="column col-6"
+					className="column col-6"
 					style={{
 						height: "100%",
 					}}
@@ -21,12 +20,12 @@ function ErrorPage() {
 					alt="sad_panda"
 				/>
 				<pre
-					class="code column col-6"
+					className="code column col-6"
 					style={{
 						wordWrap: "break-word",
 					}}
 				>
-					<code>{location.state?.error ?? ""}</code>
+					<code>{(location.state as { error?: string } | null)?.error ?? ""}</code>
 				</pre>
 			</div>
 		</Layout>

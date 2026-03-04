@@ -1,7 +1,7 @@
-// src/mocks/handlers.js
+// src/mocks/handlers.ts
 import { HttpResponse, http } from "msw";
-import API from "../api.js";
-import { mock } from "./mockData.js";
+import API from "../api.ts";
+import { mock } from "./mockData.ts";
 
 export const handlers = [
 	http.get(`${API.url}/products`, () =>

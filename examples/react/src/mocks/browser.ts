@@ -1,6 +1,6 @@
-// src/mocks/browser.js
+// src/mocks/browser.ts
 import { setupWorker } from "msw/browser";
-import { handlers } from "./handlers.js";
+import { handlers } from "./handlers.ts";
 
 // This configures a Service Worker with the given request handlers.
 export const worker = setupWorker(...handlers);
@@ -9,6 +9,6 @@ export const worker = setupWorker(...handlers);
 //
 // Make the `worker` and `rest` references available globally,
 // so they can be accessed in both runtime and test suites.
-window.msw = {
+(window as Window & { msw?: unknown }).msw = {
 	worker,
 };
