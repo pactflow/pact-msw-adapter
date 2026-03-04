@@ -1,66 +1,65 @@
 {
-  "name": "pact-consumer-example",
-  "version": "0.1.0",
-  "dependencies": {
-    "axios": "^1.7.9",
-    "prop-types": "15.8.1",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0",
-    "react-router": "5.3.4",
-    "react-router-dom": "^5.3.4",
-    "react-scripts": "5.0.1",
-    "spectre.css": "^0.5.9"
-  },
-  "scripts": {
-    "start": "cross-env GENERATE_SOURCEMAP=false react-scripts start",
-    "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
-    "test": "cross-env GENERATE_SOURCEMAP=false CI=true react-scripts test --verbose -- --config ./jest.config.js",
-    "test:cypress": "cypress run --browser chrome",
-    "test:cypress:open": "cypress open",
-    "eject": "react-scripts eject",
-    "start:test:cy:run": "start-server-and-test http://127.0.0.1:3000 test:cypress",
-    "start:test:cy:open": "start-server-and-test http://127.0.0.1:3000 test:cypress:open"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "@babel/runtime": "^7.26.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@types/react": "^17.0.83",
-    "@types/react-dom": "^17.0.26",
-    "@types/react-router-dom": "^5.3.3",
-    "@typescript-eslint/eslint-plugin": "^8.18.0",
-    "@typescript-eslint/parser": "^2.34.0",
-    "babel-eslint": "^10.1.0",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
-    "cross-env": "^7.0.3",
-    "cypress": "13.16.1",
-    "cypress-log-to-output": "^1.1.2",
-    "eslint": "^6.8.0",
-    "eslint-config-react-app": "^7.0.1",
-    "eslint-plugin-flowtype": "^8.0.3",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-react": "^7.37.2",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "js-levenshtein": "^1.1.6",
-    "start-server-and-test": "^2.0.8",
-    "undici": "^5.28.4"
-  },
-  "msw": {
-    "workerDirectory": "public"
-  }
+	"name": "pact-consumer-example",
+	"version": "0.1.0",
+	"dependencies": {
+		"axios": "^1.13.6",
+		"prop-types": "15.8.1",
+		"react": "^19.2.4",
+		"react-dom": "^19.2.4",
+		"react-router": "^7.13.0",
+		"react-router-dom": "^7.13.0",
+		"react-scripts": "5.0.1",
+		"spectre.css": "^0.5.9"
+	},
+	"scripts": {
+		"start": "cross-env GENERATE_SOURCEMAP=false react-scripts start",
+		"build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
+		"test": "cross-env GENERATE_SOURCEMAP=false CI=true react-scripts test --verbose -- --config ./jest.config.js",
+		"test:cypress": "cypress run --browser chrome",
+		"test:cypress:open": "cypress open",
+		"eject": "react-scripts eject",
+		"start:test:cy:run": "start-server-and-test http://127.0.0.1:3000 test:cypress",
+		"start:test:cy:open": "start-server-and-test http://127.0.0.1:3000 test:cypress:open"
+	},
+	"eslintConfig": {
+		"extends": "react-app"
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"devDependencies": {
+		"@babel/runtime": "^7.26.0",
+		"@testing-library/jest-dom": "^6.6.3",
+		"@types/react": "^19.0.0",
+		"@types/react-dom": "^19.0.0",
+		"@typescript-eslint/eslint-plugin": "^8.18.0",
+		"@typescript-eslint/parser": "^8.18.0",
+		"babel-eslint": "^10.1.0",
+		"babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+		"cross-env": "^7.0.3",
+		"cypress": "13.16.1",
+		"cypress-log-to-output": "^1.1.2",
+		"eslint": "^6.8.0",
+		"eslint-config-react-app": "^7.0.1",
+		"eslint-plugin-flowtype": "^8.0.3",
+		"eslint-plugin-import": "^2.31.0",
+		"eslint-plugin-jsx-a11y": "^6.10.2",
+		"eslint-plugin-react": "^7.37.2",
+		"eslint-plugin-react-hooks": "^4.6.2",
+		"js-levenshtein": "^1.1.6",
+		"start-server-and-test": "^2.0.8",
+		"undici": "^5.28.4"
+	},
+	"msw": {
+		"workerDirectory": "public"
+	}
 }

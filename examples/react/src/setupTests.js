@@ -1,37 +1,37 @@
-
-import { setupServer } from "msw/node";
 import { setupPactMswAdapter } from "@pactflow/pact-msw-adapter";
-import { handlers } from './mocks/handlers'
+import { setupServer } from "msw/node";
+import { handlers } from "./mocks/handlers.js";
 
 // This configures a request mocking server with the given request handlers.
 const server = setupServer(...handlers);
 
 const pactMswAdapter = setupPactMswAdapter({
-  server,
-  options: {
-    consumer: "testConsumer", providers: { ['testProvider']: ['products'], ['testProvider2']: ['/product/10'] },
-    debug: true,
-    includeUrl: ['products', '/product'],
-    excludeUrl: ['/product/11'],
-    excludeHeaders: ["x-powered-by", "cookie"]
-  },
+	server,
+	options: {
+		consumer: "testConsumer",
+		providers: { testProvider: ["products"], testProvider2: ["/product/10"] },
+		debug: true,
+		includeUrl: ["products", "/product"],
+		excludeUrl: ["/product/11"],
+		excludeHeaders: ["x-powered-by", "cookie"],
+	},
 });
 
 beforeAll(() => {
-    server.listen();
-  });
+	server.listen();
+});
 
-  beforeEach(() => {
-    pactMswAdapter.newTest();
-  });
+beforeEach(() => {
+	pactMswAdapter.newTest();
+});
 
-  afterEach(() => {
-    pactMswAdapter.verifyTest();
-    server.resetHandlers();
-  });
+afterEach(() => {
+	pactMswAdapter.verifyTest();
+	server.resetHandlers();
+});
 
-  afterAll(async () => {
-    await pactMswAdapter.writeToFile(); // writes the pacts to a file
-    pactMswAdapter.clear();
-    server.close();
-  });
+afterAll(async () => {
+	await pactMswAdapter.writeToFile(); // writes the pacts to a file
+	pactMswAdapter.clear();
+	server.close();
+});
