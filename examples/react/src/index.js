@@ -1,32 +1,23 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./index.css";
-import App from "./App";
-import ProductPage from "./ProductPage";
-import ErrorPage from "./ErrorPage";
+import App from "./App.js";
+import ErrorPage from "./ErrorPage.js";
+import ProductPage from "./ProductPage.js";
 
-if (process.env.NODE_ENV === 'development') {
-  const { worker } = require('./mocks/browser')
-  worker.start()
+if (process.env.NODE_ENV === "development") {
+	const { worker } = require("./mocks/browser.js");
+	worker.start();
 }
 
-const routing = (
-  <Router>
-    <div>
-      <Switch>
-        <Route path='/error'>
-          <ErrorPage />
-        </Route>
-        <Route path='/products/:id'>
-          <ProductPage />
-        </Route>
-        <Route path='/'>
-          <App />
-        </Route>
-      </Switch>
-    </div>
-  </Router>
+createRoot(document.getElementById("root")).render(
+	<Router>
+		<div>
+			<Routes>
+				<Route path="/error" element={<ErrorPage />} />
+				<Route path="/products/:id" element={<ProductPage />} />
+				<Route path="/" element={<App />} />
+			</Routes>
+		</div>
+	</Router>,
 );
-
-ReactDOM.render(routing, document.getElementById("root"));

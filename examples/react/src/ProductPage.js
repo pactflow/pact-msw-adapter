@@ -1,70 +1,51 @@
-import React from 'react';
-import 'spectre.css/dist/spectre.min.css';
-import 'spectre.css/dist/spectre-icons.min.css';
-import 'spectre.css/dist/spectre-exp.min.css';
-import Layout from "./Layout";
-import Heading from "./Heading";
-import {withRouter} from "react-router-dom";
-import API from "./api";
-import PropTypes from 'prop-types';
+import React, { useEffect, useState } from "react";
+import "spectre.css/dist/spectre.min.css";
+import "spectre.css/dist/spectre-icons.min.css";
+import "spectre.css/dist/spectre-exp.min.css";
+import { useNavigate, useParams } from "react-router-dom";
+import API from "./api.js";
+import Heading from "./Heading.js";
+import Layout from "./Layout.js";
 
-class ProductPage extends React.Component {
-    constructor(props) {
-        super(props);
+function ProductPage() {
+	const { id } = useParams();
+	const navigate = useNavigate();
+	const [loading, setLoading] = useState(true);
+	const [product, setProduct] = useState({ id });
 
-        this.state = {
-            loading: true,
-            product: {
-                id: props.match.params.id
-            }
-        };
-    }
+	useEffect(() => {
+		API.getProduct(id)
+			.then((r) => {
+				setLoading(false);
+				setProduct(r);
+			})
+			.catch((e) => {
+				navigate("/error", { state: { error: e.toString() } });
+			});
+	}, [id, navigate]);
 
-    componentDidMount() {
-        API.getProduct(this.state.product.id).then(r => {
-            this.setState({
-                loading: false,
-                product: r
-            });
-        }).catch(e => {
-            console.error("failed to load product " + this.state.product.id, e);
-            this.props.history.push({
-                pathname: "/error",
-                state: {
-                    error: e.toString()
-                }
-            });
-        });
-    }
-
-    render() {
-        const productInfo = (
-            <div>
-                <p>ID: {this.state.product.id}</p>
-                <p>Name: {this.state.product.name}</p>
-                <p>Type: {this.state.product.type}</p>
-            </div>
-        );
-
-        return (
-            <Layout>
-                <Heading text="Products" href="/"/>
-                {this.state.loading ? <div style={{
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center"
-                }} className="loading loading-lg"/> : productInfo}
-            </Layout>
-        );
-    }
+	return (
+		<Layout>
+			<Heading text="Products" href="/" />
+			{loading ? (
+				<div
+					style={{
+						height: "100%",
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+					}}
+					class="loading loading-lg"
+				/>
+			) : (
+				<div>
+					<p>ID: {product.id}</p>
+					<p>Name: {product.name}</p>
+					<p>Type: {product.type}</p>
+				</div>
+			)}
+		</Layout>
+	);
 }
 
-ProductPage.propTypes = {
-    match: PropTypes.object.isRequired,
-    history: PropTypes.shape({
-        push: PropTypes.func.isRequired
-    }).isRequired
-};
-
-export default withRouter(ProductPage);
+export default ProductPage;

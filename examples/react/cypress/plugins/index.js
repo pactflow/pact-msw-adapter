@@ -16,8 +16,8 @@
  * @type {Cypress.PluginConfig}
  */
 // eslint-disable-next-line no-unused-vars
-module.exports = (on, config) => {
-  require('cypress-log-to-output').install(on)
-  // `on` is used to hook into various events Cypress emits
-  // `config` is the resolved Cypress config
-}
+module.exports = (on, _config) => {
+	require("cypress-log-to-output").install(on);
+	// `on` is used to hook into various events Cypress emits
+	// `config` is the resolved Cypress config
+};
