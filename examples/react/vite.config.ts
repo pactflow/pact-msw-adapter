@@ -7,10 +7,10 @@ export default defineConfig({
 	build: { outDir: "build", sourcemap: true },
 	envPrefix: ["VITE_", "REACT_APP_"],
 	test: {
-		include: ["src/**/*.{spec,test}.{js,ts}"],
+		include: ["src/**/*.{spec,test}.{ts,tsx}"],
 		environment: "node",
 		globals: true,
-		setupFiles: ["./src/setupTests.js"],
+		setupFiles: ["./src/setupTests.ts"],
 		env: { REACT_APP_API_BASE_URL: "http://localhost:8081" },
 	},
 });

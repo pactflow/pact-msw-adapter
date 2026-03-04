@@ -1,39 +1,33 @@
-import process from "node:process";
+/// <reference types="vite/client" />
 import axios from "axios";
 
 export class API {
-	constructor(url) {
-		if (url === undefined || url === "") {
-			url = process.env.REACT_APP_API_BASE_URL;
-		}
-		if (url.endsWith("/")) {
-			url = url.substr(0, url.length - 1);
-		}
-		this.url = url;
+	url: string;
+
+	constructor(url?: string) {
+		const resolved = url || process.env.REACT_APP_API_BASE_URL || "";
+		this.url = resolved.endsWith("/") ? resolved.slice(0, -1) : resolved;
 	}
 
-	withPath(path) {
-		if (!path.startsWith("/")) {
-			path = `/${path}`;
-		}
-		return `${this.url}${path}`;
+	withPath(path: string): string {
+		return `${this.url}${path.startsWith("/") ? path : `/${path}`}`;
 	}
 
-	generateAuthToken() {
+	generateAuthToken(): string {
 		return `Bearer ${new Date().toISOString()}`;
 	}
 
-	async getAllProducts() {
+	async getAllProducts(): Promise<unknown[]> {
 		return axios
 			.get(this.withPath("/products"), {
 				headers: {
 					Authorization: this.generateAuthToken(),
 				},
 			})
-			.then((r) => r.data);
+			.then((r) => r.data as unknown[]);
 	}
 
-	async getProduct(id, params) {
+	async getProduct(id: string, params?: unknown): Promise<unknown> {
 		try {
 			return await axios
 				.get(this.withPath(`/product/${id}`), {
@@ -44,15 +38,16 @@ export class API {
 				})
 				.then((r) => r.data);
 		} catch (error) {
-			if (error.errors && error.errors.length > 0) {
-				return Promise.reject(new Error(error.errors));
+			const e = error as { errors?: unknown[] };
+			if (e.errors && e.errors.length > 0) {
+				return Promise.reject(new Error(String(e.errors)));
 			}
-			return Promise.reject(new Error(error));
+			return Promise.reject(new Error(String(error)));
 		}
 	}
 
-	async postProduct(id, productData) {
-		return await axios
+	async postProduct(id: string, productData: unknown): Promise<unknown> {
+		return axios
 			.post(this.withPath(`/product/${id}`), productData, {
 				headers: {
 					Authorization: this.generateAuthToken(),
@@ -61,7 +56,7 @@ export class API {
 			.then((r) => r.data);
 	}
 
-	async getUser(params) {
+	async getUser(params?: unknown): Promise<unknown> {
 		return axios
 			.get(this.withPath("/user"), {
 				params,

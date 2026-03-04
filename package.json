@@ -4,11 +4,11 @@
 	"type": "module",
 	"main": "./dist/pact-msw-adapter.js",
 	"module": "./dist/pact-msw-adapter.js",
-	"types": "./dist/pactMswAdapter.d.ts",
+	"types": "./dist/src/pactMswAdapter.d.ts",
 	"exports": {
 		".": {
 			"import": "./dist/pact-msw-adapter.js",
-			"types": "./dist/pactMswAdapter.d.ts"
+			"types": "./dist/src/pactMswAdapter.d.ts"
 		}
 	},
 	"keywords": [

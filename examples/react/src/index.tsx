@@ -1,18 +1,20 @@
 import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./index.css";
-import App from "./App.js";
-import ErrorPage from "./ErrorPage.js";
-import ProductPage from "./ProductPage.js";
+import App from "./App.tsx";
+import ErrorPage from "./ErrorPage.tsx";
+import ProductPage from "./ProductPage.tsx";
 
 async function enableMocking() {
 	if (!import.meta.env.DEV) return;
-	const { worker } = await import("./mocks/browser.js");
+	const { worker } = await import("./mocks/browser.ts");
 	return worker.start();
 }
 
 enableMocking().then(() => {
-	createRoot(document.getElementById("root")).render(
+	const rootEl = document.getElementById("root");
+	if (!rootEl) throw new Error("Root element not found");
+	createRoot(rootEl).render(
 		<Router>
 			<div>
 				<Routes>
