@@ -40,6 +40,7 @@
     "build:clean": "rimraf dist && vite build",
     "test": "vitest run --reporter=verbose",
     "test:msw": "vitest run --reporter=verbose",
+    "type-check": "tsc --noEmit",
     "dist:ci": "npm run build:clean && npm test",
     "release": "standard-version",
     "release:trigger": "./scripts/trigger-release.sh",

@@ -54,7 +54,6 @@ export const setupPactMswAdapter = ({
     throw new Error("Either a worker or server must be provided");
   }
 
-  const isWorker = worker ? !!worker : false;
   const mswMocker = worker ? worker : server;
 
   if (!mswMocker) {
