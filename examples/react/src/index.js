@@ -5,19 +5,22 @@ import App from "./App.js";
 import ErrorPage from "./ErrorPage.js";
 import ProductPage from "./ProductPage.js";
 
-if (process.env.NODE_ENV === "development") {
-	const { worker } = require("./mocks/browser.js");
-	worker.start();
+async function enableMocking() {
+	if (!import.meta.env.DEV) return;
+	const { worker } = await import("./mocks/browser.js");
+	return worker.start();
 }
 
-createRoot(document.getElementById("root")).render(
-	<Router>
-		<div>
-			<Routes>
-				<Route path="/error" element={<ErrorPage />} />
-				<Route path="/products/:id" element={<ProductPage />} />
-				<Route path="/" element={<App />} />
-			</Routes>
-		</div>
-	</Router>,
-);
+enableMocking().then(() => {
+	createRoot(document.getElementById("root")).render(
+		<Router>
+			<div>
+				<Routes>
+					<Route path="/error" element={<ErrorPage />} />
+					<Route path="/products/:id" element={<ProductPage />} />
+					<Route path="/" element={<App />} />
+				</Routes>
+			</div>
+		</Router>,
+	);
+});
