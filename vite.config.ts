@@ -3,15 +3,30 @@ import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
 export default defineConfig({
-  build: {
-    lib: {
-      entry: resolve(__dirname, "src/pactMswAdapter.ts"),
-      formats: ["es"],
-      fileName: "pact-msw-adapter",
-    },
-    rollupOptions: {
-      external: ["msw", "msw/browser", "msw/node", "events", "node:events", "node:fs", "node:path", "fs", "path"],
-    },
-  },
-  plugins: [dts({ include: ["src"], exclude: ["src/**/*.spec.ts", "src/**/*.test.ts"] })],
+	build: {
+		lib: {
+			entry: resolve(import.meta.dirname, "src/pactMswAdapter.ts"),
+			formats: ["es"],
+			fileName: "pact-msw-adapter",
+		},
+		rollupOptions: {
+			external: [
+				"msw",
+				"msw/browser",
+				"msw/node",
+				"events",
+				"node:events",
+				"node:fs",
+				"node:path",
+				"fs",
+				"path",
+			],
+		},
+	},
+	plugins: [
+		dts({
+			include: ["src"],
+			exclude: ["src/**/*.spec.ts", "src/**/*.test.ts"],
+		}),
+	],
 });
