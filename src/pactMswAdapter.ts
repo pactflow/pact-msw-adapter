@@ -10,7 +10,7 @@ import {
   logGroup,
 } from "./utils/utils";
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
-import { EventEmitter } from "events";
+import EventEmitter from "node:events";
 export interface PactMswAdapterOptions {
   timeout?: number;
   debug?: boolean;

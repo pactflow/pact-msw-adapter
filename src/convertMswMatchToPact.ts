@@ -1,7 +1,7 @@
-import { PactFile, MatchedRequest } from "./pactMswAdapter";
+import pjson from "../package.json";
 import { omit } from "lodash";
+import { PactFile, MatchedRequest } from "./pactMswAdapter";
 import { JSONValue } from "./utils/utils";
-const pjson = require("../package.json");
 
 export const readBody = async (input: Request | Response) => {
   // so we don't reread body somewhere

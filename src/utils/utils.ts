@@ -1,6 +1,6 @@
+import { dirname } from "node:path";
+import * as nodeFs from "node:fs";
 import { PactMswAdapterOptionsInternal, PendingRequest } from "../pactMswAdapter";
-var path = require("path");
-let fs: any; // dynamic import
 
 const logPrefix = '[pact-msw-adapter]';
 const logColors = {
@@ -38,27 +38,22 @@ const logGroup = (message: any | any[], options: { endGroup?: boolean; mode?: Lo
 }
 
 const ensureDirExists = (filePath: string) => {
-  var dirname = path.dirname(filePath);
-  if (fs.existsSync?.(dirname)) {
+  const dir = dirname(filePath);
+  if (nodeFs.existsSync(dir)) {
     return true;
   }
-  fs.mkdirSync?.(dirname);
+  nodeFs.mkdirSync(dir);
 };
 
 const createWriter = (options: PactMswAdapterOptionsInternal) => (filePath: string, data: Object) => {
-  if (!fs) {
-    try {
-      fs = require('fs');
-    } catch (e) {}
-  }
-  if (!fs?.existsSync) {
+  if (!nodeFs.existsSync) {
     log('You need a node environment to save files.', { mode: 'warn', group: true, logger: options.logger });
     options.logger.info('filePath:', filePath);
     options.logger.info('contents:', data);
     options.logger.groupEnd();
   } else {
     ensureDirExists(filePath);
-    fs.writeFileSync?.(filePath, JSON.stringify(data));
+    nodeFs.writeFileSync(filePath, JSON.stringify(data));
   }
 };
 
