@@ -1,0 +1,106 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.4.5/schema.json",
+
+	// Code formatting and organization suggestions
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	},
+
+	// Formatting
+	"formatter": {
+		"useEditorconfig": true
+	},
+
+	// Enable integration with VCS
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+
+	// Linting default rules
+	"linter": {
+		"enabled": true,
+		"domains": {
+			"test": "all"
+		},
+		"rules": {
+			"a11y": "error",
+			"complexity": "error",
+			"correctness": "error",
+			"nursery": "off",
+			"performance": "error",
+			"recommended": true,
+			"security": "error",
+			"style": "error",
+			"suspicious": "error"
+		}
+	},
+
+  // Override settings
+  "overrides": [
+    {
+      // Disable all linting for examples/ until it is migrated in a later commit
+      "includes": ["examples/**"],
+      "linter": {
+        "enabled": false
+      },
+      "formatter": {
+        "enabled": false
+      }
+    },
+    {
+      "includes": ["**/*.spec.ts", "**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            // Test files can have longer functions with multiple test cases
+            "noExcessiveLinesPerFunction": "off"
+          },
+          "style": {
+            // HTTP headers follow spec casing in tests; magic numbers acceptable
+            "useNamingConvention": "off",
+            "noMagicNumbers": "off"
+          },
+          "suspicious": {
+            // Vitest lifecycle hooks (beforeEach etc.) may be async without await
+            "useAwait": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["*.config.ts", "*.config.js"],
+      "linter": {
+        "rules": {
+          "style": {
+            // Config files conventionally use default exports
+            "noDefaultExport": "off",
+            // Env var names use SCREAMING_SNAKE_CASE by convention
+            "useNamingConvention": "off"
+          },
+          "correctness": {
+            // Config files may use Node.js modules
+            "noNodejsModules": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.ts"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            // False positive — this project does not use Qwik
+            "useQwikValidLexicalScope": "off"
+          }
+        }
+      }
+    }
+  ]
+}

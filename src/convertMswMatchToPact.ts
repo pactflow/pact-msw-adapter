@@ -1,76 +1,86 @@
-import pjson from "../package.json";
-import { PactFile, MatchedRequest } from "./pactMswAdapter";
-import { JSONValue } from "./utils/utils";
+import pjson from "../package.json" with { type: "json" };
+import type { MatchedRequest, PactFile } from "./pactMswAdapter.ts";
+import type { JsonValue } from "./utils/utils.ts";
 
-const omit = (obj: Record<string, string>, keys: string[]): Record<string, string> => {
-  const result = { ...obj };
-  for (const key of keys) delete result[key];
-  return result;
+const omit = (
+	obj: Record<string, string>,
+	keys: string[],
+): Record<string, string> => {
+	const result = { ...obj };
+	for (const key of keys) {
+		delete result[key];
+	}
+	return result;
 };
 
-export const readBody = async (input: Request | Response) => {
-  // so we don't reread body somewhere
-  const clone = input.clone();
+export const readBody = (input: Request | Response) => {
+	// so we don't reread body somewhere
+	const clone = input.clone();
 
-  if (clone.body === null) return undefined
+	if (clone.body === null) {
+		return;
+	}
 
-  const contentType = clone.headers.get("content-type");
-  if (contentType?.startsWith("application/json")) {
-    return clone.json() as Promise<JSONValue>;
-  } else if (contentType?.startsWith("multipart/form-data")) {
-    return clone.formData();
-  }
+	const contentType = clone.headers.get("content-type");
+	if (contentType?.startsWith("application/json")) {
+		return clone.json() as Promise<JsonValue>;
+	}
+	if (contentType?.startsWith("multipart/form-data")) {
+		return clone.formData();
+	}
 
-  // default to text
-  return clone.text();
-}
+	// default to text
+	return clone.text();
+};
 
 export const convertMswMatchToPact = async ({
-  consumer,
-  provider,
-  matches,
-  headers,
+	consumer,
+	provider,
+	matches,
+	headers,
 }: {
-  consumer: string;
-  provider: string;
-  matches: MatchedRequest[];
-  headers?: { excludeHeaders: string[] | undefined };
+	consumer: string;
+	provider: string;
+	matches: MatchedRequest[];
+	headers?: { excludeHeaders: string[] | undefined };
 }): Promise<PactFile> => {
-  const pactFile: PactFile = {
-    consumer: { name: consumer },
-    provider: { name: provider },
-    interactions: await Promise.all(matches.map(async (match) => ({
-      description: match.requestId,
-      providerState: "",
-      request: {
-        method: match.request.method,
-        path: new URL(match.request.url).pathname,
-        headers: omit(
-          Object.fromEntries(match.request.headers.entries()),
-          headers?.excludeHeaders ?? []
-        ),
-        body: await readBody(match.request),
-        query: new URL(match.request.url).search?.split("?")[1]
-      },
-      response: {
-        status: match.response.status,
-        headers: omit(
-          Object.fromEntries(match.response.headers.entries()),
-          headers?.excludeHeaders ?? []
-        ),
-        body: await readBody(match.response),
-      },
-    }))),
-    metadata: {
-      pactSpecification: {
-        version: "2.0.0",
-      },
-      client: {
-        name: "pact-msw-adapter",
-        version: pjson.version,
-      },
-    },
-  };
+	const pactFile: PactFile = {
+		consumer: { name: consumer },
+		provider: { name: provider },
+		interactions: await Promise.all(
+			matches.map(async (match) => ({
+				description: match.requestId,
+				providerState: "",
+				request: {
+					method: match.request.method,
+					path: new URL(match.request.url).pathname,
+					headers: omit(
+						Object.fromEntries(match.request.headers.entries()),
+						headers?.excludeHeaders ?? [],
+					),
+					body: await readBody(match.request),
+					query: new URL(match.request.url).search?.split("?")[1],
+				},
+				response: {
+					status: match.response.status,
+					headers: omit(
+						Object.fromEntries(match.response.headers.entries()),
+						headers?.excludeHeaders ?? [],
+					),
+					body: await readBody(match.response),
+				},
+			})),
+		),
+		metadata: {
+			pactSpecification: {
+				version: "2.0.0",
+			},
+			client: {
+				name: "pact-msw-adapter",
+				version: pjson.version,
+			},
+		},
+	};
 
-  return pactFile;
+	return pactFile;
 };

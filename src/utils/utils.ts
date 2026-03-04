@@ -1,93 +1,139 @@
+// biome-ignore lint/correctness/noNodejsModules: Node.js library — Node modules are intentional
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+// biome-ignore lint/correctness/noNodejsModules: Node.js library — Node modules are intentional
 import { dirname } from "node:path";
-import * as nodeFs from "node:fs";
-import { PactMswAdapterOptionsInternal, PendingRequest } from "../pactMswAdapter";
+import type {
+	PactMswAdapterOptionsInternal,
+	PendingRequest,
+} from "../pactMswAdapter.ts";
 
-const logPrefix = '[pact-msw-adapter]';
+const logPrefix = "[pact-msw-adapter]";
 const logColors = {
-  debug: 'gray',
-  info: 'forestgreen',
-  warn: 'gold',
-  error: 'coral'
+	debug: "gray",
+	info: "forestgreen",
+	warn: "gold",
+	error: "coral",
 };
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error'
-export type Logger = Pick<typeof console, LogLevel | 'groupEnd' | 'groupCollapsed'>
+type LogLevel = "debug" | "info" | "warn" | "error";
+type Logger = Pick<typeof console, LogLevel | "groupEnd" | "groupCollapsed">;
 
-const log = (message: any, options: { group?: boolean, mode?: LogLevel, logger: Logger }) => {
-  const group = options?.group || false;
-  const mode = options?.mode || 'info';
-  const color = logColors[mode];
+const log = (
+	message: unknown,
+	options: { group?: boolean; mode?: LogLevel; logger: Logger },
+) => {
+	const group = options?.group;
+	const mode = options?.mode || "info";
+	const color = logColors[mode];
 
-  const logFunction = group ? options.logger.groupCollapsed : options.logger[mode];
-  logFunction(`%c${logPrefix} %c${message}`, `color:${color}`, 'color:inherit');
-}
+	const logFunction = group
+		? options.logger.groupCollapsed
+		: options.logger[mode];
+	logFunction(`%c${logPrefix} %c${message}`, `color:${color}`, "color:inherit");
+};
 
-const logGroup = (message: any | any[], options: { endGroup?: boolean; mode?: LogLevel; logger: Logger }) => {
-  const isArray = message instanceof Array;
-  if (isArray) {
-    const [label, ...content] = message;
-    log(label, { group: true, mode: options.mode, logger: options.logger });
-    content.forEach((c: any) => options.logger[options?.mode || 'info'](c));
-  } else {
-    log(message, { group: true, mode: options.mode, logger: options.logger });
-  }
+const logGroup = (
+	message: unknown,
+	options: { endGroup?: boolean; mode?: LogLevel; logger: Logger },
+) => {
+	const isArray = Array.isArray(message);
+	if (isArray) {
+		const [label, ...content] = message as unknown[];
+		log(label, { group: true, mode: options.mode, logger: options.logger });
+		for (const c of content) {
+			options.logger[options?.mode || "info"](c);
+		}
+	} else {
+		log(message, { group: true, mode: options.mode, logger: options.logger });
+	}
 
-  if (options?.endGroup) {
-    options.logger.groupEnd();
-  }
-}
+	if (options?.endGroup) {
+		options.logger.groupEnd();
+	}
+};
 
 const ensureDirExists = (filePath: string) => {
-  const dir = dirname(filePath);
-  if (nodeFs.existsSync(dir)) {
-    return true;
-  }
-  nodeFs.mkdirSync(dir);
+	const dir = dirname(filePath);
+	if (existsSync(dir)) {
+		return true;
+	}
+	mkdirSync(dir);
 };
 
-const createWriter = (options: PactMswAdapterOptionsInternal) => (filePath: string, data: Object) => {
-  if (!nodeFs.existsSync) {
-    log('You need a node environment to save files.', { mode: 'warn', group: true, logger: options.logger });
-    options.logger.info('filePath:', filePath);
-    options.logger.info('contents:', data);
-    options.logger.groupEnd();
-  } else {
-    ensureDirExists(filePath);
-    nodeFs.writeFileSync(filePath, JSON.stringify(data));
-  }
+const createWriter = () => (filePath: string, data: object) => {
+	ensureDirExists(filePath);
+	writeFileSync(filePath, JSON.stringify(data));
 };
 
-const hasProvider = (pending: PendingRequest, options: PactMswAdapterOptionsInternal) => {
-  if (typeof options.providers === 'function') {
-    return options.providers(pending) !== null;
-  }
-  return Object.values(options.providers)
-    ?.some(validPaths => validPaths.some(path => pending.request.url.includes(path)));
+const hasProvider = (
+	pending: PendingRequest,
+	options: PactMswAdapterOptionsInternal,
+) => {
+	if (typeof options.providers === "function") {
+		return options.providers(pending) !== null;
+	}
+	return Object.values(options.providers)?.some((validPaths) =>
+		validPaths.some((path) => pending.request.url.includes(path)),
+	);
 };
 
-const checkUrlFilters = (pending: PendingRequest, options: PactMswAdapterOptionsInternal) => {
-  const urlString = pending.request.url.toString();
-  const providerFilter = hasProvider(pending, options);
-  const includeFilter = !options.includeUrl || options.includeUrl.some(inc => urlString.includes(inc));
-  const excludeFilter = !options.excludeUrl || !options.excludeUrl.some(exc => urlString.includes(exc));
-  const matchIsAllowed = includeFilter && excludeFilter && providerFilter
-  if (options.debug) {
-    logGroup(['Checking request against url filters', { urlString, providerFilter, includeFilter, excludeFilter, matchIsAllowed }], { logger: options.logger });
-  }
+const checkUrlFilters = (
+	pending: PendingRequest,
+	options: PactMswAdapterOptionsInternal,
+) => {
+	const urlString = pending.request.url.toString();
+	const providerFilter = hasProvider(pending, options);
+	const includeFilter =
+		!options.includeUrl ||
+		options.includeUrl.some((inc) => urlString.includes(inc));
+	const excludeFilter = !options.excludeUrl?.some((exc) =>
+		urlString.includes(exc),
+	);
+	const matchIsAllowed = includeFilter && excludeFilter && providerFilter;
+	if (options.debug) {
+		logGroup(
+			[
+				"Checking request against url filters",
+				{
+					urlString,
+					providerFilter,
+					includeFilter,
+					excludeFilter,
+					matchIsAllowed,
+				},
+			],
+			{ logger: options.logger },
+		);
+	}
 
-  return matchIsAllowed;
+	return matchIsAllowed;
 };
 
-const addTimeout = async<T>(promise: Promise<T>, label: string, timeout: number) => {
-  const asyncTimeout = new Promise<void>((_, reject) => {
-    setTimeout(() => {
-      reject(new Error(`[pact-msw-adapter] ${label} timed out after ${timeout}ms`));
-    }, timeout).unref();
-  });
+const addTimeout = <T>(promise: Promise<T>, label: string, timeout: number) => {
+	const asyncTimeout = new Promise<void>((_, reject) => {
+		setTimeout(() => {
+			reject(
+				new Error(`[pact-msw-adapter] ${label} timed out after ${timeout}ms`),
+			);
+		}, timeout).unref();
+	});
 
-  return Promise.race([promise, asyncTimeout]);
-}
+	return Promise.race([promise, asyncTimeout]);
+};
 
-export type JSONValue = string | number | boolean | null | { [key: string]: JSONValue } | JSONValue[];
+export type JsonValue =
+	| string
+	| number
+	| boolean
+	| null
+	| { [key: string]: JsonValue }
+	| JsonValue[];
 
-export { log, logGroup, createWriter, checkUrlFilters, addTimeout };
+export {
+	type Logger,
+	log,
+	logGroup,
+	createWriter,
+	checkUrlFilters,
+	addTimeout,
+};
