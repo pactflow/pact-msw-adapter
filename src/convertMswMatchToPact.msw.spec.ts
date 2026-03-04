@@ -1,7 +1,7 @@
+import pjson from "../package.json";
 import { HttpResponse } from "msw";
 import { convertMswMatchToPact } from "./convertMswMatchToPact";
 import { MatchedRequest, PactFile } from "./pactMswAdapter";
-const pjson = require("../package.json");
 
 const generatedPact: PactFile = {
   consumer: { name: "interaction.consumer.name" },

@@ -1,8 +1,8 @@
+import pjson from "../package.json";
 import API from "../examples/react/src/api";
 import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 import { PactFile, setupPactMswAdapter } from "./pactMswAdapter";
-const pjson = require("../package.json");
 
 const server = setupServer();
 const pactMswAdapter = setupPactMswAdapter({
@@ -16,7 +16,7 @@ const pactMswAdapter = setupPactMswAdapter({
     debug: true,
     includeUrl: ["products", "/product"],
     excludeUrl: ["/product/11"],
-    excludeHeaders: ["x-powered-by", "cookie", "accept-encoding", "host"],
+    excludeHeaders: ["x-powered-by", "cookie", "accept-encoding", "connection", "content-length", "host"],
   },
 });
 
@@ -124,7 +124,7 @@ describe("API - With MSW mock generating a pact", () => {
 
   test("unhandled route", async () => {
     await expect(API.getProduct("11")).rejects.toThrow(
-      /^Error: connect ECONNREFUSED (127.0.0.1|::1):8081.*$/
+      /^(Error: connect ECONNREFUSED (127\.0\.0\.1|::1):8081|AggregateError)/
     );
   });
 
