@@ -59,7 +59,7 @@ describe("API - With MSW mock generating a pact for dynamic providers", () => {
     expect(respUser).toEqual(user);
 
     let pactResults: PactFile[] = [];
-    await pactMswAdapter.writeToFile((path, data) => {
+    await pactMswAdapter.writeToFile((_path, data) => {
       pactResults.push(data as PactFile);
     }); // writes the pacts to a file
     expect(pactResults.length).toEqual(2);
