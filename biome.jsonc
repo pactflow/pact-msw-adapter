@@ -42,65 +42,55 @@
 		}
 	},
 
-  // Override settings
-  "overrides": [
-    {
-      // Disable all linting for examples/ until it is migrated in a later commit
-      "includes": ["examples/**"],
-      "linter": {
-        "enabled": false
-      },
-      "formatter": {
-        "enabled": false
-      }
-    },
-    {
-      "includes": ["**/*.spec.ts", "**/*.test.ts"],
-      "linter": {
-        "rules": {
-          "complexity": {
-            // Test files can have longer functions with multiple test cases
-            "noExcessiveLinesPerFunction": "off"
-          },
-          "style": {
-            // HTTP headers follow spec casing in tests; magic numbers acceptable
-            "useNamingConvention": "off",
-            "noMagicNumbers": "off"
-          },
-          "suspicious": {
-            // Vitest lifecycle hooks (beforeEach etc.) may be async without await
-            "useAwait": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["*.config.ts", "*.config.js"],
-      "linter": {
-        "rules": {
-          "style": {
-            // Config files conventionally use default exports
-            "noDefaultExport": "off",
-            // Env var names use SCREAMING_SNAKE_CASE by convention
-            "useNamingConvention": "off"
-          },
-          "correctness": {
-            // Config files may use Node.js modules
-            "noNodejsModules": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["**/*.ts"],
-      "linter": {
-        "rules": {
-          "correctness": {
-            // False positive — this project does not use Qwik
-            "useQwikValidLexicalScope": "off"
-          }
-        }
-      }
-    }
-  ]
+	// Override settings
+	"overrides": [
+		{
+			"includes": ["**/*.spec.ts", "**/*.test.ts"],
+			"linter": {
+				"rules": {
+					"complexity": {
+						// Test files can have longer functions with multiple test cases
+						"noExcessiveLinesPerFunction": "off"
+					},
+					"style": {
+						// HTTP headers follow spec casing in tests; magic numbers acceptable
+						"useNamingConvention": "off",
+						"noMagicNumbers": "off"
+					},
+					"suspicious": {
+						// Vitest lifecycle hooks (beforeEach etc.) may be async without await
+						"useAwait": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["*.config.ts", "*.config.js"],
+			"linter": {
+				"rules": {
+					"style": {
+						// Config files conventionally use default exports
+						"noDefaultExport": "off",
+						// Env var names use SCREAMING_SNAKE_CASE by convention
+						"useNamingConvention": "off"
+					},
+					"correctness": {
+						// Config files may use Node.js modules
+						"noNodejsModules": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/*.ts"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						// False positive — this project does not use Qwik
+						"useQwikValidLexicalScope": "off"
+					}
+				}
+			}
+		}
+	]
 }

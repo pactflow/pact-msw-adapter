@@ -1,0 +1,95 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.4.5/schema.json",
+	"root": false,
+	"extends": "//",
+
+	"javascript": {
+		// Cypress injects cy and Cypress at runtime; declare them to suppress noUndeclaredVariables
+		"globals": ["cy", "Cypress"]
+	},
+
+	"linter": {
+		"domains": {
+			// React-specific rules on top of the inherited test domain
+			"react": "all"
+		}
+	},
+
+	"overrides": [
+		{
+			// MSW-generated service worker — not authored code, skip linting/formatting
+			"includes": ["public/mockServiceWorker.js"],
+			"linter": { "enabled": false },
+			"formatter": { "enabled": false }
+		},
+		{
+			"includes": ["src/**/*.tsx"],
+			"linter": {
+				"rules": {
+					"style": {
+						// React component files use default exports by convention
+						"noDefaultExport": "off",
+						// Demo app; i18n wrapper not required
+						"noJsxLiterals": "off"
+					},
+					"suspicious": {
+						// @types/react still types className/htmlFor; class/for not yet usable in TS
+						"noReactSpecificProps": "off"
+					},
+					"performance": {
+						// This rule is Next.js specific; project does not use Next.js
+						"noImgElement": "off"
+					},
+					"correctness": {
+						// Biome cannot statically resolve CJS package exports (e.g. React 19)
+						"noUnresolvedImports": "off",
+						// Demo assets have dynamic sizing; explicit dimensions are impractical
+						"useImageSize": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["src/**/*.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						// HTTP header keys follow spec casing (e.g. Authorization)
+						"useNamingConvention": "off"
+					},
+					"correctness": {
+						// npm link resolves packages from parent project
+						"noUndeclaredDependencies": "off",
+						// Biome cannot statically resolve CJS package exports (e.g. React 19)
+						"noUnresolvedImports": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["cypress/**/*.ts", "cypress.config.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						// Cypress plugin and config files use default exports by convention
+						"noDefaultExport": "off"
+					},
+					"complexity": {
+						// Cypress describe blocks contain multiple hooks and tests
+						"noExcessiveLinesPerFunction": "off"
+					},
+					"suspicious": {
+						// Support files are scaffold placeholders that may contain only comments
+						"noEmptySource": "off"
+					},
+					"correctness": {
+						// npm link and parent node_modules resolve deps not in package.json
+						"noUndeclaredDependencies": "off",
+						// parent node_modules (e.g. msw) are resolved at runtime
+						"noUnresolvedImports": "off"
+					}
+				}
+			}
+		}
+	]
+}

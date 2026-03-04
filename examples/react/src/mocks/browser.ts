@@ -1,9 +1,8 @@
-// src/mocks/browser.ts
 import { setupWorker } from "msw/browser";
 import { handlers } from "./handlers.ts";
 
 // This configures a Service Worker with the given request handlers.
-export const worker = setupWorker(...handlers);
+const worker = setupWorker(...handlers);
 
 // https://mswjs.io/docs/api/setup-worker/use#examples
 //
@@ -12,3 +11,5 @@ export const worker = setupWorker(...handlers);
 (window as Window & { msw?: unknown }).msw = {
 	worker,
 };
+
+export { worker };

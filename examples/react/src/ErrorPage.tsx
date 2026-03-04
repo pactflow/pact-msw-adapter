@@ -25,7 +25,9 @@ function ErrorPage() {
 						wordWrap: "break-word",
 					}}
 				>
-					<code>{(location.state as { error?: string } | null)?.error ?? ""}</code>
+					<code>
+						{(location.state as { error?: string } | null)?.error ?? ""}
+					</code>
 				</pre>
 			</div>
 		</Layout>
