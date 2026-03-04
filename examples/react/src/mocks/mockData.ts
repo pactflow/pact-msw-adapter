@@ -1,4 +1,4 @@
-export interface Product {
+interface Product {
 	id: string;
 	type: string;
 	name: string;
@@ -18,4 +18,5 @@ const product: Product = {
 	name: "Gem Visa",
 };
 
+export type { Product };
 export const mock = { products, product };

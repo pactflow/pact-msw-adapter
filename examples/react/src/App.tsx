@@ -81,11 +81,12 @@ function App() {
 		<Layout>
 			<Heading text="Products" href="/" />
 			<div className="form-group col-2">
-				<label className="form-label" htmlFor="input-product-search">
+				<label className="form-label" htmlFor={searchInputId}>
 					Search
 				</label>
 				<input
-					id="input-product-search"
+					id={searchInputId}
+					data-testid="product-search"
 					className="form-input"
 					type="text"
 					value={searchText}

@@ -5,7 +5,7 @@ export class API {
 	url: string;
 
 	constructor(url?: string) {
-		const resolved = url || process.env.REACT_APP_API_BASE_URL || "";
+		const resolved = url || import.meta.env.REACT_APP_API_BASE_URL || "";
 		this.url = resolved.endsWith("/") ? resolved.slice(0, -1) : resolved;
 	}
 
@@ -17,7 +17,7 @@ export class API {
 		return `Bearer ${new Date().toISOString()}`;
 	}
 
-	async getAllProducts(): Promise<unknown[]> {
+	getAllProducts(): Promise<unknown[]> {
 		return axios
 			.get(this.withPath("/products"), {
 				headers: {
@@ -46,7 +46,7 @@ export class API {
 		}
 	}
 
-	async postProduct(id: string, productData: unknown): Promise<unknown> {
+	postProduct(id: string, productData: unknown): Promise<unknown> {
 		return axios
 			.post(this.withPath(`/product/${id}`), productData, {
 				headers: {
@@ -56,7 +56,7 @@ export class API {
 			.then((r) => r.data);
 	}
 
-	async getUser(params?: unknown): Promise<unknown> {
+	getUser(params?: unknown): Promise<unknown> {
 		return axios
 			.get(this.withPath("/user"), {
 				params,
@@ -68,4 +68,5 @@ export class API {
 	}
 }
 
-export default new API(process.env.REACT_APP_API_BASE_URL);
+// biome-ignore lint/style/noDefaultExport: module-level singleton is the intended API
+export default new API(import.meta.env.REACT_APP_API_BASE_URL);

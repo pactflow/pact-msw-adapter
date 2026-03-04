@@ -17,6 +17,10 @@
 		"preview": "vite preview",
 		"test": "vitest run",
 		"type-check": "tsc --noEmit",
+		"lint": "biome lint .",
+		"format": "biome format .",
+		"check": "biome check .",
+		"check:fix": "biome check --write --unsafe .",
 		"test:cypress": "cypress run --browser chrome",
 		"test:cypress:open": "cypress open"
 	},
@@ -33,10 +37,11 @@
 		]
 	},
 	"devDependencies": {
+		"@biomejs/biome": "2.4.5",
 		"@testing-library/jest-dom": "^6.6.3",
-		"@types/node": "^22.0.0",
 		"@testing-library/react": "^16.0.0",
 		"@testing-library/user-event": "^14.5.2",
+		"@types/node": "^22.0.0",
 		"@types/react": "^19.0.0",
 		"@types/react-dom": "^19.0.0",
 		"@vitejs/plugin-react": "^4.3.4",

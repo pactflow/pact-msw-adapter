@@ -14,7 +14,12 @@
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true,
 		"skipLibCheck": true,
-		"types": ["vitest/globals", "@testing-library/jest-dom", "node", "vite/client"]
+		"types": [
+			"vitest/globals",
+			"@testing-library/jest-dom",
+			"node",
+			"vite/client"
+		]
 	},
 	"include": ["src"],
 	"exclude": ["node_modules", "build"]
