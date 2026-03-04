@@ -1,7 +1,12 @@
 import pjson from "../package.json";
-import { omit } from "lodash";
 import { PactFile, MatchedRequest } from "./pactMswAdapter";
 import { JSONValue } from "./utils/utils";
+
+const omit = (obj: Record<string, string>, keys: string[]): Record<string, string> => {
+  const result = { ...obj };
+  for (const key of keys) delete result[key];
+  return result;
+};
 
 export const readBody = async (input: Request | Response) => {
   // so we don't reread body somewhere
