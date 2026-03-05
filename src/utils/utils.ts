@@ -1,7 +1,3 @@
-// biome-ignore lint/correctness/noNodejsModules: Node.js library — Node modules are intentional
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-// biome-ignore lint/correctness/noNodejsModules: Node.js library — Node modules are intentional
-import { dirname } from "node:path";
 import type {
 	PactMswAdapterOptionsInternal,
 	PendingRequest,
@@ -52,16 +48,15 @@ const logGroup = (
 	}
 };
 
-const ensureDirExists = (filePath: string) => {
+const createWriter = () => async (filePath: string, data: object) => {
+	// biome-ignore lint/correctness/noNodejsModules: dynamic import defers Node.js resolution so this module loads in browser contexts
+	const { existsSync, mkdirSync, writeFileSync } = await import("node:fs");
+	// biome-ignore lint/correctness/noNodejsModules: dynamic import defers Node.js resolution so this module loads in browser contexts
+	const { dirname } = await import("node:path");
 	const dir = dirname(filePath);
-	if (existsSync(dir)) {
-		return true;
+	if (!existsSync(dir)) {
+		mkdirSync(dir, { recursive: true });
 	}
-	mkdirSync(dir);
-};
-
-const createWriter = () => (filePath: string, data: object) => {
-	ensureDirExists(filePath);
 	writeFileSync(filePath, JSON.stringify(data));
 };
 
