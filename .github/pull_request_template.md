@@ -15,7 +15,7 @@ merge, but you'll lose attribution for your change. -->
 
 ### Checklist
 
-- [ ] `yarn run dist:ci` passes on my machine
+- [ ] `npm run dist:ci` passes on my machine
 - [ ] I have followed the commit message guidelines, with messages suitable for appearing in the changelog
 
 ### Description

@@ -23,17 +23,17 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn install
+      - run: npm install
         shell: bash
-      - run: yarn run dist:ci
+      - run: npm run dist:ci
         shell: bash
-      - run: yarn link
+      - run: npm link
         shell: bash
-      - run: yarn run example:link
+      - run: npm run example:link
         shell: bash
-      - run: yarn run example:install
+      - run: npm run example:install
         shell: bash
-      - run: yarn run example:test:unit
+      - run: npm run example:test:unit
         shell: bash
-      - run: yarn run example:test:cy:run
+      - run: npm run example:test:cy:run
         shell: bash

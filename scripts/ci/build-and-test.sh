@@ -2,10 +2,10 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)" # Figure out where the script is running
 . "$SCRIPT_DIR"/../lib/robust-bash.sh
 
-yarn install
-yarn run dist:ci
-yarn link
-yarn example:link
-yarn example:install
-yarn example:test:unit
-yarn example:test:cy:run
+npm install
+npm run dist:ci
+npm link
+npm run example:link
+npm run example:install
+npm run example:test:unit
+npm run example:test:cy:run
