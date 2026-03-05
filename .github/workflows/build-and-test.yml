@@ -27,10 +27,6 @@ jobs:
         shell: bash
       - run: npm run dist:ci
         shell: bash
-      - run: npm link
-        shell: bash
-      - run: npm run example:link
-        shell: bash
       - run: npm run example:install
         shell: bash
       - run: npm run example:test:unit
