@@ -24,16 +24,12 @@ Check out the [quick start guide](https://docs.pactflow.io/docs/bi-directional-c
 | pact msw version | msw version | node version | migration guide                                       |
 |------------------|-------------|--------------|-------------------------------------------------------|
 | `^2`             | `<=1`       | `>=16 <=20`  |                                                       |
-| `^3`             | `^2`        | `>=18`       | [v2 to v3](#migrating-pact-msw-adapter-from-v2-to-v3) |
+| `^3`             | `^2`        | `>=20`       | [v2 to v3](#migrating-pact-msw-adapter-from-v2-to-v3) |
 
 ##  Getting started
 
 ```
-npm install @pactflow/pact-msw-adapter --save-dev 
-```
-or yarn
-```
-yarn add -D @pactflow/pact-msw-adapter 
+npm install @pactflow/pact-msw-adapter --save-dev
 ```
 
 MSW provides a `setupServer` for node environments and `setupWorker` for browser based environment
@@ -50,9 +46,9 @@ import { setupWorker } from "msw/browser";
 import { setupPactMswAdapter } from "@pactflow/pact-msw-adapter";
 ```
 
-See [./src/pactFromMswServer.msw.spec.ts](./src/pactFromMswServer.msw.spec.ts) msw mock server example (jest/msw/react)
+See [./src/pactFromMswServer.msw.spec.ts](./src/pactFromMswServer.msw.spec.ts) msw mock server example (vitest/msw/react)
 
-See [./examples/react/cypress/integration/pactFromMswWorker.spec.js](./examples/react/cypress/integration/pactFromMswWorker.spec.js)  msw mock worker example (cypress/msw/react)
+See [./examples/react/cypress/e2e/pactFromMswWorker.cy.ts](./examples/react/cypress/e2e/pactFromMswWorker.cy.ts) msw mock worker example (cypress/msw/react)
 
 These tests will generate pacts, which can be found in the `./msw_generated_pacts` folder
 
@@ -270,7 +266,7 @@ In [October 2023 msw released new version 2](https://mswjs.io/blog/introducing-m
 To migrate you'll need to update `msw to >=2.0` and migrate your usage of the library ([migration guide here](https://mswjs.io/docs/migrations/1.x-to-2.x)).
 
 Breaking changes on pact-msw-adapter side:
-- minimal required version of Node is v18
+- minimal required version of Node is v20
 - some exported types were renamed and extended to match msw behaviour
   - `MswMatch` is now `MatchedRequest` and is `{ request: Request; requestId: string; response: Response }`
   - `ExpiredRequest` still called the same and is `{ request: Request; requestId: string; startTime: number; duration?: number }`
