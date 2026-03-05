@@ -1,11 +1,14 @@
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
 	build: {
 		lib: {
-			entry: resolve(import.meta.dirname, "src/pactMswAdapter.ts"),
+			entry: resolve(__dirname, "src/pactMswAdapter.ts"),
 			formats: ["es"],
 			fileName: "pact-msw-adapter",
 		},

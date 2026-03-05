@@ -1,7 +1,8 @@
 // biome-ignore-all lint/complexity/noExcessiveLinesPerFunction: library init and event handler functions are inherently long
 // biome-ignore-all lint/style/useExportsLast: exports are interspersed with implementations by design in this public API module
-// biome-ignore lint/correctness/noNodejsModules: Node.js library — Node modules are intentional
-import EventEmitter from "node:events";
+// biome-ignore lint/correctness/noNodejsModules: bare "events" (no node: prefix) lets bundlers polyfill EventEmitter for browser contexts (Cypress + setupWorker)
+// biome-ignore lint/style/useNodejsImportProtocol: intentionally omitting node: prefix so webpack/Vite polyfills apply; node:events explicitly opts out of polyfilling
+import { EventEmitter } from "events";
 import type { SetupWorker } from "msw/browser";
 import type { SetupServer } from "msw/node";
 // biome-ignore lint/style/noExportedImports: convertMswMatchToPact is used internally and re-exported as part of the public API
@@ -15,6 +16,7 @@ import {
 	log,
 	logGroup,
 } from "./utils/utils.ts";
+
 export interface PactMswAdapterOptions {
 	timeout?: number;
 	debug?: boolean;
@@ -46,7 +48,9 @@ export interface PactMswAdapter {
 	emitter: EventEmitter;
 	newTest: () => void;
 	verifyTest: () => void;
-	writeToFile: (writer?: (path: string, data: object) => void) => Promise<void>;
+	writeToFile: (
+		writer?: (path: string, data: object) => void | Promise<void>,
+	) => Promise<void>;
 	clear: () => void;
 }
 const DEFAULT_TIMEOUT_MS = 200;
@@ -265,7 +269,10 @@ export const setupPactMswAdapter = ({
 			}
 		},
 		writeToFile: async (
-			writer: (path: string, data: object) => void = createWriter(),
+			writer: (
+				path: string,
+				data: object,
+			) => void | Promise<void> = createWriter(),
 		) => {
 			// TODO - dedupe pactResults so we only have one file per consumer/provider pair
 			// Note: There are scenarios such as feature flagging where you want more than one file per consumer/provider pair
@@ -307,14 +314,16 @@ export const setupPactMswAdapter = ({
 				);
 			}
 
-			for (const pactFile of pactFiles) {
-				const filePath =
-					options.pactOutDir +
-					"/" +
-					[pactFile.consumer.name, pactFile.provider.name].join("-") +
-					".json";
-				writer(filePath, pactFile);
-			}
+			await Promise.all(
+				pactFiles.map((pactFile) => {
+					const filePath =
+						options.pactOutDir +
+						"/" +
+						[pactFile.consumer.name, pactFile.provider.name].join("-") +
+						".json";
+					return writer(filePath, pactFile);
+				}),
+			);
 		},
 		clear: () => {
 			pendingRequests.length = 0;

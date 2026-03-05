@@ -184,7 +184,7 @@ async function getResponse(event, client, requestId) {
 		// Remove internal MSW request header so the passthrough request
 		// complies with any potential CORS preflight checks on the server.
 		// Some servers forbid unknown request headers.
-		headers["x-msw-intention"] = undefined;
+		delete headers["x-msw-intention"];
 
 		return fetch(requestClone, { headers });
 	}
