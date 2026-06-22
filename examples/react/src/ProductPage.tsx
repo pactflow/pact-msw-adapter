@@ -9,44 +9,44 @@ import Layout from "./Layout.tsx";
 import type { Product } from "./mocks/mockData.ts";
 
 function ProductPage() {
-	const { id } = useParams<{ id: string }>();
-	const navigate = useNavigate();
-	const [loading, setLoading] = useState(true);
-	const [product, setProduct] = useState<Partial<Product>>({ id });
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState<Partial<Product>>({ id });
 
-	useEffect(() => {
-		API.getProduct(id ?? "")
-			.then((r) => {
-				setLoading(false);
-				setProduct(r as Product);
-			})
-			.catch((e: Error) => {
-				navigate("/error", { state: { error: e.toString() } });
-			});
-	}, [id, navigate]);
+  useEffect(() => {
+    API.getProduct(id ?? "")
+      .then((r) => {
+        setLoading(false);
+        setProduct(r as Product);
+      })
+      .catch((e: Error) => {
+        navigate("/error", { state: { error: e.toString() } });
+      });
+  }, [id, navigate]);
 
-	return (
-		<Layout>
-			<Heading text="Products" href="/" />
-			{loading ? (
-				<div
-					style={{
-						height: "100%",
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
-					}}
-					className="loading loading-lg"
-				/>
-			) : (
-				<div>
-					<p>ID: {product.id}</p>
-					<p>Name: {product.name}</p>
-					<p>Type: {product.type}</p>
-				</div>
-			)}
-		</Layout>
-	);
+  return (
+    <Layout>
+      <Heading text="Products" href="/" />
+      {loading ? (
+        <div
+          style={{
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          className="loading loading-lg"
+        />
+      ) : (
+        <div>
+          <p>ID: {product.id}</p>
+          <p>Name: {product.name}</p>
+          <p>Type: {product.type}</p>
+        </div>
+      )}
+    </Layout>
+  );
 }
 
 export default ProductPage;

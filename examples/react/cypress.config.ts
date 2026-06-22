@@ -14,28 +14,28 @@ const require = createRequire(import.meta.url);
  * webpack bundles automatically), rather than relying on build.rollupOptions.external.
  */
 const eventsPolyfillPlugin: Plugin = {
-	name: "events-polyfill",
-	enforce: "pre",
-	resolveId(id) {
-		if (id === "events") {
-			// Redirect to the npm `events` package (browser-compatible EventEmitter
-			// polyfill) rather than the Node.js built-in, which Vite would replace
-			// with an empty __vite-browser-external stub in browser build mode.
-			return require.resolve("events/events.js");
-		}
-	},
+  name: "events-polyfill",
+  enforce: "pre",
+  resolveId(id) {
+    if (id === "events") {
+      // Redirect to the npm `events` package (browser-compatible EventEmitter
+      // polyfill) rather than the Node.js built-in, which Vite would replace
+      // with an empty __vite-browser-external stub in browser build mode.
+      return require.resolve("events/events.js");
+    }
+  },
 };
 
 export default defineConfig({
-	retries: 3,
-	e2e: {
-		setupNodeEvents(on, config) {
-			on(
-				"file:preprocessor",
-				vitePreprocessor({ plugins: [eventsPolyfillPlugin] }),
-			);
-			return setupPlugins(on, config);
-		},
-		baseUrl: "http://localhost:3000",
-	},
+  retries: 3,
+  e2e: {
+    setupNodeEvents(on, config) {
+      on(
+        "file:preprocessor",
+        vitePreprocessor({ plugins: [eventsPolyfillPlugin] }),
+      );
+      return setupPlugins(on, config);
+    },
+    baseUrl: "http://localhost:3000",
+  },
 });

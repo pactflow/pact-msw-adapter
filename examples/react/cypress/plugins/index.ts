@@ -2,8 +2,8 @@
 import cypressLogToOutput from "cypress-log-to-output";
 
 export default (
-	on: Cypress.PluginEvents,
-	_config: Cypress.PluginConfigOptions,
+  on: Cypress.PluginEvents,
+  _config: Cypress.PluginConfigOptions,
 ): void => {
-	cypressLogToOutput.install(on);
+  cypressLogToOutput.install(on);
 };

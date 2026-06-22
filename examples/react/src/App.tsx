@@ -9,99 +9,99 @@ import Layout from "./Layout.tsx";
 import type { Product } from "./mocks/mockData.ts";
 
 interface ProductTableRowProps {
-	product: Product;
+  product: Product;
 }
 
 function ProductTableRow({ product }: ProductTableRowProps) {
-	return (
-		<tr>
-			<td>{product.name}</td>
-			<td>{product.type}</td>
-			<td>
-				<Link
-					className="btn btn-link"
-					to={`/products/${product.id}`}
-					state={{ product }}
-				>
-					See more!
-				</Link>
-			</td>
-		</tr>
-	);
+  return (
+    <tr>
+      <td>{product.name}</td>
+      <td>{product.type}</td>
+      <td>
+        <Link
+          className="btn btn-link"
+          to={`/products/${product.id}`}
+          state={{ product }}
+        >
+          See more!
+        </Link>
+      </td>
+    </tr>
+  );
 }
 
 interface ProductTableProps {
-	products: Product[];
+  products: Product[];
 }
 
 function ProductTable({ products }: ProductTableProps) {
-	const rows = products.map((p) => <ProductTableRow key={p.id} product={p} />);
-	return (
-		<table className="table table-striped table-hover">
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Type</th>
-					<th />
-				</tr>
-			</thead>
-			<tbody>{rows}</tbody>
-		</table>
-	);
+  const rows = products.map((p) => <ProductTableRow key={p.id} product={p} />);
+  return (
+    <table className="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th />
+        </tr>
+      </thead>
+      <tbody>{rows}</tbody>
+    </table>
+  );
 }
 
 function App() {
-	const navigate = useNavigate();
-	const searchInputId = useId();
-	const [loading, setLoading] = useState(true);
-	const [searchText, setSearchText] = useState("");
-	const [products, setProducts] = useState<Product[]>([]);
+  const navigate = useNavigate();
+  const searchInputId = useId();
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
 
-	useEffect(() => {
-		API.getAllProducts()
-			.then((r) => {
-				setLoading(false);
-				setProducts(r as Product[]);
-			})
-			.catch((e: Error) => {
-				navigate("/error", { state: { error: e.toString() } });
-			});
-	}, [navigate]);
+  useEffect(() => {
+    API.getAllProducts()
+      .then((r) => {
+        setLoading(false);
+        setProducts(r as Product[]);
+      })
+      .catch((e: Error) => {
+        navigate("/error", { state: { error: e.toString() } });
+      });
+  }, [navigate]);
 
-	const visibleProducts = searchText
-		? products.filter(
-				(p) =>
-					p.id.toLowerCase().includes(searchText.toLowerCase()) ||
-					p.name.toLowerCase().includes(searchText.toLowerCase()) ||
-					p.type.toLowerCase().includes(searchText.toLowerCase()),
-			)
-		: products;
+  const visibleProducts = searchText
+    ? products.filter(
+        (p) =>
+          p.id.toLowerCase().includes(searchText.toLowerCase()) ||
+          p.name.toLowerCase().includes(searchText.toLowerCase()) ||
+          p.type.toLowerCase().includes(searchText.toLowerCase()),
+      )
+    : products;
 
-	return (
-		<Layout>
-			<Heading text="Products" href="/" />
-			<div className="form-group col-2">
-				<label className="form-label" htmlFor={searchInputId}>
-					Search
-				</label>
-				<input
-					id={searchInputId}
-					data-testid="product-search"
-					className="form-input"
-					type="text"
-					value={searchText}
-					onChange={(e) => setSearchText(e.target.value)}
-				/>
-			</div>
-			<div>
-				{loading ? (
-					<div className="loading loading-lg centered" />
-				) : (
-					<ProductTable products={visibleProducts} />
-				)}
-			</div>
-		</Layout>
-	);
+  return (
+    <Layout>
+      <Heading text="Products" href="/" />
+      <div className="form-group col-2">
+        <label className="form-label" htmlFor={searchInputId}>
+          Search
+        </label>
+        <input
+          id={searchInputId}
+          data-testid="product-search"
+          className="form-input"
+          type="text"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
+      </div>
+      <div>
+        {loading ? (
+          <div className="loading loading-lg centered" />
+        ) : (
+          <ProductTable products={visibleProducts} />
+        )}
+      </div>
+    </Layout>
+  );
 }
 
 export default App;
