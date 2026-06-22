@@ -11,6 +11,11 @@ let pactMswAdapter: PactMswAdapter | undefined;
 describe("Tests setupPactMswAdapter with msw works", () => {
 	beforeEach(() => {
 		cy.visit("http://localhost:3000");
+		// Wait for MSW to finish its async initialisation (worker.start() is
+		// awaited in index.tsx before React renders, but the Vite dev-server
+		// serves modules over HTTP so window.msw may not be set yet when
+		// cy.visit() resolves). Cypress retries the assertion automatically.
+		cy.window().should("have.nested.property", "msw.worker");
 		if (pactMswAdapter) {
 			pactMswAdapter.newTest();
 		} else {
