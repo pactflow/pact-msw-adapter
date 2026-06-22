@@ -2,7 +2,6 @@ import { createRequire } from "node:module";
 import { defineConfig } from "cypress";
 import vitePreprocessor from "cypress-vite";
 import type { Plugin } from "vite";
-import setupPlugins from "./cypress/plugins/index.ts";
 
 const require = createRequire(import.meta.url);
 
@@ -29,12 +28,11 @@ const eventsPolyfillPlugin: Plugin = {
 export default defineConfig({
   retries: 3,
   e2e: {
-    setupNodeEvents(on, config) {
+    setupNodeEvents(on) {
       on(
         "file:preprocessor",
         vitePreprocessor({ plugins: [eventsPolyfillPlugin] }),
       );
-      return setupPlugins(on, config);
     },
     baseUrl: "http://localhost:3000",
   },
