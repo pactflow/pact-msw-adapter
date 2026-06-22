@@ -24,7 +24,7 @@ Check out the [quick start guide](https://docs.pactflow.io/docs/bi-directional-c
 | pact msw version | msw version | node version | migration guide                                       |
 |------------------|-------------|--------------|-------------------------------------------------------|
 | `^2`             | `<=1`       | `>=16 <=20`  |                                                       |
-| `^3`             | `^2`        | `>=20`       | [v2 to v3](#migrating-pact-msw-adapter-from-v2-to-v3) |
+| `^3`             | `^2`        | `>=22`       | [v2 to v3](#migrating-pact-msw-adapter-from-v2-to-v3) |
 
 ##  Getting started
 
@@ -266,7 +266,7 @@ In [October 2023 msw released new version 2](https://mswjs.io/blog/introducing-m
 To migrate you'll need to update `msw to >=2.0` and migrate your usage of the library ([migration guide here](https://mswjs.io/docs/migrations/1.x-to-2.x)).
 
 Breaking changes on pact-msw-adapter side:
-- minimal required version of Node is v20
+- minimal required version of Node is v22
 - some exported types were renamed and extended to match msw behaviour
   - `MswMatch` is now `MatchedRequest` and is `{ request: Request; requestId: string; response: Response }`
   - `ExpiredRequest` still called the same and is `{ request: Request; requestId: string; startTime: number; duration?: number }`
