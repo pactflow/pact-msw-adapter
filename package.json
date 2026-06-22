@@ -54,7 +54,7 @@
     "example:test:cy:open": "cd examples/react && npm run test:cypress:open",
     "example:test:unit": "cd examples/react && npm test",
     "example:test:all": "npm run example:test:unit && npm run example:test:cy",
-    "example:install": "cd examples/react && npm install"
+    "example:install": "cd examples/react && npm install && npx cypress install"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.5",

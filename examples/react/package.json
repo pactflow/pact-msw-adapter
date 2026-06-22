@@ -21,8 +21,8 @@
     "format": "biome format .",
     "check": "biome check .",
     "check:fix": "biome check --write --unsafe .",
-    "test:cypress": "start-server-and-test dev http://localhost:3000 'cypress run --browser chrome'",
-    "test:cypress:open": "start-server-and-test dev http://localhost:3000 'cypress open'"
+    "test:cypress": "concurrently --kill-others --success command-cypress --names vite,cypress \"npm:dev\" \"wait-on http://localhost:3000 && cypress run --browser chrome\"",
+    "test:cypress:open": "concurrently --kill-others --success command-cypress --names vite,cypress \"npm:dev\" \"wait-on http://localhost:3000 && cypress open\""
   },
   "browserslist": {
     "production": [
@@ -46,15 +46,16 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^10.0.0",
     "cross-env": "^10.0.0",
     "cypress": "^15.0.0",
     "cypress-log-to-output": "^1.1.2",
     "cypress-vite": "^1.8.0",
     "events": "^3.3.0",
     "jsdom": "^28.0.0",
-    "start-server-and-test": "^2.0.0",
     "vite": "^7.0.0",
-    "vitest": "^4.0.0"
+    "vitest": "^4.0.0",
+    "wait-on": "^9.0.0"
   },
   "msw": {
     "workerDirectory": "public"
