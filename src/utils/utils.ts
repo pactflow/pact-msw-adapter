@@ -50,9 +50,9 @@ const logGroup = (
 
 const createWriter = () => async (filePath: string, data: object) => {
 	// biome-ignore lint/correctness/noNodejsModules: dynamic import defers Node.js resolution so this module loads in browser contexts
-	const { existsSync, mkdirSync, writeFileSync } = await import("node:fs");
+	const { existsSync, mkdirSync, writeFileSync } = await import(/* webpackIgnore: true */ "node:fs");
 	// biome-ignore lint/correctness/noNodejsModules: dynamic import defers Node.js resolution so this module loads in browser contexts
-	const { dirname } = await import("node:path");
+	const { dirname } = await import(/* webpackIgnore: true */ "node:path");
 	const dir = dirname(filePath);
 	if (!existsSync(dir)) {
 		mkdirSync(dir, { recursive: true });
