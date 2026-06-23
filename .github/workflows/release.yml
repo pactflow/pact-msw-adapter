@@ -1,0 +1,190 @@
+# Release workflow for @pactflow/pact-msw-adapter.
+#
+#   prepare  (push to main)            -> update the draft release PR
+#   dry-run  (non-draft release PR)    -> verify the package builds/packs
+#   tag      (release PR merged)       -> push the v{version} tag
+#   publish  (push of a v* tag)        -> npm publish (OIDC) + GitHub release
+name: release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - closed
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
+
+jobs:
+  complete:
+    name: Release completion check
+    if: always()
+    permissions:
+      contents: none
+    runs-on: ubuntu-latest
+    needs:
+      - prepare
+      - dry-run
+      - tag
+      - publish
+    steps:
+      - name: Failed
+        run: exit 1
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+
+  prepare:
+    name: Update release PR
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.PACTFLOW_CI_BOT_APP_ID }}
+          private-key: ${{ secrets.PACTFLOW_CI_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure git identity
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          git config user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
+          git config user.email "$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq '.id')+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
+
+      - name: Install git-cliff
+        uses: taiki-e/install-action@v2
+        with:
+          tool: git-cliff
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 26
+
+      - name: Update release PR
+        run: node scripts/release.ts prepare
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+  dry-run:
+    name: Verify release build
+    if: >-
+      github.event_name == 'pull_request'
+      && github.event.action != 'closed'
+      && github.event.pull_request.draft == false
+      && github.event.pull_request.head.ref == 'release/pact-msw-adapter'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 26
+
+      - run: npm ci
+      - run: npm run build:clean
+      - run: npm pack --dry-run
+
+  tag:
+    name: Create release tag
+    if: >-
+      github.event_name == 'pull_request'
+      && github.event.pull_request.merged == true
+      && github.event.pull_request.head.ref == 'release/pact-msw-adapter'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.PACTFLOW_CI_BOT_APP_ID }}
+          private-key: ${{ secrets.PACTFLOW_CI_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure git identity
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          git config user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
+          git config user.email "$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq '.id')+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 26
+
+      - name: Create and push tag
+        run: node scripts/release.ts tag
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+  publish:
+    name: Publish to npm
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/@pactflow/pact-msw-adapter
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 26
+          registry-url: https://registry.npmjs.org
+
+      - name: Ensure npm supports trusted publishing
+        run: npm install -g npm@latest
+
+      - run: npm ci
+      - run: npm run build:clean
+
+      - name: Extract release notes
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          out="${RUNNER_TEMP}/release-notes.md"
+          awk -v ver="$version" '
+            /^## / { if (found) exit; if (index($0, ver)) found=1; next }
+            found { print }
+          ' CHANGELOG.md > "$out"
+          if [ ! -s "$out" ]; then
+            printf '> No changelog entry found for %s.\n' "$version" > "$out"
+          fi
+
+      - name: Publish to npm
+        run: npm publish --access public
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          body_path: ${{ runner.temp }}/release-notes.md
+          draft: false
+          prerelease: false
