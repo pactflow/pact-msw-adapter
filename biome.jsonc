@@ -82,6 +82,25 @@
       }
     },
     {
+      "includes": ["scripts/*.ts"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            // CLI scripts run in Node.js and require Node.js built-in modules
+            "noNodejsModules": "off"
+          },
+          "style": {
+            // CLI scripts mix exported helpers with non-exported internals
+            "useExportsLast": "off"
+          },
+          "suspicious": {
+            // CLI scripts intentionally use console for user-facing output
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": ["**/*.ts"],
       "linter": {
         "rules": {
