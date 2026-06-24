@@ -14,8 +14,8 @@
 [![Npm package dependents](https://badgen.net/npm/dependents/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
 
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/pact-foundation/pact-msw-adapter/graphs/commit-activity)
-[![Build and test](https://github.com/pactflow/pact-msw-adapter/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/pactflow/pact-msw-adapter/actions/workflows/build-and-test.yml)
-[![Publish and release](https://github.com/pactflow/pact-msw-adapter/actions/workflows/publish.yml/badge.svg)](https://github.com/pactflow/pact-msw-adapter/actions/workflows/publish.yml)
+[![Test](https://github.com/pactflow/pact-msw-adapter/actions/workflows/test.yml/badge.svg)](https://github.com/pactflow/pact-msw-adapter/actions/workflows/test.yml)
+[![release](https://github.com/pactflow/pact-msw-adapter/actions/workflows/release.yml/badge.svg)](https://github.com/pactflow/pact-msw-adapter/actions/workflows/release.yml)
 
 Check out the [quick start guide](https://docs.pactflow.io/docs/bi-directional-contract-testing/tools/msw).
 

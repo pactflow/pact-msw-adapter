@@ -171,7 +171,8 @@ jobs:
           version="${GITHUB_REF_NAME#v}"
           out="${RUNNER_TEMP}/release-notes.md"
           awk -v ver="$version" '
-            /^## / { if (found) exit; if (index($0, ver)) found=1; next }
+            $0 ~ ("^## \\[" ver "\\]") { found=1; next }
+            found && /^## / { exit }
             found { print }
           ' CHANGELOG.md > "$out"
           if [ ! -s "$out" ]; then
