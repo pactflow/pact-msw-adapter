@@ -13,7 +13,7 @@ In order to run this locally
 7. `npm run example:test:cy:run` - Uses Cypress, and MSW Worker to provide a mock provider, and executes unit tests, recording interactions in a Pact File
 8. `npm run example:test:cy:open` - Allows you to run the above step, but with Cypress in Watch mode
 
-Run this to check everything is working e2e locally, these steps are run on every GitHub actions builds `./github/workflows/build-and-test.yml`
+Run this to check everything is working e2e locally, these steps are run on every GitHub actions builds `./github/workflows/test.yml`
 
 ```sh
 npm install
