@@ -8,7 +8,10 @@ All notable changes to this project will be documented in this file.
 
 ## [4.0.0] _2026-06-29_
 
-**Breaking Change:** Minimum Node version is now 22.
+**Breaking Changes:**
+
+-   Minimum Node version is now 22.
+-   The package is now published as pure ESM (`"type": "module"`) with a modernised `exports` map, and can no longer be consumed via CommonJS `require()`. Use `import` / an ESM-aware bundler instead.
 
 ### 🐛 Bug Fixes
 

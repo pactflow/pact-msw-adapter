@@ -3,17 +3,17 @@
 > Generate pact contracts from the recorded mock service worker interactions.
 
 [![GitHub release](https://img.shields.io/github/release/pactflow/pact-msw-adapter)](https://github.com/pactflow/pact-msw-adapter)
-[![Npm package license](https://badgen.net/npm/license/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
-[![Npm package version](https://badgen.net/npm/v/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
-[![Minimum node.js version](https://badgen.net/npm/node/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+[![Npm package license](https://img.shields.io/npm/l/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+[![Npm package version](https://img.shields.io/npm/v/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+[![Minimum node.js version](https://img.shields.io/node/v/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
 
-[![Npm package total downloads](https://badgen.net/npm/dt/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
-[![Npm package yearly downloads](https://badgen.net/npm/dy/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
-[![Npm package monthly downloads](https://badgen.net/npm/dm/@pactflow/pact-msw-adapter)](https://npmjs.ccom/package/@pactflow/pact-msw-adapter)
-[![Npm package daily downloads](https://badgen.net/npm/dd/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
-[![Npm package dependents](https://badgen.net/npm/dependents/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+[![Npm package total downloads](https://img.shields.io/npm/dt/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+[![Npm package yearly downloads](https://img.shields.io/npm/dy/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+[![Npm package monthly downloads](https://img.shields.io/npm/dm/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+[![Npm package weekly downloads](https://img.shields.io/npm/dw/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
+[![Npm package dependents](https://img.shields.io/librariesio/dependents/npm/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
 
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/pact-foundation/pact-msw-adapter/graphs/commit-activity)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/pactflow/pact-msw-adapter/graphs/commit-activity)
 [![Test](https://github.com/pactflow/pact-msw-adapter/actions/workflows/test.yml/badge.svg)](https://github.com/pactflow/pact-msw-adapter/actions/workflows/test.yml)
 [![release](https://github.com/pactflow/pact-msw-adapter/actions/workflows/release.yml/badge.svg)](https://github.com/pactflow/pact-msw-adapter/actions/workflows/release.yml)
 
@@ -24,7 +24,8 @@ Check out the [quick start guide](https://docs.pactflow.io/docs/bi-directional-c
 | pact msw version | msw version | node version | migration guide                                       |
 |------------------|-------------|--------------|-------------------------------------------------------|
 | `^2`             | `<=1`       | `>=16 <=20`  |                                                       |
-| `^3`             | `^2`        | `>=22`       | [v2 to v3](#migrating-pact-msw-adapter-from-v2-to-v3) |
+| `^3`             | `^2`        | `>=18`       | [v2 to v3](#migrating-pact-msw-adapter-from-v2-to-v3) |
+| `^4`             | `^2`        | `>=22`       | [v3 to v4](#migrating-pact-msw-adapter-from-v3-to-v4) |
 
 ##  Getting started
 
@@ -266,7 +267,7 @@ In [October 2023 msw released new version 2](https://mswjs.io/blog/introducing-m
 To migrate you'll need to update `msw to >=2.0` and migrate your usage of the library ([migration guide here](https://mswjs.io/docs/migrations/1.x-to-2.x)).
 
 Breaking changes on pact-msw-adapter side:
-- minimal required version of Node is v22
+- minimal required version of Node is v18
 - some exported types were renamed and extended to match msw behaviour
   - `MswMatch` is now `MatchedRequest` and is `{ request: Request; requestId: string; response: Response }`
   - `ExpiredRequest` still called the same and is `{ request: Request; requestId: string; startTime: number; duration?: number }`
@@ -276,6 +277,16 @@ Breaking changes on pact-msw-adapter side:
   - `pact-msw-adapter:expired` handler must have signature `(event: ExpiredRequest) => void`
   - `pact-msw-adapter:match` handler must have signature `(event: MatchedRequest) => void`
 - `convertMswMatchToPact` is now async function
+
+## Migrating pact-msw-adapter from v3 to v4
+
+pact-msw-adapter@v4 modernises the package and its tooling. The public API is unchanged, so no code changes are required beyond meeting the new runtime requirement.
+
+Breaking changes on pact-msw-adapter side:
+- minimal required version of Node is now v22 (Node `<22` is no longer supported)
+- the package is now published as pure ESM (`"type": "module"`); it can no longer be consumed via CommonJS `require()`. Use `import` / an ESM-aware bundler instead.
+
+msw compatibility is unchanged (`>=2.0.0`).
 
 ## Contributors
 

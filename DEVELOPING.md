@@ -28,7 +28,7 @@ npm run example:test:cy:run
 There are two types of mocking provided, MSW Worker & MSW Server
 
 - MSW Worker (Browser Based) - With Cypress
-- MSW Server (Node Based) - With Jest
+- MSW Server (Node Based) - With Vitest
 
 ### MSW Worker (Browser Based) - With Cypress
 
