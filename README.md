@@ -2,20 +2,44 @@
 
 > Generate pact contracts from the recorded mock service worker interactions.
 
-[![GitHub release](https://img.shields.io/github/release/pactflow/pact-msw-adapter)](https://github.com/pactflow/pact-msw-adapter)
-[![Npm package license](https://img.shields.io/npm/l/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
-[![Npm package version](https://img.shields.io/npm/v/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
-[![Minimum node.js version](https://img.shields.io/node/v/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
-
-[![Npm package total downloads](https://img.shields.io/npm/dt/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
-[![Npm package yearly downloads](https://img.shields.io/npm/dy/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
-[![Npm package monthly downloads](https://img.shields.io/npm/dm/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
-[![Npm package weekly downloads](https://img.shields.io/npm/dw/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
-[![Npm package dependents](https://img.shields.io/librariesio/dependents/npm/@pactflow/pact-msw-adapter)](https://npmjs.com/package/@pactflow/pact-msw-adapter)
-
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/pactflow/pact-msw-adapter/graphs/commit-activity)
-[![Test](https://github.com/pactflow/pact-msw-adapter/actions/workflows/test.yml/badge.svg)](https://github.com/pactflow/pact-msw-adapter/actions/workflows/test.yml)
-[![release](https://github.com/pactflow/pact-msw-adapter/actions/workflows/release.yml/badge.svg)](https://github.com/pactflow/pact-msw-adapter/actions/workflows/release.yml)
+<!-- markdownlint-disable no-inline-html -->
+<div align="center"><table>
+    <tr>
+        <td>Package</td>
+        <td>
+            <a href="https://npmjs.com/package/@pactflow/pact-msw-adapter"><img src="https://img.shields.io/npm/v/@pactflow/pact-msw-adapter.svg" alt="Version"></a>
+            <a href="https://npmjs.com/package/@pactflow/pact-msw-adapter"><img src="https://img.shields.io/node/v/@pactflow/pact-msw-adapter.svg" alt="Node Versions"></a>
+            <a href="https://npmjs.com/package/@pactflow/pact-msw-adapter"><img src="https://img.shields.io/npm/dm/@pactflow/pact-msw-adapter.svg" alt="Downloads"></a>
+        </td>
+    </tr>
+    <tr>
+        <td>CI/CD</td>
+        <td>
+            <a href="https://github.com/pactflow/pact-msw-adapter/actions/workflows/test.yml?query=branch:main"><img src="https://img.shields.io/github/actions/workflow/status/pactflow/pact-msw-adapter/test.yml?branch=main&label=test" alt="Test Status"></a>
+            <a href="https://github.com/pactflow/pact-msw-adapter/actions/workflows/release.yml?query=branch:main"><img src="https://img.shields.io/github/actions/workflow/status/pactflow/pact-msw-adapter/release.yml?branch=main&label=release" alt="Release Status"></a>
+        </td>
+    </tr>
+    <tr>
+        <td>Meta</td>
+        <td>
+            <a href="https://vitejs.dev"><img src="https://img.shields.io/badge/build-Vite-646CFF.svg" alt="build - Vite"></a>
+            <a href="https://vitest.dev"><img src="https://img.shields.io/badge/tested%20with-Vitest-6E9F18.svg" alt="tested with - Vitest"></a>
+            <a href="https://biomejs.dev"><img src="https://img.shields.io/badge/linting-Biome-60A5FA.svg" alt="linting - Biome"></a>
+            <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/types-TypeScript-3178C6.svg" alt="types - TypeScript"></a>
+            <a href="https://npmjs.com/package/@pactflow/pact-msw-adapter"><img src="https://img.shields.io/npm/l/@pactflow/pact-msw-adapter.svg" alt="License"></a>
+        </td>
+    </tr>
+    <tr>
+        <td>Community</td>
+        <td>
+            <a href="https://github.com/pactflow/pact-msw-adapter/issues"><img src="https://img.shields.io/github/issues/pactflow/pact-msw-adapter.svg" alt="Issues"></a>
+            <a href="https://github.com/pactflow/pact-msw-adapter"><img src="https://img.shields.io/github/stars/pactflow/pact-msw-adapter.svg?style=flat" alt="GitHub Stars"></a>
+            <a href="http://slack.pact.io"><img src="https://img.shields.io/badge/slack-pact--foundation-4A154B.svg" alt="Slack"></a>
+            <a href="https://stackoverflow.com/questions/tagged/pact"><img src="https://img.shields.io/badge/stackoverflow-pact-F48024.svg" alt="Stack Overflow"></a>
+        </td>
+    </tr>
+</table></div>
+<!-- markdownlint-enable no-inline-html -->
 
 Check out the [quick start guide](https://docs.pactflow.io/docs/bi-directional-contract-testing/tools/msw).
 
