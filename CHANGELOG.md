@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 <!-- markdownlint-disable emph-style -->
 <!-- markdownlint-disable strong-style -->
 
+## [4.0.1] _2026-06-29_
+
+### 📚 Documentation
+
+-   Minor updates post v4 release
+-   Re-organise badges
+
+### Contributors
+
+-   @JP-Ellis
+
 ## [4.0.0] _2026-06-29_
 
 **Breaking Changes:**
