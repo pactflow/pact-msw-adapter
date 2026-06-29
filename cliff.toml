@@ -52,6 +52,7 @@ commit_preprocessors = [
 commit_parsers = [
   { message = "^(chore|fix)\\(deps.*\\)", skip = true },
   { message = "^chore: update changelog.*", skip = true },
+  { message = "^chore\\(release\\)", skip = true },
   { group = "<!-- 00 -->🚀 Features", message = "^feat" },
   { group = "<!-- 01 -->🐛 Bug Fixes", message = "^fix" },
   { group = "<!-- 50 -->🚜 Refactor", message = "^refactor" },
