@@ -1,6 +1,6 @@
 {
   "name": "@pactflow/pact-msw-adapter",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "type": "module",
   "main": "./dist/pact-msw-adapter.js",
   "module": "./dist/pact-msw-adapter.js",

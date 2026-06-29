@@ -2,6 +2,77 @@
 
 All notable changes to this project will be documented in this file.
 
+<!-- markdownlint-disable no-duplicate-heading -->
+<!-- markdownlint-disable emph-style -->
+<!-- markdownlint-disable strong-style -->
+
+## [4.0.0] _2026-06-29_
+
+**Breaking Change:** Minimum Node version is now 22.
+
+### 🐛 Bug Fixes
+
+-   Address review regressions
+-   _(ci)_ Replace npm link with file: dependency for example
+-   _(ci)_ Make the example e2e run work on Windows
+-   _(ci)_ Bump Cypress to fix binary install on Node 24.16+/26.1+
+-   Correct release-note extraction and stale workflow references
+
+### 🚜 Refactor
+
+-   Remove lodash dependency
+
+### 🎨 Styling
+
+-   Add .editorconfig and reformat repo to 2-space indent
+
+### 📚 Documentation
+
+-   Add git-cliff configuration
+-   Align changelog header levels with git-cliff
+
+### 🧪 Testing
+
+-   _(examples/react)_ Run Cypress e2e against the Vite dev server
+
+### 🛠️ Miscellaneous Tasks
+
+-   _(test)_ Remove added fields in later msw version
+-   Align msw worker with latest test version 2.0.14
+-   Remove dependabot
+-   _(ci)_ Deduplicate ci
+-   _(ci)_ Use maintained node versions
+-   Correct pact-ruby-standalone script post repo rename to pact-standalone
+-   _(ci)_ Remove pr notification workflow
+-   Migrate from Jest to Vitest
+-   Switch to Vite library build
+-   Add type:module and modernize package exports
+-   Modernize TypeScript configuration
+-   Add Biome for linting and formatting
+-   _(examples/react)_ Upgrade dependencies
+-   _(examples/react)_ Migrate from react-scripts to Vite
+-   _(examples/react)_ Convert to TypeScript
+-   _(examples/react)_ Add Biome
+-   _(examples/react)_ Upgrade dependencies
+-   Migrate docs and CI from yarn to npm
+-   Normalize package-lock.json to npm's 2-space indentation
+-   Bump supported Node versions to 22, 24, 26
+-   _(ci)_ Add git-cliff release script
+-   Wire release script into npm scripts, drop standard-version
+-   _(ci)_ Rename test workflow and skip draft pull requests
+-   _(ci)_ Add PR-based release workflow with OIDC npm publishing
+-   Remove standard-version release machinery
+-   _(ci)_ Update workflows, minor cliff tweak
+
+### Contributors
+
+-   @JP-Ellis
+-   @YOU54F
+
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
 ## [3.0.1](https://github.com/pactflow/pact-msw-adapter/compare/v3.0.0...v3.0.1) (2024-12-10)
 
 
