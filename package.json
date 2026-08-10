@@ -60,6 +60,7 @@
     "@biomejs/biome": "^2.4.5",
     "@pact-foundation/pact": "^17.0.0",
     "@tsconfig/node22": "^22.0.5",
+    "@typescript/typescript6": "^6.0.2",
     "@types/node": "^25.3.3",
     "axios": "^1.13.6",
     "msw": "2.15.0",
