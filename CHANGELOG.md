@@ -6,6 +6,21 @@ All notable changes to this project will be documented in this file.
 <!-- markdownlint-disable emph-style -->
 <!-- markdownlint-disable strong-style -->
 
+## [4.0.2] _2026-08-20_
+
+### Other
+
+-   Keep the TypeScript JS compiler API available for the dts plugin
+
+### 🛠️ Miscellaneous Tasks
+
+-   _(PACT-7502)_ Upgrade vitest to fix VCE
+
+### Contributors
+
+-   @tuan-pham
+-   @JP-Ellis
+
 ## [4.0.1] _2026-06-29_
 
 ### 📚 Documentation
