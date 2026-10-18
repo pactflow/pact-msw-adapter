@@ -17,6 +17,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "type-check": "tsc --noEmit",
+    "postinstall": "msw init",
     "lint": "biome lint .",
     "format": "biome format .",
     "check": "biome check .",
