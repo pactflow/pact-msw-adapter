@@ -6,6 +6,25 @@ All notable changes to this project will be documented in this file.
 <!-- markdownlint-disable emph-style -->
 <!-- markdownlint-disable strong-style -->
 
+## [4.0.3] _2026-10-18_
+
+### 🐛 Bug Fixes
+
+-   Publish type declarations in the npm tarball
+
+### Other
+
+-   Test against msw v2 alongside the locked major
+
+### 🛠️ Miscellaneous Tasks
+
+-   _(examples)_ Regenerate MSW worker for v3
+-   _(ci)_ Limit workflow permissions
+
+### Contributors
+
+-   @JP-Ellis
+
 ## [4.0.2] _2026-09-06_
 
 ### Other
