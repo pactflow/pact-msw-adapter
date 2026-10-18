@@ -15,6 +15,6 @@ msw_generated_pacts
 examples
 pacts
 pact
-src
+/src
 .github
 scripts
