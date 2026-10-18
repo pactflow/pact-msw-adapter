@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build-and-test
+      - msw-compat
 
     steps:
       - name: Failed
@@ -57,3 +58,30 @@ jobs:
         shell: bash
       - run: npm run example:test:cy:run
         shell: bash
+
+  # The lockfile pins the latest msw major. This job runs the suite against
+  # the older majors that the `msw: >=2.0.0` peer range still accepts.
+  msw-compat:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    name: msw-compat (msw@${{ matrix.msw-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        msw-version: [2]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v7
+      - name: Use Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm install --no-save msw@${{ matrix.msw-version }}
+      - name: Check installed msw major
+        run: >-
+          node -e "const v = require('msw/package.json').version;
+          console.log('msw', v);
+          if (v.split('.')[0] !== '${{ matrix.msw-version }}') process.exit(1)"
+      - run: npm run type-check
+      - run: npm test
