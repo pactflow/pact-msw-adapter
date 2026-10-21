@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 <!-- markdownlint-disable emph-style -->
 <!-- markdownlint-disable strong-style -->
 
+## [4.0.4] _2026-10-21_
+
+### 🛠️ Miscellaneous Tasks
+
+-   Remove the unused FFI download scripts
+
+### Contributors
+
+-   @JP-Ellis
+
 ## [4.0.3] _2026-10-18_
 
 ### 🐛 Bug Fixes
