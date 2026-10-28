@@ -62,7 +62,7 @@
     "@pact-foundation/pact": "^17.0.0",
     "@tsconfig/node22": "^22.0.5",
     "@typescript/typescript6": "^6.0.2",
-    "@types/node": "^25.3.3",
+    "@types/node": "^26.0.0",
     "axios": "^1.13.6",
     "msw": "3.0.3",
     "nock": "^15.0.0",
