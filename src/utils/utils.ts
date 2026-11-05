@@ -106,15 +106,23 @@ const checkUrlFilters = (
 };
 
 const addTimeout = <T>(promise: Promise<T>, label: string, timeout: number) => {
+  let handle: ReturnType<typeof setTimeout> | undefined;
   const asyncTimeout = new Promise<void>((_, reject) => {
-    setTimeout(() => {
+    handle = setTimeout(() => {
       reject(
         new Error(`[pact-msw-adapter] ${label} timed out after ${timeout}ms`),
       );
-    }, timeout).unref();
+    }, timeout);
+    // Browsers return a numeric handle; unref() is Node-only and keeps the timer
+    // from holding the process open there.
+    if (typeof handle === "object" && typeof handle.unref === "function") {
+      handle.unref();
+    }
   });
 
-  return Promise.race([promise, asyncTimeout]);
+  return Promise.race([promise, asyncTimeout]).finally(() => {
+    clearTimeout(handle);
+  }) as Promise<T>;
 };
 
 export type JsonValue =
@@ -126,10 +134,10 @@ export type JsonValue =
   | JsonValue[];
 
 export {
+  addTimeout,
+  checkUrlFilters,
+  createWriter,
   type Logger,
   log,
   logGroup,
-  createWriter,
-  checkUrlFilters,
-  addTimeout,
 };

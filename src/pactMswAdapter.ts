@@ -1,12 +1,10 @@
 // biome-ignore-all lint/complexity/noExcessiveLinesPerFunction: library init and event handler functions are inherently long
 // biome-ignore-all lint/style/useExportsLast: exports are interspersed with implementations by design in this public API module
-// biome-ignore lint/correctness/noNodejsModules: bare "events" (no node: prefix) lets bundlers polyfill EventEmitter for browser contexts (Cypress + setupWorker)
-// biome-ignore lint/style/useNodejsImportProtocol: intentionally omitting node: prefix so webpack/Vite polyfills apply; node:events explicitly opts out of polyfilling
-import { EventEmitter } from "events";
 import type { SetupWorker } from "msw/browser";
 import type { SetupServer } from "msw/node";
 // biome-ignore lint/style/noExportedImports: convertMswMatchToPact is used internally and re-exported as part of the public API
 import { convertMswMatchToPact } from "./convertMswMatchToPact.ts";
+import { Emitter } from "./utils/emitter.ts";
 import {
   addTimeout,
   checkUrlFilters,
@@ -44,8 +42,15 @@ export interface PactMswAdapterOptionsInternal {
   logger: Logger;
 }
 
+export interface PactMswAdapterEventMap {
+  "pact-msw-adapter:expired": [ExpiredRequest];
+  "pact-msw-adapter:match": [MatchedRequest];
+  "pact-msw-adapter:new-test": [];
+  "pact-msw-adapter:clear": [];
+}
+
 export interface PactMswAdapter {
-  emitter: EventEmitter;
+  emitter: Emitter<PactMswAdapterEventMap>;
   newTest: () => void;
   verifyTest: () => void;
   writeToFile: (
@@ -73,7 +78,7 @@ export const setupPactMswAdapter = ({
   if (!mswMocker) {
     throw new Error("Could not setup either the worker or server");
   }
-  const emitter = new EventEmitter();
+  const emitter = new Emitter<PactMswAdapterEventMap>();
 
   const options: PactMswAdapterOptionsInternal = {
     logger: console,
@@ -336,17 +341,17 @@ export const setupPactMswAdapter = ({
       activeRequestIds.length = 0;
       matches.length = 0;
       emitter.emit("pact-msw-adapter:clear");
-      return;
     },
   };
 };
 
 export { convertMswMatchToPact };
+
 const transformMswToPact = async (
   matches: MatchedRequest[],
   activeRequestIds: string[],
   options: PactMswAdapterOptionsInternal,
-  emitter: EventEmitter,
+  emitter: Emitter<PactMswAdapterEventMap>,
 ): Promise<PactFile[]> => {
   try {
     // TODO: Lock new requests, error on clear/new-test if locked
@@ -362,7 +367,7 @@ const transformMswToPact = async (
         "pact-msw-adapter:match",
         "pact-msw-adapter:new-test",
         "pact-msw-adapter:clear",
-      ];
+      ] as const;
       const listener = () => {
         if (activeRequestIds.length === 0) {
           for (const ev of events) {
