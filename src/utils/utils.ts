@@ -124,10 +124,10 @@ export type JsonValue =
   | JsonValue[];
 
 export {
+  addTimeout,
+  checkUrlFilters,
+  createWriter,
   type Logger,
   log,
   logGroup,
-  createWriter,
-  checkUrlFilters,
-  addTimeout,
 };
