@@ -9,7 +9,6 @@ const server = setupServer();
 const pactMswAdapter = setupPactMswAdapter({
   server,
   options: {
-    // biome-ignore lint/security/noSecrets: test consumer name, not a real secret
     consumer: "testDynamicProvidersConsumer",
     providers: ({ request }) => {
       // first segment of the path is the provider name

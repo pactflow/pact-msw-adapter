@@ -1,11 +1,7 @@
-// biome-ignore-all lint/complexity/noExcessiveLinesPerFunction: library init and event handler functions are inherently long
-// biome-ignore-all lint/style/useExportsLast: exports are interspersed with implementations by design in this public API module
-// biome-ignore lint/correctness/noNodejsModules: bare "events" (no node: prefix) lets bundlers polyfill EventEmitter for browser contexts (Cypress + setupWorker)
 // biome-ignore lint/style/useNodejsImportProtocol: intentionally omitting node: prefix so webpack/Vite polyfills apply; node:events explicitly opts out of polyfilling
 import { EventEmitter } from "events";
 import type { SetupWorker } from "msw/browser";
 import type { SetupServer } from "msw/node";
-// biome-ignore lint/style/noExportedImports: convertMswMatchToPact is used internally and re-exported as part of the public API
 import { convertMswMatchToPact } from "./convertMswMatchToPact.ts";
 import {
   addTimeout,
@@ -136,7 +132,6 @@ export const setupPactMswAdapter = ({
     }, options.timeout);
   });
 
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: response matching logic requires handling expired, orphaned, and active request states
   mswMocker.events.on("response:mocked", ({ response, requestId }) => {
     logGroup(JSON.stringify(response), {
       endGroup: true,
@@ -306,7 +301,6 @@ export const setupPactMswAdapter = ({
       if (!pactFiles) {
         logGroup(
           [
-            // biome-ignore lint/security/noSecrets: log message, not a secret
             "writeToFile() was called but no pact files were generated, did you forget to await the writeToFile() method?",
             matches.length,
           ],
