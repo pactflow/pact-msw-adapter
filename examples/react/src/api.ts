@@ -68,5 +68,4 @@ export class API {
   }
 }
 
-// biome-ignore lint/style/noDefaultExport: module-level singleton is the intended API
 export default new API(import.meta.env.REACT_APP_API_BASE_URL);
