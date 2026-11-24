@@ -6,6 +6,27 @@ All notable changes to this project will be documented in this file.
 <!-- markdownlint-disable emph-style -->
 <!-- markdownlint-disable strong-style -->
 
+## [4.0.4] _2026-11-24_
+
+### 🎨 Styling
+
+-   Apply biome formatting and import sorting
+
+### Other
+
+-   Run biome check
+
+### 🛠️ Miscellaneous Tasks
+
+-   Remove the unused FFI download scripts
+-   _(examples)_ Regenerate mockServiceWorker.js for msw 3.0.7
+-   _(biome)_ Switch to the recommended preset
+
+### Contributors
+
+-   @YOU54F
+-   @JP-Ellis
+
 ## [4.0.3] _2026-10-18_
 
 ### 🐛 Bug Fixes
