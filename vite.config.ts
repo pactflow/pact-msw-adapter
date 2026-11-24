@@ -17,8 +17,6 @@ export default defineConfig({
         "msw",
         "msw/browser",
         "msw/node",
-        "events",
-        "node:events",
         "node:fs",
         "node:path",
         "fs",
