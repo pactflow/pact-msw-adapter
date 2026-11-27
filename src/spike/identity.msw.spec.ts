@@ -6,7 +6,10 @@ it("what survives from resolver to response:mocked (node)", async () => {
   const seen: Record<string, unknown> = {};
   const server = setupServer(
     http.get("http://x.test/a", ({ request, requestId }) => {
-      const res = HttpResponse.json({ a: 1 }, { headers: { "x-pact-id": "abc" } });
+      const res = HttpResponse.json(
+        { a: 1 },
+        { headers: { "x-pact-id": "abc" } },
+      );
       seen.resolverReq = request;
       seen.resolverRes = res;
       seen.resolverId = requestId;
@@ -37,6 +40,7 @@ it("what survives from resolver to response:mocked (node)", async () => {
     sameId: seen.resolverId === seen.matchId && seen.matchId === seen.mockedId,
     header: seen.header,
   };
+  // biome-ignore lint/suspicious/noConsole: spike probe output
   console.log("PROBE", JSON.stringify(r));
   expect(r.sameId).toBe(true);
 });

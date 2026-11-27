@@ -1,0 +1,21 @@
+{
+  "name": "@pactflow/pact-matchers",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pact matcher DSL, reify and matching rule generation in plain TypeScript, no FFI",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@pact-foundation/pact": "17.1.4",
+    "@types/node": "^26.6.11",
+    "typescript": "^7.0.0",
+    "vitest": "^5.0.0"
+  }
+}

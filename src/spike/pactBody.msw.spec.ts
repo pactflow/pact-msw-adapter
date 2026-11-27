@@ -27,10 +27,16 @@ const server = setupServer(
 );
 const adapter = setupPactMswAdapter({
   server,
-  options: { consumer: "c", providers: { p: ["x.test"] }, excludeUrl: ["filtered"] },
+  options: {
+    consumer: "c",
+    providers: { p: ["x.test"] },
+    excludeUrl: ["filtered"],
+  },
 });
 const matches: MatchedRequest[] = [];
-adapter.emitter.on("pact-msw-adapter:match", (m: MatchedRequest) => matches.push(m));
+adapter.emitter.on("pact-msw-adapter:match", (m: MatchedRequest) =>
+  matches.push(m),
+);
 server.listen();
 afterAll(() => server.close());
 
@@ -46,7 +52,11 @@ it("adapter puts matchingRules in the pact and the app gets the reified body", a
   expect(b).toEqual({ name: "bob" });
   expect(pactRegistry.size).toBe(0); // filtered request's template cleared too
 
-  const pact = await convertMswMatchToPact({ consumer: "c", provider: "p", matches });
+  const pact = await convertMswMatchToPact({
+    consumer: "c",
+    provider: "p",
+    matches,
+  });
   const [helper, wrapped] = pact.interactions;
   expect(helper.response.body).toEqual({ id: 1, tags: [{ name: "a" }] });
   expect(helper.response.matchingRules).toEqual({
@@ -54,6 +64,8 @@ it("adapter puts matchingRules in the pact and the app gets the reified body", a
     "$.body.tags": { match: "type", min: 1 },
     "$.body.tags[*].name": { match: "type" },
   });
-  expect(wrapped.response.matchingRules).toEqual({ "$.body.name": { match: "type" } });
+  expect(wrapped.response.matchingRules).toEqual({
+    "$.body.name": { match: "type" },
+  });
   expect(pact.metadata.pactSpecification.version).toBe("2.0.0");
 });

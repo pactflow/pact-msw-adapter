@@ -1,52 +1,27 @@
-// SPIKE: minimal matcher DSL + requestId-keyed registry so an msw resolver
-// can hand a matcher template to the adapter's response:mocked handler.
+// biome-ignore-all lint/performance/noBarrelFile: spike re-exports the pact-matchers DSL until it ships as its own package
+// biome-ignore-all lint/performance/noReExportAll: as above
+// biome-ignore-all lint/style/useExportsLast: as above
+// SPIKE: requestId-keyed registry so an msw resolver can hand a matcher
+// template to the adapter's response:mocked handler. The DSL and rule
+// generation come from packages/pact-matchers.
 import { HttpResponse } from "msw";
+import {
+  processBody,
+  type Rule,
+  reify,
+  toV2MatchingRules,
+} from "../../packages/pact-matchers/src/index.ts";
 
-type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
-type Matcher =
-  | { "pact:matcher:type": "type"; value: Template }
-  | { "pact:matcher:type": "type"; min: number; value: Template[] };
-export type Template = Json | Matcher | Template[] | { [k: string]: Template };
+export * as Matchers from "../../packages/pact-matchers/src/matchers.ts";
+export { eachLike, like } from "../../packages/pact-matchers/src/matchers.ts";
 
-export const like = (value: Template): Matcher => ({
-  "pact:matcher:type": "type",
-  value,
-});
-export const eachLike = (value: Template, min = 1): Matcher => ({
-  "pact:matcher:type": "type",
-  min,
-  value: Array.from({ length: min }, () => value),
-});
-
-const isMatcher = (t: unknown): t is Matcher =>
-  typeof t === "object" && t !== null && "pact:matcher:type" in t;
-
-export const reify = (t: Template): Json => {
-  if (isMatcher(t)) return reify(t.value as Template);
-  if (Array.isArray(t)) return t.map(reify);
-  if (typeof t === "object" && t !== null)
-    return Object.fromEntries(Object.entries(t).map(([k, v]) => [k, reify(v)]));
-  return t;
-};
+// anything the pact-matchers DSL builds, or plain JSON
+export type Template = unknown;
 
 // Pact v2 flat matching rules, e.g. { "$.body.tags[*].name": { match: "type" } }
-export type MatchingRules = Record<string, { match: string; min?: number }>;
-export const toMatchingRules = (
-  t: Template,
-  path = "$.body",
-  rules: MatchingRules = {},
-): MatchingRules => {
-  if (isMatcher(t)) {
-    rules[path] = "min" in t ? { match: "type", min: t.min } : { match: "type" };
-    if ("min" in t) toMatchingRules(t.value[0], `${path}[*]`, rules);
-    else toMatchingRules(t.value, path, rules);
-  } else if (Array.isArray(t)) {
-    t.forEach((v, i) => toMatchingRules(v, `${path}[${i}]`, rules));
-  } else if (typeof t === "object" && t !== null) {
-    for (const [k, v] of Object.entries(t)) toMatchingRules(v, `${path}.${k}`, rules);
-  }
-  return rules;
-};
+export type MatchingRules = Record<string, Rule>;
+export const toMatchingRules = (t: Template): MatchingRules =>
+  toV2MatchingRules(processBody(t).rules);
 
 // registry: requestId -> template, kept on the global object (not module scope) so
 // duplicate bundles in one realm share it. Cypress runs the app and the spec in
@@ -84,7 +59,11 @@ export const pactJson = (
 // wrapper flavour: resolver gets a `pact` helper already bound to the requestId
 export const withPact =
   <A extends { requestId: string }, R>(
-    resolver: (args: A & { pact: { json: (t: Template, init?: ResponseInit) => Response } }) => R,
+    resolver: (
+      args: A & {
+        pact: { json: (t: Template, init?: ResponseInit) => Response };
+      },
+    ) => R,
   ) =>
   (args: A) =>
     resolver({

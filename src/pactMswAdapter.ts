@@ -510,6 +510,7 @@ export {
   eachLike,
   getPactTemplateRegistry,
   like,
+  Matchers,
   type MatchingRules,
   pactJson,
   withPact,

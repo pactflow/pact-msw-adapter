@@ -101,6 +101,57 @@
       }
     },
     {
+      "includes": ["packages/pact-matchers/**"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            // rules.ts is a line-for-line port of pact_ffi bodies.rs / pact_models;
+            // keeping its shape makes diffing against upstream practical
+            "noExcessiveCognitiveComplexity": "off",
+            "noExcessiveLinesPerFunction": "off",
+            "useMaxParams": "off"
+          },
+          "performance": {
+            // index.ts is the package entry point
+            "noBarrelFile": "off",
+            "noReExportAll": "off",
+            "noNamespaceImport": "off",
+            "useTopLevelRegex": "off"
+          },
+          "security": {
+            // UUID / hex example values, not secrets
+            "noSecrets": "off"
+          },
+          "style": {
+            "noTernary": "off",
+            "noNestedTernary": "off",
+            "noContinue": "off",
+            "noIncrementDecrement": "off",
+            "noExcessiveLinesPerFile": "off",
+            "useBlockStatements": "off",
+            // JSON-shaped types must stay aliases to remain assignable to AnyJson
+            "useConsistentTypeDefinitions": "off",
+            "useDestructuring": "off",
+            "useExportsLast": "off",
+            "useExplicitLengthCheck": "off",
+            "useUnicodeRegex": "off",
+            // mirrors pact-js type names (HTTPResponseStatusClass etc.)
+            "useNamingConvention": "off"
+          },
+          "suspicious": {
+            // == null deliberately covers undefined too, as pact-js does
+            "noEqualsToNull": "off",
+            // "${id}" is a pact provider-state expression, not a template typo
+            "noTemplateCurlyInString": "off"
+          },
+          "correctness": {
+            // golden tests write pact files via pact-js
+            "noNodejsModules": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": ["**/*.ts"],
       "linter": {
         "rules": {
