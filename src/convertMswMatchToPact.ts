@@ -1,5 +1,6 @@
 import pjson from "../package.json" with { type: "json" };
 import type { MatchedRequest, PactFile } from "./pactMswAdapter.ts";
+import { toMatchingRules } from "./spike/pactBody.ts";
 import type { JsonValue } from "./utils/utils.ts";
 
 const omit = (
@@ -68,6 +69,9 @@ export const convertMswMatchToPact = async ({
             headers?.excludeHeaders ?? [],
           ),
           body: await readBody(match.response),
+          ...(match.responseTemplate === undefined
+            ? {}
+            : { matchingRules: toMatchingRules(match.responseTemplate) }),
         },
       })),
     ),

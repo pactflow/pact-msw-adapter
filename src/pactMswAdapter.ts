@@ -8,6 +8,13 @@ import type { SetupServer } from "msw/node";
 // biome-ignore lint/style/noExportedImports: convertMswMatchToPact is used internally and re-exported as part of the public API
 import { convertMswMatchToPact } from "./convertMswMatchToPact.ts";
 import {
+  getPactTemplateRegistry,
+  type MatchingRules,
+  type PactTemplateRegistry,
+  type Template,
+  takePactTemplate,
+} from "./spike/pactBody.ts";
+import {
   addTimeout,
   checkUrlFilters,
   createWriter,
@@ -29,6 +36,11 @@ export interface PactMswAdapterOptions {
   excludeUrl?: string[];
   excludeHeaders?: string[];
   logger?: Logger;
+  /**
+   * where pactJson/withPact templates are stored. Defaults to this realm's registry;
+   * in Cypress pass the app window's: `getPactTemplateRegistry(win)`
+   */
+  templateRegistry?: PactTemplateRegistry;
 }
 export interface PactMswAdapterOptionsInternal {
   timeout: number;
@@ -42,6 +54,7 @@ export interface PactMswAdapterOptionsInternal {
   excludeUrl?: string[];
   excludeHeaders?: string[];
   logger: Logger;
+  templateRegistry?: PactTemplateRegistry;
 }
 
 export interface PactMswAdapter {
@@ -143,6 +156,12 @@ export const setupPactMswAdapter = ({
       logger: options.logger,
     });
 
+    // always take the template so the registry is cleared, even for filtered/expired requests
+    const responseTemplate = takePactTemplate(
+      requestId,
+      options.templateRegistry ?? getPactTemplateRegistry(),
+    );
+
     const reqIdx = pendingRequests.findIndex(
       (pending) => pending.requestId === requestId,
     );
@@ -203,6 +222,7 @@ export const setupPactMswAdapter = ({
       request,
       requestId,
       response,
+      responseTemplate,
     };
     emitter.emit("pact-msw-adapter:match", match);
     matches.push(match);
@@ -440,6 +460,7 @@ export interface PactInteraction {
     status: number;
     headers: Record<string, string>;
     body: JsonValue | FormData | string | undefined;
+    matchingRules?: MatchingRules;
   };
 }
 
@@ -476,9 +497,20 @@ export interface PendingRequest {
 
 export interface MatchedRequest extends PendingRequest {
   response: Response;
+  /** matcher template registered via pactJson / withPact, if any */
+  responseTemplate?: Template;
 }
 
 export interface ExpiredRequest extends PendingRequest {
   startTime: number;
   duration?: number;
 }
+
+export {
+  eachLike,
+  getPactTemplateRegistry,
+  like,
+  type MatchingRules,
+  pactJson,
+  withPact,
+} from "./spike/pactBody.ts";
