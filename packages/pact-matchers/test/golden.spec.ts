@@ -1,13 +1,18 @@
 // Golden tests: push each template through the real pact FFI (via pact-js) and
 // check our body / matchingRules / generators match what lands in the pact file.
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { env } from "node:process";
 import {
   MatchersV3,
   PactV3,
+  PactV4,
   SpecificationVersion,
 } from "@pact-foundation/pact";
+import { Ajv } from "ajv";
+import addFormats from "ajv-formats";
 import { afterAll, describe, expect, it } from "vitest";
 import * as M from "../src/index.ts";
 
@@ -33,11 +38,60 @@ async function ffi(template: unknown, spec: SpecificationVersion) {
   await pact.executeTest(async (ms) => {
     await fetch(ms.url);
   });
-  const file = JSON.parse(
-    readFileSync(join(dir, `c-${provider}.json`), "utf8"),
-  );
-  return file.interactions[0].response;
+  return readPact(provider);
 }
+
+const readPact = (provider: string) =>
+  JSON.parse(readFileSync(join(dir, `c-${provider}.json`), "utf8"));
+
+async function ffiV4(template: unknown) {
+  const provider = `p${n++}`;
+  await new PactV4({ consumer: "c", provider, dir, logLevel: "error" })
+    .addInteraction()
+    .uponReceiving("a request")
+    .withRequest("GET", "/")
+    // biome-ignore lint/suspicious/noExplicitAny: raw integration JSON
+    .willRespondWith(200, (b) => b.jsonBody(template as any))
+    .executeTest(async (ms) => {
+      await fetch(ms.url);
+    });
+  return readPact(provider);
+}
+
+// pact-schemas isn't on npm yet. Point PACT_SCHEMAS_DIR at a checkout's dist/
+// (or install it from git) to check every FFI-written pact against the spec.
+const schemasDir =
+  // biome-ignore lint/style/noProcessEnv: opt-in path to a pact-schemas checkout
+  env.PACT_SCHEMAS_DIR ??
+  (() => {
+    try {
+      return join(
+        createRequire(import.meta.url).resolve("pact-schemas/package.json"),
+        "../dist",
+      );
+    } catch {
+      return null;
+    }
+  })();
+const haveSchemas =
+  schemasDir != null && existsSync(join(schemasDir, "pact-schema-v4.json"));
+const validators = (() => {
+  if (!haveSchemas) return;
+  const ajv = new Ajv({ allErrors: true, strict: false });
+  addFormats.default(ajv);
+  const load = (v: number) =>
+    ajv.compile(
+      JSON.parse(
+        readFileSync(join(schemasDir, `pact-schema-v${v}.json`), "utf8"),
+      ),
+    );
+  return { 2: load(2), 3: load(3), 4: load(4) } as const;
+})();
+const schemaErrors = (pact: unknown, spec: 2 | 3 | 4) => {
+  const validate = validators?.[spec];
+  if (validate == null || validate(pact)) return [];
+  return (validate.errors ?? []).map((e) => `${e.instancePath} ${e.message}`);
+};
 
 const uuidEx = "ba4bd1f2-8d3e-4b6c-9a8c-2b6b0f6d0b4a";
 
@@ -210,13 +264,36 @@ const newerFfiOnly: Record<string, Record<string, M.V3RuleList>> = {
   },
 };
 
+// Pacts the FFI writes today that break their own spec version: v4-only
+// matchers (eachKey/eachValue/arrayContains) and generators (MockServerURL)
+// leak into v3 files, and v3 matchers (integer here) leak into v2 ones.
+// Tracked upstream in pact-reference; once the FFI enforces the target spec
+// these flip and the schema checks below will flag it.
+const ffiSpecLeaks: Record<2 | 3, Set<string>> = {
+  2: new Set(["atLeastAtMost"]),
+  3: new Set(["misc", "eachKeyValue", "arrayContaining", "rawIntegrationJson"]),
+};
+// [] when the pact is as valid as we expect; schema errors otherwise
+const schemaProblems = (pact: unknown, spec: 2 | 3 | 4, name: string) => {
+  const errors = schemaErrors(pact, spec);
+  const leaks = spec !== 4 && ffiSpecLeaks[spec].has(name);
+  if (!leaks) return errors;
+  return haveSchemas && errors.length === 0
+    ? [
+        `${name}: FFI now writes a valid v${spec} pact, drop it from ffiSpecLeaks`,
+      ]
+    : [];
+};
+
 describe("v3 against the FFI", () => {
   for (const [name, template] of Object.entries(cases)) {
     it(name, async () => {
-      const res = await ffi(
+      const pact = await ffi(
         template,
         SpecificationVersion.SPECIFICATION_VERSION_V3,
       );
+      expect(schemaProblems(pact, 3, name)).toEqual([]);
+      const res = pact.interactions[0].response;
       const { body, rules, generators } = ours(template);
       const v3Rules = M.toV3MatchingRules(rules);
       const v3Gens = M.toV3Generators(generators);
@@ -245,13 +322,25 @@ describe("v2 against the FFI", () => {
   ];
   for (const name of v2Cases) {
     it(name, async () => {
-      const res = await ffi(
+      const pact = await ffi(
         cases[name],
         SpecificationVersion.SPECIFICATION_VERSION_V2,
       );
+      expect(schemaProblems(pact, 2, name)).toEqual([]);
+      const res = pact.interactions[0].response;
       const { body, rules } = ours(cases[name]);
       expect(res.body).toEqual(body);
       expect(res.matchingRules ?? {}).toEqual(M.toV2MatchingRules(rules));
+    });
+  }
+});
+
+// v4 has no golden rule comparison yet (rule layout matches v3); this pins
+// that every FFI-written v4 pact is valid against pact-schemas.
+describe.runIf(haveSchemas)("v4 FFI output against pact-schemas", () => {
+  for (const [name, template] of Object.entries(cases)) {
+    it(name, async () => {
+      expect(schemaProblems(await ffiV4(template), 4, name)).toEqual([]);
     });
   }
 });
