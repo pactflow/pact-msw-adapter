@@ -135,6 +135,15 @@ const cases: Record<string, unknown> = {
     mockUrl: M.url(["users", M.regex(/\d+/u, "1")]),
     url: M.url2("http://localhost:1234", ["users", M.regex(/\d+/u, "1")]),
   },
+  // v3 matchers with a lossless v2 form: v2 already matches by equality, and
+  // an include is a regex. Under a parent rule, dropping equality would
+  // loosen the match, so there it has no v2 form.
+  equalityInclude: {
+    eq: M.equal("x"),
+    eqObj: M.equal({ a: 1 }),
+    inc: M.includes("a.b"),
+  },
+  equalityUnderParent: { items: M.eachLike({ id: M.equal(1) }) },
   eachKeyValue: {
     k: M.eachKeyMatches({ abc: 1 }, M.regex(/[a-z]+/u, "abc")),
     v: M.eachValueMatches({ abc: "x" }, M.like("x")),
@@ -266,11 +275,12 @@ const newerFfiOnly: Record<string, Record<string, M.V3RuleList>> = {
 
 // Pacts the FFI writes today that break their own spec version: v4-only
 // matchers (eachKey/eachValue/arrayContains) and generators (MockServerURL)
-// leak into v3 files, and v3 matchers (integer here) leak into v2 ones.
+// leak into v3 files, and v3 matchers (integer, equality, include) leak
+// into v2 ones.
 // Tracked upstream in pact-reference; once the FFI enforces the target spec
 // these flip and the schema checks below will flag it.
 const ffiSpecLeaks: Record<2 | 3, Set<string>> = {
-  2: new Set(["atLeastAtMost"]),
+  2: new Set(["atLeastAtMost", "equalityInclude", "equalityUnderParent"]),
   3: new Set(["misc", "eachKeyValue", "arrayContaining", "rawIntegrationJson"]),
 };
 // [] when the pact is as valid as we expect; schema errors otherwise
@@ -315,6 +325,8 @@ describe("v2 against the FFI", () => {
     "eachLike",
     "eachLikeMin",
     "atLeastAtMost",
+    "equalityInclude",
+    "equalityUnderParent",
     "strings",
     "nested",
     "quirkyKeys",
